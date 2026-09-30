@@ -81,8 +81,8 @@
 }
 @media (max-width: 560px) {
   .nav-inner { gap: 0.5rem; }
-  .nav-links { gap: 0.7rem; }
-  .nav-link { font-size: 0.58rem; letter-spacing: 0.02em; }
+  .nav-links { gap: 0.2rem; }
+  .nav-link { font-size: 0.58rem; letter-spacing: 0.02em; padding: 0.8rem 0.5rem; }
   .nav-link::before { display: none; }
   .nav-brand { font-size: 1rem; }
 }

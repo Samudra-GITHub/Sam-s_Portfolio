@@ -187,6 +187,10 @@
 .about[data-mode='stack'] .about-door { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
 .about[data-mode='stack'] .artifact-inner { touch-action: pan-y; }
 
+@media (max-width: 500px) {
+  .about[data-mode='stack'] .a-card { grid-column: 1 / -1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stamp svg, .note-caret, .cassette[data-playing='true'] .reel { animation: none; }
 }

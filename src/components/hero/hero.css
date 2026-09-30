@@ -182,7 +182,7 @@
 
 @media (max-width: 720px) {
   .hero { height: 220dvh; }
-  .hero-title { font-size: min(16.5vw, 20dvh); }
+  .hero-title { font-size: min(13.5vw, 20dvh); }
   .hero-title-kar { padding-left: 0.3em; }
   .hero-sentence { max-width: 26ch; }
   .hero-seed-wrap { left: auto; right: 8%; top: 17%; }

@@ -207,7 +207,7 @@
 @media (max-width: 999px) {
   .work-row { grid-template-columns: 2.4rem 1fr; }
   .work-row-meta { display: none; }
-  .work-row-title { font-size: min(11vw, 8dvh); }
+  .work-row-title { font-size: min(8.5vw, 8dvh); }
 }
 
 @media (prefers-reduced-motion: reduce) {
