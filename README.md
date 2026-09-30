@@ -31,6 +31,15 @@ Motion is intentionally split across specific libraries to maintain 60FPS fluid 
 > [!NOTE]
 > GSAP owns page-level choreography and Framer Motion owns component-level values. They never animate the same element.
 
+## 🎨 Visual Identity & Design System
+
+The portfolio uses a bespoke, brutalist-inspired design system designed to feel like a tactile object rather than a generic webpage.
+
+- **Warm Paper Canvas** (`#fdf9f1`) and **Deep Ink** (`#111215`) for the primary contrast.
+- **Electric Lime** (`#d8f827`), **Cobalt** (`#1e3ae8`), and **Vermilion** (`#ff5226`) for energetic accents.
+- **Typography:** Syne (display), Epilogue (sans), JetBrains Mono (code).
+- **Physicality:** Hard 2px borders, rigid drop shadows, asymmetry, and a signature **Lime Dot** (which functions as the cursor, the hero's interactive "seed", and the center of the custom favicon).
+
 ---
 
 ## ⚡ Quick Start
