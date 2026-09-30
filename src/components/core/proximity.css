@@ -1,0 +1,10 @@
+.prox { display: inline-block; white-space: nowrap; }
+.prox-slot { display: inline-flex; justify-content: center; }
+.prox-glyph {
+  display: block;
+  font-weight: 700;
+  will-change: transform, font-weight;
+  transform-origin: 50% 80%;
+}
+.prox-space { display: inline-block; width: 0.28em; }
+.prox--pre .prox-glyph { opacity: 0; }

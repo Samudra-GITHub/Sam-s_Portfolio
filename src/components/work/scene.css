@@ -1,0 +1,47 @@
+/* The frame is a size container: worlds size themselves in cqw / cqh */
+.scene-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  max-height: calc(100dvh - var(--nav-height) - 5.5rem);
+  container-type: size;
+  border: var(--border-width) solid var(--c-fg, var(--ink));
+  box-shadow: 8px 8px 0 var(--c-fg, var(--ink));
+  background: var(--ink);
+  overflow: hidden;
+  isolation: isolate;
+  transition: box-shadow 0.25s var(--ease-snap), transform 0.25s var(--ease-snap);
+}
+.scene-frame[data-cursor]:hover { box-shadow: 4px 4px 0 var(--c-fg, var(--ink)); transform: translate(4px, 4px); }
+
+.scene-canvas { position: absolute; inset: 0; overflow: hidden; }
+
+.scene-tab,
+.scene-readout {
+  position: absolute;
+  z-index: 20;
+  padding: 0.2rem 0.55rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--border-width) solid var(--ink);
+  font-size: 0.66rem;
+  pointer-events: none;
+}
+.scene-tab { top: 0.9rem; left: 0.9rem; }
+.scene-readout { bottom: 0.9rem; right: 0.9rem; background: var(--lime); font-variant-numeric: tabular-nums; }
+
+/* shared layer helpers for worlds */
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.world-fallback { position: absolute; inset: 0; background: var(--ink); }
+.world-label {
+  position: absolute;
+  z-index: 10;
+  padding: 0.15rem 0.45rem;
+  border: 1.5px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 2.4cqw, 0.7rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

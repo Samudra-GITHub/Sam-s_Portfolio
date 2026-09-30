@@ -1,0 +1,78 @@
+.kage-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-kage);
+  visibility: hidden;
+  background: #000;
+  overflow: hidden;
+}
+
+/* the custom cursor cannot follow the pointer into the iframe, so it steps aside */
+html.kage-open,
+html.kage-open * { cursor: auto !important; }
+html.kage-open .cursor-pos { display: none; }
+html.kage-open body::after { display: none; }
+
+.kage-scene { position: absolute; inset: 0; background: #000; }
+.kage-frame { position: absolute; inset: 0; }
+.kage-frame > * { width: 100%; height: 100%; }
+.kage-frame iframe { width: 100% !important; height: 100% !important; border: 0; }
+
+.kage-return {
+  position: absolute;
+  z-index: 2;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+  border: 2px solid #fff;
+  box-shadow: 4px 4px 0 #fff;
+  transition: transform 0.15s var(--ease-snap), box-shadow 0.15s var(--ease-snap);
+}
+.kage-return:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #fff; }
+.kage-return:focus-visible { outline: 3px solid #e0231c; outline-offset: 3px; }
+.kage-return kbd {
+  font: inherit;
+  padding: 0 0.35rem;
+  border: 1.5px solid currentColor;
+  opacity: 0.75;
+}
+
+.kage-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  opacity: 0.7;
+}
+
+/* The hidden way in: an ink blot that wakes up when the cursor gets close */
+.kage-seed {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  background: var(--ink);
+  border: var(--border-width) solid var(--ink);
+  font-family: 'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.16;
+  transform: scale(0.72);
+  transition: opacity 0.6s var(--ease-snap), transform 0.6s var(--ease-kinetic), box-shadow 0.3s;
+}
+.kage-seed[data-near='true'],
+.kage-seed:focus-visible {
+  opacity: 1;
+  transform: scale(1.12) rotate(-6deg);
+  box-shadow: 4px 4px 0 var(--vermilion);
+}
+.kage-seed:active { transform: scale(0.95); }

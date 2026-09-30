@@ -1,0 +1,39 @@
+.aw { background: var(--ink); }
+
+.aw-wf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+.aw-wf-tag {
+  position: absolute;
+  bottom: 4.2rem;
+  padding: 0.15rem 0.45rem;
+  background: var(--lime);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  font-size: 0.6rem;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.aw-l { top: auto; bottom: 0.9rem; background: var(--ink); color: var(--paper); border-color: var(--paper); }
+.aw-l-left { left: 0.9rem; bottom: 3.2rem; }
+.aw-l-right { right: 0.9rem; bottom: 3.2rem; background: var(--paper); color: var(--ink); border-color: var(--ink); }
+.aw-hint { left: 0.9rem; bottom: 0.9rem; background: transparent; color: var(--paper); border-color: rgba(253, 249, 241, 0.5); display: none; }
+@media (hover: hover) { .aw-hint { display: block; } }
+
+.aw-fallback { position: absolute; inset: 0; }
+.aw-fb-clean {
+  position: absolute; inset: 0;
+  background:
+    repeating-radial-gradient(circle at 30% 60%, transparent 0 14px, rgba(17, 18, 21, 0.35) 14px 16px),
+    linear-gradient(120deg, #1e3ae8 0 35%, #ebe5d8 35% 70%, #6b7545 70%);
+}
+.aw-fb-cloud {
+  position: absolute; inset: 0 0 0 46%;
+  background: radial-gradient(ellipse at 30% 40%, rgba(253, 249, 241, 0.95) 0 30%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(253, 249, 241, 0.9) 0 26%, transparent 58%), rgba(253, 249, 241, 0.6);
+}

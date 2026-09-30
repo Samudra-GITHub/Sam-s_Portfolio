@@ -1,0 +1,21 @@
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-curtain);
+  visibility: hidden;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--paper);
+}
+.curtain-mask { overflow: hidden; padding: 0.05em 0.1em 0.18em; }
+.curtain-text {
+  font-weight: 800;
+  font-size: clamp(3rem, 13vw, 12rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  will-change: transform;
+}

@@ -1,0 +1,77 @@
+.kw { background: var(--paper); perspective: 1400px; }
+
+.kw-word {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -18cqw;
+  font-size: 36cqw;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+  white-space: nowrap;
+  opacity: 0.85;
+  will-change: transform;
+}
+
+.kw-stage {
+  position: absolute;
+  left: 5cqw;
+  right: 5cqw;
+  top: 50%;
+  height: 58cqh;
+  margin-top: -29cqh;
+  transform-style: preserve-3d;
+  --gap: 1.4cqw;
+  --sw: calc((90cqw - 2 * var(--gap)) / 3);
+}
+.kw-slices { display: flex; gap: var(--gap); height: 100%; }
+.kw-slice {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--sand);
+  border: 2px solid var(--ink);
+  box-shadow: 0.9cqw 0.9cqw 0 var(--ink);
+  position: relative;
+  contain: layout paint;
+}
+.kw-slice:nth-child(1) { background: var(--lime); }
+.kw-slice:nth-child(2) { background: var(--sand); }
+.kw-slice:nth-child(3) { background: var(--vermilion); }
+.kw-slice-inner { position: absolute; inset: 0; will-change: transform; }
+.kw-slice-crop { position: absolute; inset: 0; will-change: transform; }
+
+/* the shoe frame spans all three slices so each slice shows its own third */
+.kw-shoe-frame { position: absolute; top: 0; height: 100%; width: 90cqw; left: calc(var(--i) * -1 * (var(--sw) + var(--gap))); display: grid; place-items: center; }
+.kw-shoe-shadow { position: absolute; inset: 0; display: grid; place-items: center; transform: translate(1.4cqw, 1.4cqw); opacity: 0.9; }
+.kw-shoe { width: 88%; height: auto; overflow: visible; }
+.kw-shoe-shadow .kw-shoe { width: 88%; }
+.kw-shoe-frame > .kw-shoe { position: relative; }
+
+.kw-stamp {
+  position: absolute;
+  right: 3cqw;
+  top: 3cqw;
+  width: 15cqw;
+  height: 15cqw;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.2rem;
+  background: var(--vermilion);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  font-size: clamp(0.5rem, 1.7cqw, 0.62rem);
+  z-index: 7;
+}
+.kw-tag { left: 5cqw; bottom: 4.5cqh; background: var(--ink); color: var(--paper); border-color: var(--ink); transform: rotate(-2deg); }
+.kw-tag2 { right: 5cqw; bottom: 11cqh; background: var(--lime); color: var(--ink); border-color: var(--ink); transform: rotate(2deg); }
+
+@media (max-width: 999px) {
+  .kw-stage { height: 46cqh; margin-top: -23cqh; }
+  .kw-word { font-size: 46cqw; }
+}

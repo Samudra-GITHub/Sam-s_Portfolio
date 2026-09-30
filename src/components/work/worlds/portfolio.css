@@ -1,0 +1,38 @@
+.pw { background: var(--ink); }
+.pw-defs { position: absolute; }
+.pw-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: -7cqw;
+  text-align: center;
+  font-size: 11cqw;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.pw-readout {
+  position: absolute;
+  left: 0.9rem;
+  bottom: 0.9rem;
+  z-index: 10;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--ink);
+  color: var(--lime);
+  border: 2px solid var(--lime);
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+.pw-here { right: 0.9rem; top: 3.4rem; background: var(--lime); color: var(--ink); border-color: var(--ink); transform: rotate(2deg); }
+.pw-fallback {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--lime) 34%, transparent 36%) 0 0 / 9cqmin 9cqmin, var(--ink);
+}

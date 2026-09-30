@@ -1,0 +1,4 @@
+/* Shared */
+.world { position: absolute; inset: 0; overflow: hidden; container-type: normal; }
+.world * { box-sizing: border-box; }
+

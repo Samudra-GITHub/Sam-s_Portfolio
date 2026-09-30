@@ -1,0 +1,55 @@
+:root {
+  color-scheme: light;
+
+  /* Paper & ink */
+  --paper: #fdf9f1;
+  --paper-2: #f4f0e8;
+  --sand: #ebe5d8;
+  --ink: #111215;
+  --ink-2: #454933;
+
+  /* Accents (used at full strength, never blended into gradients) */
+  --lime: #d8f827;
+  --cobalt: #1e3ae8;
+  --vermilion: #ff5226;
+
+  /* Legacy names from the original design system */
+  --bg-primary: var(--paper);
+  --bg-secondary: var(--sand);
+  --bg-tertiary: var(--paper-2);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-2);
+  --border-primary: var(--ink);
+  --accent-primary: var(--lime);
+  --accent-secondary: var(--cobalt);
+  --accent-tertiary: var(--vermilion);
+
+  /* Borders and hard shadows */
+  --border-width: 2px;
+  --shadow-hard: 4px 4px 0 var(--ink);
+  --shadow-hard-sm: 2px 2px 0 var(--ink);
+  --shadow-hard-lg: 8px 8px 0 var(--ink);
+
+  /* Type */
+  --font-display: 'Syne Variable', 'Syne', system-ui, sans-serif;
+  --font-body: 'Epilogue Variable', 'Epilogue', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Layout */
+  --nav-height: 64px;
+  --gutter: max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
+  --max-width: 1440px;
+
+  /* Easing */
+  --ease-kinetic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* z-index scale: layers, not a race */
+  --z-stage: 2;
+  --z-nav: 100;
+  --z-grain: 110;
+  --z-curtain: 200;
+  --z-kage: 300;
+  --z-cursor: 400;
+}
