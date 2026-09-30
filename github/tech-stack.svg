@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1200 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .ts-bg { fill: #111215; }
+      .ts-text { fill: #fdf9f1; font-family: 'Inter', 'Segoe UI', sans-serif; }
+      .ts-mono { font-family: 'JetBrains Mono', 'SF Mono', monospace; }
+
+      @keyframes nodeGlow {
+        0%, 100% { stroke-opacity: 0.2; }
+        50% { stroke-opacity: 0.6; }
+      }
+      .node-ring { animation: nodeGlow 3s ease-in-out infinite; }
+      .node-ring:nth-child(2) { animation-delay: 0.4s; }
+      .node-ring:nth-child(3) { animation-delay: 0.8s; }
+      .node-ring:nth-child(4) { animation-delay: 1.2s; }
+      .node-ring:nth-child(5) { animation-delay: 1.6s; }
+      .node-ring:nth-child(6) { animation-delay: 2.0s; }
+      .node-ring:nth-child(7) { animation-delay: 2.4s; }
+
+      @keyframes flowPulse {
+        0% { stroke-dashoffset: 20; }
+        100% { stroke-dashoffset: 0; }
+      }
+      .flow-line {
+        stroke-dasharray: 6 4;
+        animation: flowPulse 1.5s linear infinite;
+      }
+    </style>
+  </defs>
+
+  <rect class="ts-bg" width="1200" height="140" rx="10" />
+
+  <!-- Flow lines connecting nodes -->
+  <line class="flow-line" x1="130" y1="70" x2="210" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+  <line class="flow-line" x1="310" y1="70" x2="380" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+  <line class="flow-line" x1="480" y1="70" x2="550" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+  <line class="flow-line" x1="650" y1="70" x2="720" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+  <line class="flow-line" x1="820" y1="70" x2="890" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+  <line class="flow-line" x1="990" y1="70" x2="1060" y2="70" stroke="#d8f827" stroke-width="1.5" stroke-opacity="0.3" />
+
+  <!-- React -->
+  <g>
+    <circle class="node-ring" cx="80" cy="70" r="32" fill="none" stroke="#61DAFB" stroke-width="2" />
+    <circle cx="80" cy="70" r="28" fill="#111215" stroke="#61DAFB" stroke-width="1" stroke-opacity="0.4" />
+    <text x="80" y="66" class="ts-text" font-size="10" font-weight="700" text-anchor="middle">⚛</text>
+    <text x="80" y="78" class="ts-text ts-mono" font-size="7" font-weight="600" text-anchor="middle" fill-opacity="0.7">React</text>
+    <text x="80" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">19.2</text>
+  </g>
+
+  <!-- Vite -->
+  <g>
+    <circle class="node-ring" cx="250" cy="70" r="32" fill="none" stroke="#BD34FE" stroke-width="2" />
+    <circle cx="250" cy="70" r="28" fill="#111215" stroke="#BD34FE" stroke-width="1" stroke-opacity="0.4" />
+    <text x="250" y="66" class="ts-text" font-size="10" font-weight="700" text-anchor="middle">⚡</text>
+    <text x="250" y="78" class="ts-text ts-mono" font-size="7" font-weight="600" text-anchor="middle" fill-opacity="0.7">Vite</text>
+    <text x="250" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">8.3</text>
+  </g>
+
+  <!-- TypeScript -->
+  <g>
+    <circle class="node-ring" cx="420" cy="70" r="32" fill="none" stroke="#3178C6" stroke-width="2" />
+    <circle cx="420" cy="70" r="28" fill="#111215" stroke="#3178C6" stroke-width="1" stroke-opacity="0.4" />
+    <text x="420" y="66" class="ts-text" font-size="11" font-weight="700" text-anchor="middle" fill="#3178C6">TS</text>
+    <text x="420" y="78" class="ts-text ts-mono" font-size="6" font-weight="600" text-anchor="middle" fill-opacity="0.7">TypeScript</text>
+    <text x="420" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">6.0</text>
+  </g>
+
+  <!-- GSAP -->
+  <g>
+    <circle class="node-ring" cx="590" cy="70" r="32" fill="none" stroke="#88CE02" stroke-width="2" />
+    <circle cx="590" cy="70" r="28" fill="#111215" stroke="#88CE02" stroke-width="1" stroke-opacity="0.4" />
+    <text x="590" y="74" class="ts-text ts-mono" font-size="9" font-weight="700" text-anchor="middle" fill="#88CE02">GSAP</text>
+    <text x="590" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">3.15</text>
+  </g>
+
+  <!-- Framer Motion -->
+  <g>
+    <circle class="node-ring" cx="760" cy="70" r="32" fill="none" stroke="#E847AE" stroke-width="2" />
+    <circle cx="760" cy="70" r="28" fill="#111215" stroke="#E847AE" stroke-width="1" stroke-opacity="0.4" />
+    <text x="760" y="68" class="ts-text ts-mono" font-size="7" font-weight="700" text-anchor="middle" fill="#E847AE">Framer</text>
+    <text x="760" y="78" class="ts-text ts-mono" font-size="6" font-weight="600" text-anchor="middle" fill-opacity="0.7">Motion</text>
+    <text x="760" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">13.4</text>
+  </g>
+
+  <!-- WebGL -->
+  <g>
+    <circle class="node-ring" cx="930" cy="70" r="32" fill="none" stroke="#ff5226" stroke-width="2" />
+    <circle cx="930" cy="70" r="28" fill="#111215" stroke="#ff5226" stroke-width="1" stroke-opacity="0.4" />
+    <text x="930" y="68" class="ts-text ts-mono" font-size="7" font-weight="700" text-anchor="middle" fill="#ff5226">WebGL</text>
+    <text x="930" y="78" class="ts-text ts-mono" font-size="6" font-weight="600" text-anchor="middle" fill-opacity="0.7">Shaders</text>
+    <text x="930" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">Raw</text>
+  </g>
+
+  <!-- Lenis -->
+  <g>
+    <circle class="node-ring" cx="1100" cy="70" r="32" fill="none" stroke="#d8f827" stroke-width="2" />
+    <circle cx="1100" cy="70" r="28" fill="#111215" stroke="#d8f827" stroke-width="1" stroke-opacity="0.4" />
+    <text x="1100" y="74" class="ts-text ts-mono" font-size="8" font-weight="700" text-anchor="middle" fill="#d8f827">Lenis</text>
+    <text x="1100" y="116" class="ts-text ts-mono" font-size="9" font-weight="600" text-anchor="middle" fill-opacity="0.4">1.3</text>
+  </g>
+</svg>
