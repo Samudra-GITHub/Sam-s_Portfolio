@@ -1,204 +1,375 @@
 <div align="center">
 
-<img src="github/readme-hero.svg" alt="SAMUDRA KAR — Creative developer & designer. A scroll-driven, cursor-aware portfolio built with React 19, Vite, GSAP, Framer Motion, and raw WebGL." width="100%" />
-
-<br />
-
-<img src="https://img.shields.io/badge/Performance-100-00C853.svg?style=flat-square&labelColor=111215" alt="Performance 100" height="22" />
-<img src="https://img.shields.io/badge/Accessibility-100-00C853.svg?style=flat-square&labelColor=111215" alt="Accessibility 100" height="22" />
-<img src="https://img.shields.io/badge/Best_Practices-100-00C853.svg?style=flat-square&labelColor=111215" alt="Best practices 100" height="22" />
-<img src="https://img.shields.io/badge/SEO-100-00C853.svg?style=flat-square&labelColor=111215" alt="SEO 100" height="22" />
-<img src="https://img.shields.io/badge/WebGL-Raw_Shaders-ff5226.svg?style=flat-square&labelColor=111215" alt="WebGL raw shaders" height="22" />
-<img src="https://img.shields.io/badge/Easter_Egg-Kage-d8f827.svg?style=flat-square&labelColor=111215" alt="Kage Easter egg" height="22" />
+<img src="docs/screenshots/hero.jpg" alt="Samudra Kar's portfolio hero: a big SAMUDRA KAR wordmark, a throwable lime dot, and a fanned deck of seven project cards" width="100%" />
 
 <br />
 <br />
 
-**[Live demo](#live-demo)** &nbsp;·&nbsp; **[Architecture](#architecture)** &nbsp;·&nbsp; **[Motion](#motion)** &nbsp;·&nbsp; **[Design system](#design-system)** &nbsp;·&nbsp; **[Tech stack](#tech-stack)** &nbsp;·&nbsp; **[Structure](#project-structure)**
+# Samudra Kar, portfolio
+
+**A scroll-driven, cursor-aware portfolio where every project is its own small world.**
+
+Seven interactive project scenes · a hidden door · a contact form with a real backend
+
+<br />
+
+[**Live site**](https://sam-sportfolio.vercel.app) &nbsp;·&nbsp; [The tour](#the-tour) &nbsp;·&nbsp; [The seven worlds](#the-seven-worlds) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Contact API](#contact-api)
+
+<br />
+
+![React](https://img.shields.io/badge/React-19-20232a?style=flat-square&logo=react&logoColor=61dafb)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-3.15-88ce02?style=flat-square&logo=greensock&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-13-0055ff?style=flat-square&logo=framer&logoColor=white)
+![Lenis](https://img.shields.io/badge/Lenis-1.3-111215?style=flat-square)
+![WebGL](https://img.shields.io/badge/WebGL-raw_shaders-990000?style=flat-square&logo=webgl&logoColor=white)
+![Express](https://img.shields.io/badge/Express-contact_API-111215?style=flat-square&logo=express&logoColor=white)
 
 </div>
 
 ---
 
-Samudra Kar's portfolio is a scroll-driven, cursor-aware digital world — a brand,
-identity, and product designed and engineered by **Sams Studio**. It features seven
-project worlds, a lab of playable experiments, an interactive About desk, and one hidden
-door (Kage).
+## What this is
 
-One rule held throughout: **motion must feel physically grounded and hyper-responsive.**
-The desktop experience combines raw WebGL shaders, GSAP page choreographies, and Framer
-Motion micro-interactions, running on a single unified render loop. Below `1000px` or
-with `prefers-reduced-motion`, the site degrades gracefully into a clean, stacked layout.
+A portfolio built to feel like a **tactile object, not a template**. Warm paper, deep ink, and three loud accents (electric lime, cobalt, vermilion). Hard 2px borders, hard offset shadows, slightly crooked layouts.
 
-## Live demo
+The idea behind the build: **scrolling is navigation, motion is storytelling, the cursor is a tool, sections are scenes.** Nothing animates just because it can. If you can't say what a movement communicates, it isn't in here.
 
-The site runs complete with no accounts or keys required for the frontend.
+<div align="center">
 
-```bash
-git clone https://github.com/Samudra-GITHub/Sam-s_Portfolio.git
-```
+<img src="docs/scroll.gif" alt="A scroll through the site: the lime dot drops ink that takes over the screen, then project chapters slide up over each other" width="86%" />
 
-```bash
-cd Sam-s_Portfolio && npm install && npm run dev
-```
+<sub>The signature scroll: the dot drops ink, the ink takes over, and project chapters slide up over each other.</sub>
 
-Then open <http://localhost:5173>.
-The backend requires a [Resend](https://resend.com) API key for the contact form — see [Environment](#environment).
+</div>
 
-## Features
+## The tour
+
+### 1. Hero: stillness, then a small thing to play with
+
+Paper, a grid, and one lime dot. The type inflates in letter by letter (Syne's variable weight axis), then thickens and lifts under your cursor. Grab the dot and throw it. Seven project cards are dealt out like a hand; hover one to lift it, click to jump to that world.
+
+Scroll and the stage pins. **The dot drops ink from wherever you left it.** The ink fills the screen, the type inverts, and the ink flows straight into the Work section.
 
 <table>
   <tr>
-    <td width="50%" valign="top">
-      <h3>🌊 Scroll-Driven Storytelling</h3>
-      <p>The Hero is a sticky 100dvh stage inside a 280dvh section. An interactive lime dot can be grabbed and thrown; on scroll, it drops ink from wherever you left it and transitions smoothly into the Work section. Project chapters slide up over pinned ones in a cinematic handoff, each opening with a bespoke mask.</p>
-    </td>
-    <td width="50%" valign="top">
-      <h3>🎯 Interactive Cursor & Physics</h3>
-      <p>One unified lime arrow dynamically morphs across eight states: <code>default</code>, <code>link</code>, <code>project</code>, <code>play</code>, <code>drag</code>, <code>image</code>, <code>scroll</code>, and <code>cta</code>. Elements feature true spring physics and magnetic hover forces. It only runs on <code>(hover: hover)</code> devices.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>🔮 Seven Project Worlds</h3>
-      <p>Each project is its own interactive scene: Tarang's drifting album tiles and spinning vinyl, Rinti AI's floating interface cards, AkashaLens and Ink's raw WebGL shaders, Krama's sneaker physics, Grama Sathi's community panels, and the Portfolio's recursive world-within-a-world.</p>
-    </td>
-    <td width="50%" valign="top">
-      <h3>🧪 Playable Experiments</h3>
-      <p>Five interactive experiments in the Playground: paint with <strong>Ink</strong>, throw letters with <strong>Kinetic</strong>, pop physics bubbles with <strong>Pop</strong>, feel scroll <strong>Momentum</strong>, and explore the developer desk with <strong>Develop</strong>. Each experiment is its own isolated, interactive canvas.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>🚪 Kage — The Hidden Door</h3>
-      <p>Click the faint ink blot at the bottom-left of the About desk, or type <code>kage</code> anywhere. The authored <code>KageLandingPage</code> from <code>@designcodeio/threeui</code> loads from verified SHA-256 assets. Press Escape or the Back button to return.</p>
-    </td>
-    <td width="50%" valign="top">
-      <h3>♿ Accessibility First</h3>
-      <p>Semantic landmarks, a skip link, visible focus states, and keyboard-operable controls throughout. <code>prefers-reduced-motion</code> disables Lenis, pins, scrubs, physics, and page-transition curtains. Pages swap instantly. Decorative pointer play remains pointer-only.</p>
-    </td>
+    <td width="50%"><img src="docs/screenshots/hero-deck.jpg" alt="The hero with a project card lifted under the arrow cursor" /><br /><sub>The deck: each card is a link to its chapter.</sub></td>
+    <td width="50%"><img src="docs/screenshots/hero-ink.jpg" alt="Mid-takeover: a circle of ink growing from the lime dot, inverting the type it crosses" /><br /><sub>Mid-takeover: the type inverts as the ink crosses it.</sub></td>
   </tr>
 </table>
 
-## Motion
+### 2. Work: seven chapters that cover each other
 
-<p align="center"><img src="github/motion-system.svg" alt="Motion system — GSAP ScrollTrigger waveforms, Framer Motion spring physics, morphing cursor states, WebGL ink drops, and Lenis sine wave scroll" width="100%" /></p>
+An index of the seven worlds with a live preview card. Then each project is a pinned, full-height stage. The next chapter **slides up over the previous one** while the old one shrinks back, and each scene opens with its own mask (rise, wipe, iris, wipe from the other side). A giant outlined title drifts sideways behind every chapter, so there's horizontal motion inside the vertical scroll.
 
-Motion is intentionally split across specific libraries to maintain 60FPS without overlap. They never animate the same element.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/work-index.jpg" alt="The Work index: seven project names with a colour preview card for the hovered one" /></td>
+    <td width="50%"><img src="docs/screenshots/case-study.jpg" alt="A case-study page: the AkashaLens world at large with a scrub bar underneath" /></td>
+  </tr>
+  <tr>
+    <td><sub>The index. Hovering fills a row and wakes the preview.</sub></td>
+    <td><sub>Case-study page: the same world, large, with a scrub bar you can drive by hand.</sub></td>
+  </tr>
+</table>
 
-| Job | Tool | Detail |
+Opening a case study uses a curtain that **grows out of the scene you clicked**, carries the project's name, swaps the route underneath, then wipes away.
+
+### 3. Toolbox: a sticker sheet that can't lie
+
+Every tool in every project's `tech` list becomes a sticker. The more worlds use it, the bigger it prints. It is computed from the project data, so it can only ever show what the work actually used. Stickers are draggable.
+
+<img src="docs/screenshots/toolbox.jpg" alt="The Toolbox: a sheet of draggable tool stickers, sized by how many projects use each one" width="100%" />
+
+### 4. About: a desk you discover
+
+On desktop the stage pins and objects land on the desk one by one as you scroll: an ID card, index cards for each facet (drag them anywhere), a print, a cassette (Now Playing), a sticky note (Currently Building) and a studio stamp.
+
+<img src="docs/screenshots/about.jpg" alt="The About desk covered in cards, an ID card, a polaroid, a cassette and a sticky note" width="100%" />
+
+### 5. Contact: the last scene
+
+An ink dome rises over the desk like a tide. A lime sun comes up behind the headline, and **your cursor is a torch**: wherever it points, the type lights up lime. The form posts to the [Contact API](#contact-api).
+
+<img src="docs/screenshots/contact.jpg" alt="The contact scene: a headline lit by the cursor, a message form and a rising lime sun" width="100%" />
+
+### 6. Kage: one hidden door
+
+Somewhere on the About desk is a faint ink blot. (Or type `kage` anywhere.) Click it: the site drains of colour, ink irises out from the blot, and you're in **Kage**, a full scroll-storytelling scene. Escape or the Back button retraces the path and puts you exactly where you were.
+
+<img src="docs/screenshots/kage.jpg" alt="The Kage scene: a moonlit temple gate with a Back to Samudra button" width="100%" />
+
+## The seven worlds
+
+Every project is a small interactive scene with **its own motion personality**, driven by scroll, cursor, hover and scroll velocity. All of them run from the same `SceneContext`, so the scene in a chapter and the large one on the case-study page are the same component.
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/world-tarang.jpg" alt="Tarang world" /></td>
+    <td width="33%"><img src="docs/screenshots/world-rinti.jpg" alt="Rinti AI world" /></td>
+    <td width="33%"><img src="docs/screenshots/world-akashalens.jpg" alt="AkashaLens world" /></td>
+  </tr>
+  <tr>
+    <td><b>Tarang</b><br /><sub>Rhythm. Album tiles drift sideways at two speeds, the record spins faster the harder you scroll, the waveform swells under the cursor, hovering scrubs the playhead.</sub></td>
+    <td><b>Rinti AI</b><br /><sub>Conversation. One exchange plays as you scroll while the research pipeline (plan, search, read, check claims, write) lights up stage by stage.</sub></td>
+    <td><b>AkashaLens</b><br /><sub>Reconstruction. A WebGL shader draws one landscape twice, cloudy and clean. A wavefront sweeps across on scroll, and a lens reconstructs under the cursor.</sub></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/world-skycast.jpg" alt="SkyCast world" /></td>
+    <td width="33%"><img src="docs/screenshots/world-krama.jpg" alt="Krama world" /></td>
+    <td width="33%"><img src="docs/screenshots/world-grama-sathi.jpg" alt="Grama Sathi world" /></td>
+  </tr>
+  <tr>
+    <td><b>SkyCast</b><br /><sub>Atmosphere. Scroll is time of day: dawn to night through the palette, a sun that becomes a moon, clouds on their own clock, a radar sweep.</sub></td>
+    <td><b>Krama</b><br /><sub>Product depth. One sneaker sliced into three crop windows that assemble as you scroll and come apart again. The cursor magnifies a slice and tilts the product.</sub></td>
+    <td><b>Grama Sathi</b><br /><sub>Voice. Idle, listening, replying, in Hindi (Devanagari). Scroll plays the loop; press and hold the mic to take over.</sub></td>
+  </tr>
+  <tr>
+    <td colspan="3"><img src="docs/screenshots/world-portfolio.jpg" alt="Portfolio world: a halftone shader with a warped name" /><br /><b>Portfolio</b><br /><sub>Shader language. A halftone grid of cells that morph between circle and square, driven by two real uniforms (scroll progress and the pointer) that are printed on the scene. The name is warped by an SVG displacement filter whose strength is hover plus scroll speed.</sub></td>
+  </tr>
+</table>
+
+| Project | What it is | Source |
 | :-- | :-- | :-- |
-| **Smooth scroll & velocity** | Lenis | Driven by GSAP's ticker — one rAF for the whole site |
-| **Pinned scenes, masks, reveals** | GSAP + ScrollTrigger | Sticky stages, scrubbed timelines, ink takeover |
-| **Cursor springs, parallax** | Framer Motion | Per-component motion values, drag physics |
-| **Shader worlds** | Raw WebGL | `ShaderCanvas` — no Three.js. DPR capped, context released on unmount |
-| **Per-frame budget** | IntersectionObserver | Animations only run while visible in the viewport |
+| **Tarang** | A music streaming web app built around motion, glass surfaces and a floating player | [Samudra-GITHUB/Tarang](https://github.com/Samudra-GITHUB/Tarang) |
+| **Rinti AI** | An AI companion with a research engine (planner, extractors, claim checking, synthesis), memory and voice | [Samudra-GITHUB/Rinti-Ai](https://github.com/Samudra-GITHUB/Rinti-Ai) |
+| **AkashaLens** | Satellite cloud removal and image reconstruction; built for the ISRO Hackathon 2026 | [Samudra-GITHUB/AkashaLens](https://github.com/Samudra-GITHUB/AkashaLens) |
+| **SkyCast** | A live weather app: current conditions, hourly and 5-day forecast, UV index and air quality | [Samudra-GitHub/SkyCast-Weather-App](https://github.com/Samudra-GitHub/SkyCast-Weather-App) |
+| **Krama** *(also SoleVerse)* | A luxury sneaker marketplace built around storytelling and motion | [Samudra-GITHUB/Krama](https://github.com/Samudra-GITHUB/Krama) |
+| **Grama Sathi** | A Hindi voice assistant: speak, it transcribes, thinks, and answers aloud | n/a |
+| **Portfolio** | This site | you're here |
 
-## Design system
+> The scenes are visual interpretations of each project, not screenshots. The AkashaLens shader, for example, is a metaphor for cloud removal, not output from the model.
 
-<p align="center"><img src="github/design-system.svg" alt="Design system — Paper canvas, Deep ink, Electric lime, Cobalt, and Vermilion swatches alongside Syne, Epilogue, and JetBrains Mono typography" width="100%" /></p>
+## On small screens
 
-Syne for display, Epilogue for reading, JetBrains Mono for code and labels. Warm paper
-and deep ink create the primary contrast; lime, cobalt, and vermilion punch through as
-energetic accents. Tokens live in [`src/styles/tokens.css`](src/styles/tokens.css).
+Mobile isn't a scaled desktop. Below 1000px (or with `prefers-reduced-motion`) the pins and chapter overlaps are dropped: scenes stack, scroll still drives each scene, and the hero deck re-fans across the width of the screen.
 
-| Element | Value |
+<table>
+  <tr>
+    <td width="25%"><img src="docs/screenshots/mobile-hero.jpg" alt="Mobile hero" /></td>
+    <td width="25%"><img src="docs/screenshots/mobile-work.jpg" alt="Mobile work chapter" /></td>
+    <td width="25%"><img src="docs/screenshots/mobile-toolbox.jpg" alt="Mobile toolbox" /></td>
+    <td width="25%"><img src="docs/screenshots/mobile-about.jpg" alt="Mobile about" /></td>
+  </tr>
+</table>
+
+## How it works
+
+### Motion stack
+
+Motion is split on purpose. **GSAP owns page-level choreography and Framer Motion owns component-level values. They never animate the same element.**
+
+| Job | Tool |
 | :-- | :-- |
-| **Paper** | `#fdf9f1` |
-| **Ink** | `#111215` |
-| **Electric Lime** | `#d8f827` — cursor, dot, accents |
-| **Cobalt** | `#1e3ae8` — links, secondary |
-| **Vermilion** | `#ff5226` — alerts, emphasis |
-| **Borders** | Hard `2px` — rigid, tactile, brutalist |
-| **Shadows** | Hard offset — no blur, pure displacement |
+| Smooth scroll and scroll velocity | **Lenis**, driven by GSAP's ticker |
+| Pinned scenes, scrubbed timelines, masks, reveals | **GSAP + ScrollTrigger** |
+| Cursor, hover and drag physics, per-scene parallax values | **Framer Motion** motion values |
+| Shader worlds (AkashaLens, Portfolio) | **Raw WebGL** (`ShaderCanvas`), no Three.js |
+| Every per-frame effect | **One shared `gsap.ticker`**: a single `requestAnimationFrame` for the whole site |
 
-## Tech stack
+```mermaid
+flowchart LR
+  Input["Wheel / touch"] --> Lenis
+  Ticker["gsap.ticker<br/>(the only rAF)"] --> Lenis
+  Lenis -->|scroll| ST["ScrollTrigger"]
+  ST --> Choreo["Pins, masks,<br/>scrubbed timelines"]
+  ST --> Progress["Scene progress<br/>(motion values)"]
+  Pointer["One pointer listener"] --> MV["Pointer motion values"]
+  Progress --> Worlds["Project worlds"]
+  MV --> Worlds
+  MV --> Cursor["Cursor"]
+  Ticker --> Frame["Per-frame effects<br/>(gated by visibility)"]
+```
 
-<p align="center"><img src="github/tech-stack.svg" alt="React 19.2, Vite 8.3, TypeScript 6, GSAP 3.15, Framer Motion 13.4, WebGL Shaders, Lenis 1.3" width="100%" /></p>
+### The scroll system (desktop)
 
-## Architecture
+- The hero is a sticky 100dvh stage inside a taller section. A scrubbed timeline fades the copy while the ink circle grows from the dot's *current* position.
+- Each project chapter is a sticky stage inside a taller box. The **next chapter has a negative top margin**, so it slides up over the pinned one. The covered chapter scales back and is marked `inert` so keyboard focus can't land on something you can't see.
+- Each chapter hands its world a `progress` value (0 to 1 across its whole scroll range). Worlds never read scroll or the pointer directly.
 
-<p align="center"><img src="github/architecture.svg" alt="Architecture — Browser SPA with React Router, GSAP scroll scenes, WebGL shaders, lazy Kage door, Express backend, and Resend email delivery" width="100%" /></p>
+### The cursor
 
-Static SPA on the frontend; minimal Express backend for the contact form only.
+One lime arrow that looks like one of the site's buttons: lime fill, 2px ink outline, hard offset shadow, tip exactly on the pointer. It only runs on `(hover: hover) and (pointer: fine)` devices. State comes from attributes on whatever it's over:
 
-| Service | Powers | Without it |
-| :-- | :-- | :-- |
-| **Vite / React** | Frontend rendering, routing, code-splitting | N/A |
-| **Express Backend** | Rate-limiting, CORS, Helmet, Zod validation | Contact form disabled |
-| **Resend API** | Reliable email delivery | Backend returns 500 |
-| **@designcodeio/threeui** | The secret Kage door | Build fails without sync script |
+```html
+<a data-cursor="project" data-cursor-label="ENTER">…</a>
+```
 
-`GET /api/health` returns the backend status. `POST /api/contact` validates, sanitises, rate-limits and dispatches via Resend.
-
-## Project structure
-
-<p align="center"><img src="github/folder-structure.svg" alt="Folder structure — src/lib, src/components (core, hero, work, lab, about, contact, kage), src/pages, src/data, backend, scripts, public" width="100%" /></p>
-
-## Performance
-
-| Metric | Result |
+| `data-cursor` | Used for |
 | :-- | :-- |
-| **Lighthouse Performance** | 100 |
-| **Lighthouse Accessibility** | 100 |
-| **Lighthouse Best Practices** | 100 |
-| **Lighthouse SEO** | 100 |
-| **CLS** | 0 |
+| *(default)* | the plain arrow |
+| `link` *(any `a` or `button`)* | the arrow tilts and its shadow grows, like a button lifting |
+| `project` · `play` · `drag` · `image` · `scroll` · `cta` | a small mono label chip appears beside the arrow |
 
-- WebGL shaders, worlds, and Kage are separate lazy chunks.
-- Fonts are self-hosted variable fonts (no external requests).
-- Per-frame work only runs while its element is near the viewport and the tab is visible.
-- WebGL: DPR capped (lower on compact screens), context loss handled, context released on unmount, one static frame under reduced motion.
+Pressing nudges the arrow down and right and collapses the shadow, matching `.btn:active`.
 
-## Environment
+### Typography as a material
 
-Copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and fill in what you need.
+Syne is a variable font whose width changes a lot with weight (an "S" is about half as wide at 400 as at 800). `ProximityText` gives every letter its own slot sized for the *resting* weight; letters swell past their slot symmetrically under the cursor, so the line never reflows.
 
-| Variable | Required | Description |
-| :-- | :-- | :-- |
-| `PORT` | No | Backend port (default: `3000`) |
-| `FRONTEND_ORIGIN` | Yes | Allowed CORS origin |
-| `CONTACT_EMAIL` | Yes | Destination inbox |
-| `RESEND_API_KEY` | Yes | Your Resend API key |
-| `RESEND_FROM` | Yes | Your verified sending domain |
+### Performance and accessibility
 
-Set `VITE_BACKEND_URL` in the frontend `.env` to point to the active backend instance.
+- **Nothing runs offscreen.** Per-frame work is gated by `IntersectionObserver`, tab visibility and whether Kage is open.
+- **WebGL is disciplined:** DPR is capped (lower on compact screens), context loss is handled, the context is released on unmount, and a fresh canvas is created per mount.
+- **Code splitting:** each world, the case-study page and Kage are separate lazy chunks. The main bundle is about **573 kB (190 kB gzipped)**.
+- **Fonts are self-hosted** variable fonts (Fontsource); the Devanagari face loads only when the Grama Sathi world mounts.
+- **Reduced motion** disables Lenis, pins, scrubs, animated shaders and the page-transition curtain.
+- Semantic landmarks, a skip link, visible `:focus-visible` rings, and keyboard-operable controls where an interaction has a real purpose (the mic, the scene scrub bar, the Kage door, the contact form).
+
+## Run it locally
+
+```bash
+git clone https://github.com/Samudra-GITHub/Sam-s_Portfolio.git
+cd Sam-s_Portfolio
+npm install
+npm run dev
+```
+
+Open <http://localhost:5173>. The frontend needs no keys.
+
+| Script | What it does |
+| :-- | :-- |
+| `npm run dev` | Verifies the Kage assets, then starts Vite |
+| `npm run build` | Verifies the Kage assets, typechecks (`tsc -b`), builds |
+| `npm run preview` | Serves the production build |
+| `npm run lint` | `oxlint` |
+| `npm run sync:kage` | Copies and hash-verifies the Kage assets (see below) |
+
+### With the contact form
+
+The form posts to a small Express service in [`backend/`](backend). Run it alongside the frontend:
+
+```bash
+cd backend
+npm install
+cp .env.example .env     # then fill in the values below
+npm run dev              # http://localhost:3000
+```
+
+Point the frontend at it with a root `.env` (defaults to `http://localhost:3000` if unset):
+
+```env
+VITE_BACKEND_URL=http://localhost:3000
+```
+
+## Contact API
+
+A deliberately small Express + TypeScript service.
+
+| Endpoint | Purpose |
+| :-- | :-- |
+| `GET /api/health` | Returns `{ "status": "ok" }` |
+| `POST /api/contact` | Validates the message and emails it to you through [Resend](https://resend.com) |
+
+`POST /api/contact` takes JSON:
+
+```json
+{ "name": "Ada", "email": "ada@example.com", "message": "Hello" }
+```
+
+- **Validation** (Zod): `name` 1 to 100 characters, a valid `email`, `message` 1 to 2000 characters. Failures return `400` with `error.code = "VALIDATION_ERROR"`.
+- **Rate limit:** 10 requests per 15 minutes per IP on `/api/contact` (`429` with `TOO_MANY_REQUESTS`).
+- **Hardening:** `helmet` headers, CORS pinned to `FRONTEND_ORIGIN`, and every user-supplied field HTML-escaped before it goes into the email body.
+- Replies set `reply-to` to the sender, so you answer straight from your inbox.
+
+| Variable | Meaning |
+| :-- | :-- |
+| `PORT` | Port to listen on (default `3000`) |
+| `FRONTEND_ORIGIN` | Allowed CORS origin, e.g. your site URL (defaults to `*`, so set it in production) |
+| `RESEND_API_KEY` | Your Resend API key |
+| `RESEND_FROM` | Sender address (defaults to Resend's `onboarding@resend.dev`) |
+| `CONTACT_EMAIL` | The inbox that receives messages |
+
+`npm test` inside `backend/` runs the API tests against a server that is already running on `localhost:3000`.
 
 ## Deploy
 
-| Target | Platform | Config |
+| Part | Where | Config |
 | :-- | :-- | :-- |
-| **Frontend** | Vercel | [`vercel.json`](vercel.json) — SPA fallback routing |
-| **Backend** | Render / Railway | [`render.yaml`](render.yaml) — Node.js service |
+| Frontend | **Vercel** (live at <https://sam-sportfolio.vercel.app>) | [`vercel.json`](vercel.json) rewrites every path to `index.html` so deep links like `/work/krama` work |
+| Contact API | **Render** (web service) | [`render.yaml`](render.yaml): build `cd backend && npm install && npm run build`, start `cd backend && npm start`; secrets are set in the dashboard, not in the repo |
 
-```bash
-npm run build
+Set `VITE_BACKEND_URL` in the Vercel project to your deployed API URL.
+
+## Make it yours
+
+All content lives in `src/data/`, and **placeholders are hidden automatically**: any field still holding a `[PLACEHOLDER_…]` string is skipped by the UI (via `real()` in `src/lib/content.ts`), so nothing renders as broken text or a dead link.
+
+| File | What to edit |
+| :-- | :-- |
+| `config.ts` | Name, studio, roles, About facets, *Currently building*, *Now playing* (set `track` and `artist` and the cassette starts spinning), and contact links (empty ones are hidden) |
+| `projects.ts` | The seven projects: copy, tech, highlights, palette, links. The Toolbox is generated from each project's `tech`. Add a `live` URL or a `longDescription` and the case-study page picks it up |
+
+Adding a project world means a new file in `src/components/work/worlds/` and one line in its `index.ts`.
+
+## Kage
+
+The Kage scene is the authored `KageLandingPage` from [`@designcodeio/threeui`](https://threeui.com), used **unmodified**, with the same props. The component loads `/landing-pages/kage.html` from the site root, so [`scripts/sync-kage.mjs`](scripts/sync-kage.mjs) copies those files out of the package into `public/landing-pages/` and **verifies every file's sha256 against [`kage-landing-page.json`](kage-landing-page.json)**. It runs automatically before `dev` and `build` and fails loudly if anything doesn't match.
+
+The scene is a lazy chunk, so visitors who never open it never download it.
+
+## Project structure
+
+```
+.
+├── backend/                 Express contact API (Resend, Zod, helmet, rate limit)
+├── docs/                    README screenshots and the scroll GIF
+├── public/                  favicon, plus Kage's assets (synced + verified)
+├── scripts/sync-kage.mjs    copy and sha256-verify the Kage assets
+├── src/
+│   ├── lib/                 runtime (media queries, pause), pointer, scroll, ticker hooks, gsap setup
+│   ├── data/                config.ts, projects.ts   ← content lives here
+│   ├── components/
+│   │   ├── core/            SmoothScroll, Cursor, Magnetic, PageTransition, ProximityText, Split, ShaderCanvas
+│   │   ├── hero/            the dot, the deck, the ink takeover
+│   │   ├── work/            index, chapters, SceneFrame, worlds/ (one file per project)
+│   │   ├── stack/           the Toolbox
+│   │   ├── about/           the desk
+│   │   ├── contact/         the final scene and the form
+│   │   └── kage/            the hidden door (lazy) and its trigger
+│   ├── pages/               Home, ProjectDetail, NotFound
+│   └── styles/              design tokens and base styles
+├── render.yaml · vercel.json
+└── kage-landing-page.json   the authored Kage manifest used for verification
 ```
 
-The build automatically triggers `scripts/sync-kage.mjs` to synchronise and verify all Kage assets before bundling.
+## Design system
 
-## The scroll system
+| Token | Value | Role |
+| :-- | :-- | :-- |
+| Paper | `#fdf9f1` | main canvas |
+| Sand | `#ebe5d8` | secondary surfaces |
+| Ink | `#111215` | text, borders, hard shadows |
+| Electric lime | `#d8f827` | primary accent, CTAs, the cursor |
+| Cobalt | `#1e3ae8` | secondary accent (white text on it) |
+| Vermilion | `#ff5226` | tertiary accent |
 
-- The **hero** is a sticky `100dvh` stage inside a `280dvh` section. The lime dot drops ink from wherever you left it; the ink takes over and hands off to Work.
-- Each **project chapter** is a sticky stage inside a taller box. The next chapter slides up over the pinned one while the old one scales back. Each scene opens with its own mask.
-- Every scene receives `progress`, a pointer, hover, and visibility through `SceneContext`, so the same world runs in a chapter and on the case-study page.
-- Below `1000px`, or with reduced motion, chapters become plain stacked blocks.
+**Type:** [Syne](https://fonts.google.com/specimen/Syne) for display, [Epilogue](https://fonts.google.com/specimen/Epilogue) for body, [JetBrains Mono](https://www.jetbrains.com/lp/mono/) for labels, and Noto Sans Devanagari for the Grama Sathi scene.
 
-## Credits
+**Rules:** 2px borders, hard offset shadows (never blurred), asymmetry on purpose, lime stays under ink text and cobalt stays under white. The system evolves, but it should always read as the same person with better craft.
 
-- **Design and engineering** — Sams Studio
-- **Type** — Syne, Epilogue, JetBrains Mono, Noto Sans Devanagari (SIL Open Font License)
-- **Icons** — [Lucide](https://lucide.dev) (ISC)
-- **Kage scene** — [@designcodeio/threeui](https://www.npmjs.com/package/@designcodeio/threeui) (unmodified, SHA-256 verified)
+## Known limitations
+
+- The sneaker in the Krama world is hand-drawn SVG; real photography or renders would beat it.
+- The About ID card uses an "SK" monogram because there's no portrait.
+- Frame rates haven't been profiled on real GPUs or a range of phones, and the touch experience has had less testing than the mouse one.
+- The main JS bundle is large for a portfolio (573 kB, 190 kB gzipped) because it carries React, Router, GSAP, Framer Motion and Lenis. Worlds, case studies and Kage are split out.
+
+## Credits and licenses
+
+- Fonts are served through [Fontsource](https://fontsource.org) (SIL Open Font License).
+- Kage comes from [ThreeUI](https://threeui.com) (`@designcodeio/threeui`, MIT, including its bundled Three.js runtime and fonts; see the package's `ASSET-LICENSES.md`).
+- [GSAP](https://gsap.com/standard-license) is used under its standard no-charge license. [Lenis](https://lenis.darkroom.engineering) and [Framer Motion](https://www.framer.com/motion/) are MIT.
+- No license has been chosen for this repository's own code yet, so until one is added, all rights are reserved by the author.
 
 ---
 
 <div align="center">
-  <br />
-  <img src="https://raw.githubusercontent.com/Samudra-GITHub/Sam-s_Portfolio/main/public/favicon.svg" width="40" height="40" alt="Sam's Studio" />
-  <br />
-  <br />
-  <i>Human-Crafted · 0% Boring</i>
-  <br />
-  <br />
+
+**Human-crafted · 0% boring**
+
+Designed and built by [Samudra Kar](https://github.com/Samudra-GITHUB) · Sam's Studio
+
 </div>
