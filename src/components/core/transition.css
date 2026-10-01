@@ -12,7 +12,7 @@
 .curtain-mask { overflow: hidden; padding: 0.05em 0.1em 0.18em; }
 .curtain-text {
   font-weight: 800;
-  font-size: clamp(3rem, 13vw, 12rem);
+  font-size: clamp(2.2rem, 7.5vw, 6.5rem);
   line-height: 0.95;
   letter-spacing: -0.05em;
   text-transform: uppercase;

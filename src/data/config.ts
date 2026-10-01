@@ -64,14 +64,14 @@ export const config: SiteConfig = {
     // nowPlaying: { track: '...', artist: '...' }
     nowPlaying: { track: '[PLACEHOLDER_TRACK]', artist: '[PLACEHOLDER_ARTIST]' },
     currentlyBuilding: 'Tarang and Krama',
-    photographyNote: 'Develop a print. Real photos plug in through src/data/playground.ts.',
+    photographyNote: 'Light, edges and timing: the same habits I bring to interfaces.',
   },
   contact: {
-    // TODO(samudra): add your public contact details. Empty ones are hidden.
-    email: '[PLACEHOLDER_EMAIL: e.g., hello@example.com]',
-    github: 'https://github.com/Samudra-GITHUB',
-    linkedin: '[PLACEHOLDER_LINKEDIN: e.g., https://linkedin.com/in/username]',
-    instagram: '[PLACEHOLDER_INSTAGRAM: e.g., https://instagram.com/username]',
+    // The Contact page is social-first. Empty or placeholder values are hidden.
+    email: '[PLACEHOLDER_EMAIL: unused]',
+    github: 'https://github.com/Samudra-GITHub',
+    linkedin: 'https://www.linkedin.com/in/samudra-kar-a495951b5/',
+    instagram: 'https://www.instagram.com/samudra_kar/',
     otherLinks: [],
   },
 };

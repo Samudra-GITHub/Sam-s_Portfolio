@@ -153,3 +153,6 @@ html.has-cursor * { cursor: none !important; }
     scroll-behavior: auto !important;
   }
 }
+
+/* phones: no grey tap flash, no rubber-band over the dark/paper seam, stable text size on rotate */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior-y: none; }

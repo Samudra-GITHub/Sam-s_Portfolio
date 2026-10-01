@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { scrollToTarget } from '../../lib/scroll';
 import { matches, MQ } from '../../lib/runtime';
+import { whoosh } from '../../lib/sound';
 import './transition.css';
 
 export interface GoOptions {
@@ -58,6 +59,7 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
       }
 
       busy.current = true;
+      whoosh();
       const { from, color = '#111215', ink = '#fdf9f1', label: text = '' } = opts;
       curtain.style.background = color;
       curtain.style.color = ink;

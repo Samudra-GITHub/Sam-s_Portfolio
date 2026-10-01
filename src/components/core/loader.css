@@ -1,0 +1,85 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: var(--ink);
+  color: var(--paper);
+  display: grid;
+  align-content: center;
+  padding: 0 var(--gutter);
+  clip-path: inset(0% 0% 0% 0%);
+}
+
+.loader-name {
+  position: relative;
+  width: max-content;
+  font-size: min(9.6vw, 17dvh);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.loader-line { display: block; }
+.loader-line-b { padding-left: 0.5em; }
+
+/* the same type, filled lime, revealed from the bottom as the page loads */
+.loader-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--lime);
+  -webkit-text-stroke: 0;
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+}
+
+.loader-foot {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: calc(clamp(1.25rem, 5dvh, 3rem) + 14px);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  opacity: 0.85;
+}
+.loader-count {
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--lime);
+}
+
+.loader-track {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(1.25rem, 5dvh, 3rem);
+  height: 4px;
+  background: color-mix(in srgb, var(--paper) 18%, transparent);
+}
+.loader-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--lime);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+.loader-dot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--lime);
+  border: var(--border-width) solid var(--ink);
+  box-shadow: 0 0 0 2px var(--lime);
+}
+
+@media (max-width: 720px) {
+  .loader-name { font-size: min(15vw, 15dvh); }
+}

@@ -1,4 +1,4 @@
 .nf { min-height: 100dvh; display: grid; align-items: center; padding: calc(var(--nav-height) + 2rem) var(--gutter) 3rem; }
 .nf-inner { max-width: var(--max-width); margin: 0 auto; width: 100%; display: grid; gap: 1.25rem; justify-items: start; }
-.nf-title { font-size: min(26vw, 36dvh); font-weight: 800; line-height: 0.85; letter-spacing: -0.06em; }
+.nf-title { font-size: min(16vw, 24dvh); font-weight: 800; line-height: 0.85; letter-spacing: -0.06em; }
 .nf-line { font-size: clamp(1.1rem, 2vw, 1.5rem); max-width: 32ch; }

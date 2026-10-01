@@ -4,12 +4,14 @@ import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion
 import { ScrollTrigger } from '../lib/gsap';
 import { scrollToTarget, scrollVelocity, scrollY } from '../lib/scroll';
 import { usePageTransition } from './core/PageTransition';
+import { useIntroDone } from '../lib/intro';
+import { setSound, useSoundOn } from '../lib/sound';
 import { config } from '../data/config';
 import './nav.css';
 
 const LINKS = [
   { id: 'work', label: 'WORK' },
-  { id: 'lab', label: 'LAB' },
+  { id: 'stack', label: 'STACK' },
   { id: 'about', label: 'ABOUT' },
   { id: 'contact', label: 'CONTACT' },
 ] as const;
@@ -21,6 +23,8 @@ export default function Nav() {
   const [active, setActive] = useState<string>('');
   const [hidden, setHidden] = useState(false);
   const [focused, setFocused] = useState(false);
+  const introDone = useIntroDone();
+  const soundOn = useSoundOn();
 
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.4 });
@@ -71,18 +75,22 @@ export default function Nav() {
       onFocusCapture={() => setFocused(true)}
       onBlurCapture={() => setFocused(false)}
       initial={{ y: -80 }}
-      animate={{ y: 0 }}
+      animate={{ y: introDone ? 0 : -80 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
     >
       <div className="nav-inner">
         <Link to="/" className="nav-brand font-display" onClick={goHome} aria-label={`${config.name}, home`}>
-          {config.handle}.kar<span className="nav-brand-paren">()</span>
+          {config.handle}<span className="nav-brand-kar">.kar</span><span className="nav-brand-paren">()</span>
         </Link>
 
         <p className="nav-status mono" aria-label="Availability">
           <span className="nav-pulse" aria-hidden="true" />
           Available for new experiments
         </p>
+
+        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Toggle interface sounds">
+          Sound {soundOn ? 'on' : 'off'}
+        </button>
 
         <nav aria-label="Primary">
           <ul className="nav-links">

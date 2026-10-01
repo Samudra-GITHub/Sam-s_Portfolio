@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useTransform } from 'framer-motion';
+import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent } from 'react';
 import { gsap } from '../../lib/gsap';
 import { pointer } from '../../lib/pointer';
 import { useTicker, useVisibleRef } from '../../lib/hooks';
@@ -7,35 +6,55 @@ import { scrollToTarget } from '../../lib/scroll';
 import { useReducedMotion } from '../../lib/runtime';
 import { real } from '../../lib/content';
 import { config } from '../../data/config';
-import Magnetic from '../core/Magnetic';
 import Split from '../core/Split';
+import ContactField, { type Aim } from './ContactField';
 import './contact.css';
 
 const LINES = ["LET'S MAKE", 'SOMETHING', 'WEIRD.'];
 
+interface Social {
+  key: Exclude<Aim, null>;
+  label: string;
+  url: string;
+  handle: string;
+}
+
+/** the visible @handle, read from the real URL so there is one source of truth */
+function handleOf(key: Social['key'], url: string): string {
+  try {
+    const parts = new URL(url).pathname.split('/').filter(Boolean);
+    if (key === 'instagram') return `@${parts[0]}`;
+    if (key === 'linkedin') return `in/${(parts[1] ?? parts[0]).replace(/-[a-z0-9]{8,10}$/i, '')}`;
+    return parts[0];
+  } catch {
+    return url;
+  }
+}
+
 /**
- * The last scene. A dome of ink rises over the desk like a horizon, a lime sun
- * comes up behind the headline, and the cursor is a torch: wherever it points,
- * the type lights up lime. One big action, plus whatever links are real.
+ * The last scene. An ink dome rises over the desk like a tide. Behind
+ * everything a WebGL field draws a liquid 3D orb that reacts to the link you
+ * aim at (colour, spikiness, squash) and lights itself from your cursor. The
+ * headline is a torch: the type lights up lime where the pointer is. The links
+ * are the point: three huge rows, letters that roll, a lime sweep, a visit cursor.
  */
 export default function Contact() {
   const rootRef = useRef<HTMLElement>(null);
+  const headRef = useRef<HTMLDivElement>(null);
+  const aimRef = useRef<Aim>(null);
+  const torch = useRef({ x: 0, y: 0, ready: false });
   const visible = useVisibleRef(rootRef, '20% 0px');
   const reduce = useReducedMotion();
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-  const headRef = useRef<HTMLDivElement>(null);
-  const torch = useRef({ x: 0, y: 0, ready: false });
 
-  const github = real(config.contact.github);
-  const links = [
-    { label: 'GitHub', url: github },
-    { label: 'LinkedIn', url: real(config.contact.linkedin) },
-    { label: 'Instagram', url: real(config.contact.instagram) },
-    ...config.contact.otherLinks.map((l) => ({ label: l.label, url: real(l.url) })),
-  ].filter((l): l is { label: string; url: string } => Boolean(l.url));
-
-  // the one big action: email if there is one, otherwise the most direct real link
+  const socials = useMemo<Social[]>(() => {
+    const list: { key: Social['key']; label: string; url?: string }[] = [
+      { key: 'instagram', label: 'Instagram', url: real(config.contact.instagram) },
+      { key: 'github', label: 'GitHub', url: real(config.contact.github) },
+      { key: 'linkedin', label: 'LinkedIn', url: real(config.contact.linkedin) },
+    ];
+    return list.filter((s): s is Social & { url: string } => Boolean(s.url)).map((s) => ({ key: s.key, label: s.label, url: s.url as string, handle: handleOf(s.key, s.url as string) }));
+  }, []);
+  const extras = config.contact.otherLinks.map((l) => ({ label: l.label, url: real(l.url) })).filter((l): l is { label: string; url: string } => Boolean(l.url));
 
   // the torch: follows the pointer, drifts when there is none
   useTicker((t, dt) => {
@@ -57,40 +76,6 @@ export default function Contact() {
     el.style.setProperty('--my', `${cur.y.toFixed(1)}px`);
   }, visible);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    
-    setStatus('submitting');
-    setErrorMessage('');
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          message: formData.get('message'),
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setStatus('success');
-        form.reset();
-        setTimeout(() => setStatus('idle'), 5000);
-      } else {
-        setStatus('error');
-        setErrorMessage(data.error?.message || 'Something went wrong');
-      }
-    } catch {
-      setStatus('error');
-      setErrorMessage('Failed to send message. Please try again.');
-    }
-  };
-
   useEffect(() => {
     if (reduce) return;
     const root = rootRef.current!;
@@ -100,18 +85,30 @@ export default function Contact() {
         duration: 1.1,
         ease: 'expo.out',
         stagger: 0.035,
-        scrollTrigger: { trigger: '.contact-title', start: 'top 82%', toggleActions: 'play none none reverse' },
+        scrollTrigger: { trigger: '.contact-title', start: 'top 85%', toggleActions: 'play none none reverse' },
       });
-      gsap.from('.contact-reveal', {
-        y: 30,
+      gsap.from('.contact-kicker, .contact-extra', {
+        y: 18,
         opacity: 0,
         duration: 0.8,
         ease: 'expo.out',
-        stagger: 0.1,
-        scrollTrigger: { trigger: '.contact-actions', start: 'top 92%', toggleActions: 'play none none reverse' },
+        scrollTrigger: { trigger: '.socials', start: 'top 95%', toggleActions: 'play none none reverse' },
       });
-      // the sun comes up as the section arrives
-      gsap.fromTo('.contact-sun-rise', { yPercent: 62 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: root, start: 'top bottom', end: 'top 10%', scrub: true } });
+      gsap.from('.social', {
+        yPercent: 115,
+        duration: 1.15,
+        ease: 'expo.out',
+        stagger: 0.13,
+        scrollTrigger: { trigger: '.socials', start: 'top 92%', toggleActions: 'play none none reverse' },
+      });
+      gsap.from('.social-rule', {
+        scaleX: 0,
+        transformOrigin: '0 50%',
+        duration: 1.2,
+        ease: 'expo.inOut',
+        stagger: 0.13,
+        scrollTrigger: { trigger: '.socials', start: 'top 92%', toggleActions: 'play none none reverse' },
+      });
       // lines slide against each other; base and torch copies must move together
       ['.contact-title', '.contact-torch'].forEach((group) => {
         gsap.utils.toArray<HTMLElement>(`${group} .contact-line`).forEach((line, i) => {
@@ -122,8 +119,6 @@ export default function Contact() {
     return () => ctx.revert();
   }, [reduce]);
 
-  const sunX = useTransform(pointer.nx, [-0.5, 0.5], [-30, 30]);
-
   const renderLines = (lit?: boolean) =>
     LINES.map((l) => (
       <span key={l} className="contact-line">
@@ -131,12 +126,16 @@ export default function Contact() {
       </span>
     ));
 
+  // letters lean toward the pointer inside the row they are in
+  const lean = (e: PointerEvent<HTMLAnchorElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
+  };
+
   return (
     <section ref={rootRef} id="contact" className="contact" data-theme="ink" aria-labelledby="contact-title">
+      <ContactField sectionRef={rootRef} aimRef={aimRef} />
       <div className="contact-dome" aria-hidden="true" />
-      <motion.div className="contact-sun" style={{ x: sunX }} aria-hidden="true">
-        <div className="contact-sun-rise" />
-      </motion.div>
 
       <div className="contact-inner">
         <div ref={headRef} className="contact-headline">
@@ -148,43 +147,59 @@ export default function Contact() {
           </div>
         </div>
 
-        <div className="contact-actions contact-reveal">
-          <form className="contact-form mono" onSubmit={handleSubmit}>
-            <div className="contact-form-group">
-              <label htmlFor="name" className="sr-only">Name</label>
-              <input type="text" id="name" name="name" placeholder="Name" required disabled={status === 'submitting'} />
-            </div>
-            <div className="contact-form-group">
-              <label htmlFor="email" className="sr-only">Email</label>
-              <input type="email" id="email" name="email" placeholder="Email" required disabled={status === 'submitting'} />
-            </div>
-            <div className="contact-form-group">
-              <label htmlFor="message" className="sr-only">Message</label>
-              <textarea id="message" name="message" placeholder="Message" required rows={4} disabled={status === 'submitting'}></textarea>
-            </div>
-            <div className="contact-form-footer">
-              <Magnetic strength={0.28}>
-                <button
-                  type="submit"
-                  className="contact-cta font-display"
-                  data-cursor="cta"
-                  disabled={status === 'submitting'}
-                >
-                  {status === 'submitting' ? 'Sending...' : 'Send Message'}
-                  <span className="contact-cta-arrow" aria-hidden="true">
-                    &rarr;
-                  </span>
-                </button>
-              </Magnetic>
-              {status === 'success' && <span className="contact-success-msg">Message sent successfully!</span>}
-              {status === 'error' && <span className="contact-error-msg">{errorMessage}</span>}
-            </div>
-          </form>
-        </div>
+        <p className="contact-kicker mono">Find me online</p>
 
-        {links.length > 0 && (
-          <ul className="contact-links contact-reveal">
-            {links.map((l) => (
+        <ul className="socials">
+          {socials.map((s, i) => (
+            <li key={s.key} className="socials-item">
+              <span className="social-rule" aria-hidden="true" />
+              <a
+                className="social"
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ '--i': i } as CSSProperties}
+                data-cursor="cta"
+                data-cursor-label="VISIT"
+                onPointerEnter={() => (aimRef.current = s.key)}
+                onPointerLeave={() => (aimRef.current = null)}
+                onPointerMove={lean}
+                onFocus={() => (aimRef.current = s.key)}
+                onBlur={() => (aimRef.current = null)}
+              >
+                <span className="sr-only">
+                  {s.label}, {s.handle}. Opens in a new tab.
+                </span>
+                <span className="social-num mono" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="social-label font-display" aria-hidden="true">
+                  {Array.from(s.label).map((ch, j) => (
+                    <span key={j} className="roll" style={{ '--j': j } as CSSProperties}>
+                      <span>{ch}</span>
+                      <span>{ch}</span>
+                    </span>
+                  ))}
+                </span>
+                <span className="social-handle mono" aria-hidden="true">
+                  {s.handle}
+                </span>
+                <span className="social-arrow" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square">
+                    <path d="M6 18 18 6M8 6h10v10" />
+                  </svg>
+                </span>
+              </a>
+            </li>
+          ))}
+          <li className="socials-item socials-end">
+            <span className="social-rule" aria-hidden="true" />
+          </li>
+        </ul>
+
+        {extras.length > 0 && (
+          <ul className="contact-extra">
+            {extras.map((l) => (
               <li key={l.label}>
                 <a href={l.url} target="_blank" rel="noreferrer" className="contact-link mono">
                   {l.label} <span aria-hidden="true">&#8599;</span>

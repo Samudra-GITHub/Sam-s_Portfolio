@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { pointer } from '../../lib/pointer';
 import { clamp } from '../../lib/hooks';
 import { MQ, matches, useReducedMotion } from '../../lib/runtime';
+import { scrollToTarget } from '../../lib/scroll';
+import { useIntroDone } from '../../lib/intro';
 import { config } from '../../data/config';
+import { projects } from '../../data/projects';
 import ProximityText from '../core/ProximityText';
 import Split from '../core/Split';
+import HeroGrid from './HeroGrid';
 import './hero.css';
 
 /**
@@ -25,6 +29,7 @@ export default function Hero() {
   const seedRef = useRef<HTMLButtonElement>(null);
   const hintRef = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
+  const introDone = useIntroDone();
 
   // dot: its own drag position plus a soft pull toward the cursor
   const seedX = useMotionValue(0);
@@ -50,6 +55,28 @@ export default function Hero() {
     return () => unsubs.forEach((u) => u());
   }, [reduce, pullX, pullY]);
 
+  // the deck deals itself out after the type has landed
+  useEffect(() => {
+    if (reduce || !introDone) return;
+    const ctx = gsap.context(() => {
+      gsap.from('.hero-card', {
+        yPercent: 120,
+        rotation: (i: number) => (i % 2 ? 24 : -24),
+        opacity: 0,
+        duration: 1.1,
+        ease: 'expo.out',
+        stagger: 0.08,
+        delay: 1.5,
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, [reduce, introDone]);
+
+  const jump = (slug: string) => (e: MouseEvent) => {
+    e.preventDefault();
+    scrollToTarget(`#w-${slug}`, { duration: 2.4 });
+  };
+
   // scroll choreography
   useEffect(() => {
     const section = sectionRef.current!;
@@ -65,6 +92,7 @@ export default function Hero() {
         .to(q('.hero-title'), { scale: 0.8, yPercent: -10, duration: 0.6 }, 0)
         .to(q('.hero-title'), { opacity: 0, duration: 0.22 }, 0.34)
         .to(q('.hero-stamp'), { opacity: 0, rotate: 90, duration: 0.3 }, 0)
+        .to(q('.hero-deck'), { opacity: 0, yPercent: 8, duration: 0.3 }, 0)
         .to(q('.hero-seed-hint'), { opacity: 0, duration: 0.1 }, 0)
         .fromTo(q('.hero-outro'), { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.3 }, 0.62)
         .fromTo(q('.hero-outro .split-inner'), { yPercent: 105 }, { yPercent: 0, duration: 0.3, stagger: 0.04 }, 0.62)
@@ -111,15 +139,16 @@ export default function Hero() {
   return (
     <section ref={sectionRef} id="top" className="hero" aria-label="Introduction" data-reduce={reduce}>
       <div ref={stageRef} className="hero-stage">
+        <HeroGrid stageRef={stageRef} />
         <div ref={inkRef} className="hero-ink" aria-hidden="true" />
 
         {/* blended layer: ink on paper, paper on ink */}
         <div className="hero-copy">
           <p className="hero-kicker mono">Creative developer &amp; designer</p>
           <h1 className="hero-title font-display">
-            <ProximityText text="SAMUDRA" intro introDelay={0.9} velocity />
+            <ProximityText text="SAMUDRA" intro start={introDone} introDelay={0.35} velocity />
             <span className="hero-title-kar">
-              <ProximityText text="KAR" intro introDelay={1.15} velocity />
+              <ProximityText text="KAR" intro start={introDone} introDelay={0.6} velocity />
               <span className="hero-title-dot" aria-hidden="true">.</span>
             </span>
           </h1>
@@ -137,6 +166,27 @@ export default function Hero() {
             </svg>
           </div>
         </div>
+
+        {/* the seven worlds, dealt like a hand of cards: each one jumps to its chapter */}
+        <nav className="hero-deck" data-hold={!introDone && !reduce} aria-label="The seven worlds">
+          {projects.map((p, i) => (
+            <a
+              key={p.id}
+              href={`#w-${p.slug}`}
+              className="hero-card-pos"
+              style={{ '--k': i - (projects.length - 1) / 2, '--len': Math.max(...p.title.split(' ').map((w) => w.length)) } as CSSProperties}
+              onClick={jump(p.slug)}
+              data-cursor="project"
+              data-cursor-label="ENTER"
+            >
+              <span className="hero-card" style={{ '--bg': p.palette.bg, '--fg': p.palette.fg, '--acc': p.palette.accent } as CSSProperties}>
+                <span className="hero-card-num mono">{String(i + 1).padStart(2, '0')}</span>
+                <span className="hero-card-title font-display">{p.title}</span>
+                <span className="hero-card-meta mono">{p.category}</span>
+              </span>
+            </a>
+          ))}
+        </nav>
 
         <div className="hero-outro" aria-hidden="true">
           <h2 className="hero-outro-title font-display">
@@ -161,15 +211,17 @@ export default function Hero() {
             whileTap={{ scale: 0.94 }}
             onDragStart={onDragStart}
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.35 }}
+            animate={introDone ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.2 }}
           >
             <span className="hero-seed-face" aria-hidden="true" />
           </motion.button>
         </motion.div>
-        <span ref={hintRef} className="hero-seed-hint mono" aria-hidden="true">
-          grab the dot
-        </span>
+        {introDone && (
+          <span ref={hintRef} className="hero-seed-hint mono" aria-hidden="true">
+            grab the dot
+          </span>
+        )}
       </div>
     </section>
   );

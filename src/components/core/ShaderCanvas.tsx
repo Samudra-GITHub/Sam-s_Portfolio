@@ -5,12 +5,12 @@ import { isPaused, matches, MQ, useReducedMotion } from '../../lib/runtime';
 export type UniformValue = number | number[];
 
 interface Props {
-  /** GLSL ES 1.00 fragment body. `uTime` (s) and `uRes` (px) are always provided. */
+  /** GLSL ES 1.00 fragment body. `uTime` (s), `uRes` (canvas px) and `uPx` (canvas px per CSS px) are always provided. */
   frag: string;
   /** Called each drawn frame. Return the uniforms declared in `frag`. */
   uniforms?: (time: number) => Record<string, UniformValue>;
   className?: string;
-  /** Cap on devicePixelRatio. Compact screens are reduced further. */
+  /** Cap on devicePixelRatio. Compact (phone) screens are held to ~1.1: the shaders are flat-shaded, so fill-rate matters more than sharpness. */
   maxDpr?: number;
   /** Draw a single static frame (used for reduced motion). */
   frozen?: boolean;
@@ -24,7 +24,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform float uTime; uniform vec2 uRes;
+uniform float uTime; uniform vec2 uRes; uniform float uPx;
 `;
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
@@ -112,7 +112,7 @@ export default function ShaderCanvas({ frag, uniforms, className, maxDpr = 1.5, 
     function resize() {
       if (!gl) return;
       const compact = matches(MQ.compact);
-      const dpr = Math.min(window.devicePixelRatio || 1, compact ? Math.min(maxDpr, 1.25) : maxDpr);
+      const dpr = Math.min(window.devicePixelRatio || 1, compact ? Math.min(maxDpr, 1.1) : maxDpr);
       const w = Math.max(1, Math.round(wrap.clientWidth * dpr));
       const h = Math.max(1, Math.round(wrap.clientHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) {
@@ -136,6 +136,7 @@ export default function ShaderCanvas({ frag, uniforms, className, maxDpr = 1.5, 
       if (!gl || lost) return;
       setUniform('uTime', time);
       setUniform('uRes', [canvas.width, canvas.height]);
+      setUniform('uPx', canvas.width / Math.max(1, wrap.clientWidth));
       const u = uniformsRef.current?.(time);
       if (u) for (const key in u) setUniform(key, u[key]);
       gl.drawArrays(gl.TRIANGLES, 0, 3);

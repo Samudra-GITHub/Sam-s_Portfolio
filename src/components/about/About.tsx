@@ -18,12 +18,12 @@ import './about.css';
 type Spot = { x: number; y: number; r: number };
 
 const FACET_SPOTS: Record<string, Spot> = {
-  design: { x: 57, y: 10, r: -3 },
-  dev: { x: 71, y: 7, r: 2 },
-  student: { x: 85, y: 12, r: -2.5 },
-  code: { x: 57, y: 42, r: 2.2 },
-  ai: { x: 71, y: 39, r: -2 },
-  lab: { x: 85, y: 45, r: 3 },
+  design: { x: 49, y: 9, r: -3 },
+  dev: { x: 66, y: 6, r: 2 },
+  student: { x: 83, y: 11, r: -2.5 },
+  code: { x: 49, y: 41, r: 2.2 },
+  ai: { x: 66, y: 38, r: -2 },
+  lab: { x: 83, y: 44, r: 3 },
 };
 
 function Artifact({ spot, className = '', children, drag = true }: { spot?: Spot; className?: string; children: ReactNode; drag?: boolean }) {
@@ -97,7 +97,7 @@ export default function About() {
             <span className="sr-only">. Also {roles.slice(3).join(', ')}.</span>
           </h2>
 
-          <Artifact spot={{ x: 5, y: 48, r: -4 }} className="a-id" drag={pin}>
+          <Artifact spot={{ x: 5, y: 38, r: -4 }} className="a-id" drag={pin}>
             <motion.div className="id" style={{ rotateX: tiltX, rotateY: tiltY }}>
               <motion.div className="id-sheen" style={{ backgroundPositionX: sheen }} aria-hidden="true" />
               <div className="id-top mono">
@@ -136,7 +136,7 @@ export default function About() {
             );
           })}
 
-          <Artifact spot={{ x: 31, y: 45, r: 4 }} className="a-photo">
+          <Artifact spot={{ x: 30, y: 33, r: 3 }} className="a-photo">
             <figure className="polaroid">
               <div className="polaroid-pic" aria-hidden="true">
                 <span className="polaroid-sun" />
@@ -155,7 +155,7 @@ export default function About() {
             </figure>
           </Artifact>
 
-          <Artifact spot={{ x: 40, y: 71, r: -2 }} className="a-tape">
+          <Artifact spot={{ x: 9, y: 72, r: -2 }} className="a-tape">
             <div className="cassette" data-playing={Boolean(track)}>
               <div className="cassette-label">
                 <span className="mono">Now playing</span>
@@ -169,7 +169,7 @@ export default function About() {
             </div>
           </Artifact>
 
-          <Artifact spot={{ x: 66, y: 72, r: 2.5 }} className="a-note">
+          <Artifact spot={{ x: 57, y: 68, r: 2.5 }} className="a-note">
             <aside className="note">
               <span className="mono">Currently building</span>
               <p className="font-display">
@@ -179,7 +179,7 @@ export default function About() {
             </aside>
           </Artifact>
 
-          <Artifact spot={{ x: 84, y: 76, r: 0 }} className="a-stamp" drag={false}>
+          <Artifact spot={{ x: 84, y: 74, r: 0 }} className="a-stamp" drag={false}>
             <div className="stamp mono" aria-hidden="true">
               <svg viewBox="0 0 120 120">
                 <defs>

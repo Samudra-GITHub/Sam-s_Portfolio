@@ -181,7 +181,7 @@ export const projects: Project[] = [
     category: 'Creative development',
     tagline: 'This site. You are standing inside it.',
     description:
-      'A scroll-driven, cursor-aware portfolio: seven project worlds, a lab of playable experiments and one hidden door.',
+      'A scroll-driven, cursor-aware portfolio: seven project worlds, a toolbox of tools and one hidden door.',
     tech: ['React', 'TypeScript', 'GSAP', 'Lenis', 'Framer Motion', 'WebGL'],
     highlights: ['Scroll choreography with pinned scenes', 'Raw WebGL shaders with mobile fallbacks', 'A hidden Kage scene, verified against its authored source'],
     role: 'Design & Development',

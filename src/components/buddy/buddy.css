@@ -1,0 +1,33 @@
+/* Face states for <BuddyHead/>. An ancestor carries data-mood="idle|laugh|sad" and data-talk. */
+.bd-eyes-laugh, .bd-mouth-laugh, .bd-mouth-sad, .bd-tear { opacity: 0; }
+[data-mood='laugh'] .bd-eyes-open,
+[data-mood='laugh'] .bd-mouth-smile,
+[data-mood='sad'] .bd-mouth-smile { opacity: 0; }
+[data-mood='laugh'] .bd-eyes-laugh,
+[data-mood='laugh'] .bd-mouth-laugh,
+[data-mood='sad'] .bd-mouth-sad,
+[data-mood='sad'] .bd-tear { opacity: 1; }
+
+.bd-head { transform-box: fill-box; transform-origin: 50% 92%; }
+.bd-blink { transform-box: fill-box; transform-origin: 50% 50%; animation: bd-blink 4.6s infinite; }
+.bd-pupils { transition: transform 0.06s linear; }
+.bd-brow { transform-box: fill-box; transform-origin: 50% 50%; transition: transform 0.25s; }
+.bd-mouth-smile { transform-box: fill-box; transform-origin: 50% 0%; }
+
+[data-mood='laugh'] .bd-brow { transform: translateY(-4px); }
+[data-mood='laugh'] .bd-head { animation: bd-laugh 0.5s ease-in-out infinite; }
+[data-mood='sad'] .bd-brow--l { transform: rotate(-22deg) translateY(2px); }
+[data-mood='sad'] .bd-brow--r { transform: rotate(22deg) translateY(2px); }
+[data-mood='sad'] .bd-head { transform: translateY(8px) rotate(-3deg); }
+[data-mood='sad'] .bd-tear { animation: bd-tear 0.9s ease-in infinite; }
+[data-mood='sad'] .bd-tear--r { animation-delay: 0.35s; }
+[data-talk='true'][data-mood='idle'] .bd-mouth-smile { animation: bd-talk 0.26s ease-in-out infinite; }
+
+@keyframes bd-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+@keyframes bd-laugh { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) translateY(-2px); } }
+@keyframes bd-talk { 0%, 100% { transform: scaleY(0.78); } 50% { transform: scaleY(1.08); } }
+@keyframes bd-tear { 0% { opacity: 0; transform: translateY(-6px); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(30px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-blink, .bd-head, .bd-tear, .bd-mouth-smile { animation: none !important; }
+}

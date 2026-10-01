@@ -24,6 +24,8 @@ interface Props {
   velocity?: boolean;
   /** when the parent knows the text is offscreen it can pause the effect */
   paused?: boolean;
+  /** hold the entrance until this turns true (the loader releases it) */
+  start?: boolean;
 }
 
 /**
@@ -44,6 +46,7 @@ export default function ProximityText({
   introDelay = 0,
   velocity = false,
   paused = false,
+  start = true,
 }: Props) {
   const rootRef = useRef<HTMLSpanElement>(null);
   const ready = useRef(!intro);
@@ -90,6 +93,7 @@ export default function ProximityText({
       ready.current = true;
       return;
     }
+    if (!start) return; // glyphs stay hidden (.prox--pre) until the intro is released
     const state = { w: 250 };
     const tl = gsap.timeline({
       delay: introDelay,
@@ -114,7 +118,7 @@ export default function ProximityText({
     return () => {
       tl.kill();
     };
-  }, [intro, introDelay, weight, reduce]);
+  }, [intro, introDelay, weight, reduce, start]);
 
   // visibility gate
   useEffect(() => {

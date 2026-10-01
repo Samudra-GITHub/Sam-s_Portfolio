@@ -9,11 +9,11 @@
 
 **A scroll-driven, cursor-aware portfolio where every project is its own small world.**
 
-Seven interactive project scenes · a hidden door · a contact form with a real backend
+Seven interactive project scenes · a little companion that roams the page · a hidden door · a social-first contact scene
 
 <br />
 
-[**Live site**](https://sam-sportfolio.vercel.app) &nbsp;·&nbsp; [The tour](#the-tour) &nbsp;·&nbsp; [The seven worlds](#the-seven-worlds) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Contact API](#contact-api)
+[**Live site**](https://sam-sportfolio.vercel.app) &nbsp;·&nbsp; [The tour](#the-tour) &nbsp;·&nbsp; [The seven worlds](#the-seven-worlds) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Optional backend](#optional-backend)
 
 <br />
 
@@ -24,7 +24,6 @@ Seven interactive project scenes · a hidden door · a contact form with a real 
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-13-0055ff?style=flat-square&logo=framer&logoColor=white)
 ![Lenis](https://img.shields.io/badge/Lenis-1.3-111215?style=flat-square)
 ![WebGL](https://img.shields.io/badge/WebGL-raw_shaders-990000?style=flat-square&logo=webgl&logoColor=white)
-![Express](https://img.shields.io/badge/Express-contact_API-111215?style=flat-square&logo=express&logoColor=white)
 
 </div>
 
@@ -59,6 +58,12 @@ Scroll and the stage pins. **The dot drops ink from wherever you left it.** The 
   </tr>
 </table>
 
+**Little things that add up**
+
+- A first-visit **loader** (an outlined name that fills lime as the fonts and page load) gates the intro, then the hero type inflates in.
+- A **chapter rail** on the right edge (Top / Work / Toolbox / About / Contact) tracks where you are.
+- An optional **UI sound** toggle in the nav (off by default): soft ticks on hover, a thunk on press, a whoosh on page transitions, all synthesised with WebAudio, no audio files.
+
 ### 2. Work: seven chapters that cover each other
 
 An index of the seven worlds with a live preview card. Then each project is a pinned, full-height stage. The next chapter **slides up over the previous one** while the old one shrinks back, and each scene opens with its own mask (rise, wipe, iris, wipe from the other side). A giant outlined title drifts sideways behind every chapter, so there's horizontal motion inside the vertical scroll.
@@ -88,13 +93,19 @@ On desktop the stage pins and objects land on the desk one by one as you scroll:
 
 <img src="docs/screenshots/about.jpg" alt="The About desk covered in cards, an ID card, a polaroid, a cassette and a sticky note" width="100%" />
 
-### 5. Contact: the last scene
+### 5. Contact: find me online
 
-An ink dome rises over the desk like a tide. A lime sun comes up behind the headline, and **your cursor is a torch**: wherever it points, the type lights up lime. The form posts to the [Contact API](#contact-api).
+No form and no email address: three big rows (**Instagram, GitHub, LinkedIn**) over a field of shader light. Hovering a row sweeps it lime, rolls its letters, and **a 3D toon-shaded orb behind it changes colour and shape** to match the link (vermilion and spiky for Instagram, paper for GitHub, cobalt for LinkedIn). Links come from `contact` in [`src/data/config.ts`](src/data/config.ts); a missing one simply isn't shown.
 
-<img src="docs/screenshots/contact.jpg" alt="The contact scene: a headline lit by the cursor, a message form and a rising lime sun" width="100%" />
+<img src="docs/screenshots/contact.jpg" alt="The contact scene: three social rows over a shader field with a recoloured 3D orb, and the companion wandering past" width="100%" />
 
-### 6. Kage: one hidden door
+### 6. The companion
+
+A small cartoon buddy lives in the viewport and wanders the whole site on random targets (never a fixed path), trailing the page a little when you scroll fast. It looks at and **points an arm at your cursor**, chats in cloud bubbles that match the section you are in, **chuckles when you hover it** and **gets sad (with a tear) if you click it**, then forgives you. It is drawn as layered SVG (`src/components/buddy`) so every part can animate, and it is the same character as in the Portfolio world. It respects `prefers-reduced-motion` (parked in a corner, no wandering). On touch screens he is click-through, so he never swallows a tap meant for a link; a tap that lands on him is detected separately.
+
+<img src="docs/screenshots/buddy.jpg" alt="The companion in four moods: smiling, talking, chuckling when hovered, sad when clicked" width="100%" />
+
+### 7. Kage: one hidden door
 
 Somewhere on the About desk is a faint ink blot. (Or type `kage` anywhere.) Click it: the site drains of colour, ink irises out from the blot, and you're in **Kage**, a full scroll-storytelling scene. Escape or the Back button retraces the path and puts you exactly where you were.
 
@@ -126,7 +137,7 @@ Every project is a small interactive scene with **its own motion personality**, 
     <td><b>Grama Sathi</b><br /><sub>Voice. Idle, listening, replying, in Hindi (Devanagari). Scroll plays the loop; press and hold the mic to take over.</sub></td>
   </tr>
   <tr>
-    <td colspan="3"><img src="docs/screenshots/world-portfolio.jpg" alt="Portfolio world: a halftone shader with a warped name" /><br /><b>Portfolio</b><br /><sub>Shader language. A halftone grid of cells that morph between circle and square, driven by two real uniforms (scroll progress and the pointer) that are printed on the scene. The name is warped by an SVG displacement filter whose strength is hover plus scroll speed.</sub></td>
+    <td colspan="3"><img src="docs/screenshots/world-portfolio.jpg" alt="Portfolio world: a big squeezed headline with an outlined second line and the site's cartoon character in front" /><br /><b>Portfolio</b><br /><sub>The site introduces itself. A tall squeezed headline whose role words roll over, an outlined second line, and the site's cartoon character standing across both: his head and pupils follow the pointer, he blinks, breathes and waves. The two lines drift against each other with scroll.</sub></td>
   </tr>
 </table>
 
@@ -144,7 +155,12 @@ Every project is a small interactive scene with **its own motion personality**, 
 
 ## On small screens
 
-Mobile isn't a scaled desktop. Below 1000px (or with `prefers-reduced-motion`) the pins and chapter overlaps are dropped: scenes stack, scroll still drives each scene, and the hero deck re-fans across the width of the screen.
+Mobile isn't a scaled desktop. Below 1000px (or with `prefers-reduced-motion`) the pins and chapter overlaps are dropped: scenes stack, scroll still drives each scene, and the hero deck re-fans across the width of the screen. It was audited at 390, 360 and 320px wide and in landscape.
+
+- **No horizontal scroll** at any phone width (the nav folds its surname away on the smallest screens so all four links fit).
+- **Touch targets** of at least 44px, including small text links (their hit areas extend past the visible underline).
+- **Cheaper shaders:** the canvases render at about 1x on phones, and every per-frame loop pauses offscreen.
+- The Contact orb moves below the links instead of sitting behind them; the companion is click-through on touch.
 
 <table>
   <tr>
@@ -213,10 +229,10 @@ Syne is a variable font whose width changes a lot with weight (an "S" is about h
 
 - **Nothing runs offscreen.** Per-frame work is gated by `IntersectionObserver`, tab visibility and whether Kage is open.
 - **WebGL is disciplined:** DPR is capped (lower on compact screens), context loss is handled, the context is released on unmount, and a fresh canvas is created per mount.
-- **Code splitting:** each world, the case-study page and Kage are separate lazy chunks. The main bundle is about **573 kB (190 kB gzipped)**.
+- **Code splitting:** each world, the case-study page and Kage are separate lazy chunks. The main bundle is about **603 kB (201 kB gzipped)**.
 - **Fonts are self-hosted** variable fonts (Fontsource); the Devanagari face loads only when the Grama Sathi world mounts.
 - **Reduced motion** disables Lenis, pins, scrubs, animated shaders and the page-transition curtain.
-- Semantic landmarks, a skip link, visible `:focus-visible` rings, and keyboard-operable controls where an interaction has a real purpose (the mic, the scene scrub bar, the Kage door, the contact form).
+- Semantic landmarks, a skip link, visible `:focus-visible` rings, and keyboard-operable controls where an interaction has a real purpose (the mic, the scene scrub bar, the Kage door, the social links). The companion is decorative and hidden from assistive tech.
 
 ## Run it locally
 
@@ -237,9 +253,9 @@ Open <http://localhost:5173>. The frontend needs no keys.
 | `npm run lint` | `oxlint` |
 | `npm run sync:kage` | Copies and hash-verifies the Kage assets (see below) |
 
-### With the contact form
+### Optional backend
 
-The form posts to a small Express service in [`backend/`](backend). Run it alongside the frontend:
+The site itself no longer needs a server: the Contact scene is plain social links. [`backend/`](backend) still holds the earlier Express contact API (the UI does not call it right now). To run it:
 
 ```bash
 cd backend
@@ -248,13 +264,13 @@ cp .env.example .env     # then fill in the values below
 npm run dev              # http://localhost:3000
 ```
 
-Point the frontend at it with a root `.env` (defaults to `http://localhost:3000` if unset):
+If you wire a form back in, point the frontend at it with a root `.env` (defaults to `http://localhost:3000` if unset):
 
 ```env
 VITE_BACKEND_URL=http://localhost:3000
 ```
 
-## Contact API
+### Backend API (optional)
 
 A deliberately small Express + TypeScript service.
 
@@ -289,9 +305,9 @@ A deliberately small Express + TypeScript service.
 | Part | Where | Config |
 | :-- | :-- | :-- |
 | Frontend | **Vercel** (live at <https://sam-sportfolio.vercel.app>) | [`vercel.json`](vercel.json) rewrites every path to `index.html` so deep links like `/work/krama` work |
-| Contact API | **Render** (web service) | [`render.yaml`](render.yaml): build `cd backend && npm install && npm run build`, start `cd backend && npm start`; secrets are set in the dashboard, not in the repo |
+| Contact API (optional, currently unused by the UI) | **Render** (web service) | [`render.yaml`](render.yaml): build `cd backend && npm install && npm run build`, start `cd backend && npm start`; secrets are set in the dashboard, not in the repo |
 
-Set `VITE_BACKEND_URL` in the Vercel project to your deployed API URL.
+Only if you re-enable a form: set `VITE_BACKEND_URL` in the Vercel project to your deployed API URL.
 
 ## Make it yours
 
@@ -314,7 +330,7 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 
 ```
 .
-├── backend/                 Express contact API (Resend, Zod, helmet, rate limit)
+├── backend/                 optional Express contact API (Resend, Zod, helmet, rate limit); not used by the UI right now
 ├── docs/                    README screenshots and the scroll GIF
 ├── public/                  favicon, plus Kage's assets (synced + verified)
 ├── scripts/sync-kage.mjs    copy and sha256-verify the Kage assets
@@ -327,7 +343,9 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 │   │   ├── work/            index, chapters, SceneFrame, worlds/ (one file per project)
 │   │   ├── stack/           the Toolbox
 │   │   ├── about/           the desk
-│   │   ├── contact/         the final scene and the form
+│   │   ├── contact/         the social-first final scene (shader field + orb)
+│   │   ├── buddy/           the cartoon character (shared SVG head, palette)
+│   │   ├── companion/       the roaming buddy: wander, point, laugh, sad, bubbles
 │   │   └── kage/            the hidden door (lazy) and its trigger
 │   ├── pages/               Home, ProjectDetail, NotFound
 │   └── styles/              design tokens and base styles

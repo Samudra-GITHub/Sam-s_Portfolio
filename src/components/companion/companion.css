@@ -1,0 +1,86 @@
+.cp {
+  --cp-size: 98px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 120;
+  width: var(--cp-size);
+  height: calc(var(--cp-size) * 1.25);
+  will-change: transform;
+  touch-action: manipulation;
+  opacity: 0;
+  pointer-events: none;
+}
+.cp[data-in='true'] { opacity: 1; pointer-events: auto; }
+/* the drop-in lives on the svg: the root's transform is the live position */
+.cp[data-in='true'] .cp-svg { animation: cp-drop 1.1s cubic-bezier(0.3, 1.5, 0.5, 1) both; }
+.cp-svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(2px 3px 0 rgb(17 18 21 / 0.25)); }
+
+/* where each part pivots (user units of the 120 x 150 drawing) */
+.cp-tilt { transform-origin: 60px 140px; }
+.cp-bounce { transform-origin: 60px 140px; animation: cp-breathe 3.2s ease-in-out infinite; }
+.cp-arm { transition: none; }
+
+.cp[data-mood='laugh'] .cp-bounce { animation: cp-hop 0.5s ease-in-out infinite; }
+.cp[data-mood='sad'] .cp-bounce { animation: cp-sob 0.5s ease-in-out infinite; }
+
+/* the cloud */
+.cp-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 2px);
+  width: max-content;
+  max-width: 210px;
+  padding: 0.5rem 0.8rem 0.55rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 22px 24px 22px 18px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(calc(-50% + var(--bx, 0px))) scale(0.5);
+  transform-origin: 50% 110%;
+  transition: opacity 0.2s, transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.cp-bubble[data-show='true'] { opacity: 1; transform: translateX(calc(-50% + var(--bx, 0px))) scale(1); }
+/* thought-cloud trail down to the head */
+.cp-bubble::before,
+.cp-bubble::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - var(--bx, 0px));
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+.cp-bubble::before { width: 11px; height: 11px; bottom: -14px; margin-left: -5px; }
+.cp-bubble::after { width: 6px; height: 6px; bottom: -22px; margin-left: -9px; }
+.cp-bubble[data-side='below'] { bottom: auto; top: calc(100% - 6px); transform-origin: 50% -10%; }
+.cp-bubble[data-side='below']::before { bottom: auto; top: -14px; }
+.cp-bubble[data-side='below']::after { bottom: auto; top: -22px; }
+
+@keyframes cp-drop { 0% { transform: scale(0.2) translateY(-60px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes cp-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.03); } }
+@keyframes cp-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes cp-sob { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(2px) scale(1.01, 0.985); } }
+
+.cp[data-reduce] .cp-bounce,
+.cp[data-reduce][data-in='true'] .cp-svg { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cp[data-in='true'] .cp-svg { animation: none; }
+  .cp-bounce { animation: none !important; }
+}
+@media (max-width: 700px) {
+  .cp-bubble { font-size: 0.7rem; max-width: 168px; }
+}
+
+/* touch: never intercept taps meant for links and buttons underneath; taps on him are detected in JS */
+@media (pointer: coarse) {
+  .cp[data-in='true'] { pointer-events: none; }
+}

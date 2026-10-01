@@ -27,3 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# tool state (not part of the site)
+.claude/
+.claude-flow/
+**/.claude-flow/

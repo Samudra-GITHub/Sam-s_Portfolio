@@ -152,18 +152,18 @@
   background-size: 40px 40px;
 }
 .about[data-mode='pin'] .about-desk { position: absolute; inset: 0; padding-top: var(--nav-height); }
-.about[data-mode='pin'] .about-title { position: absolute; left: 4cqw; top: calc(var(--nav-height) + 4cqh); font-size: min(5.4cqw, 10.5cqh); }
+.about[data-mode='pin'] .about-title { position: absolute; left: 4cqw; top: calc(var(--nav-height) + 4cqh); font-size: min(4.6cqw, 9cqh); }
 .about[data-mode='pin'] .artifact {
   position: absolute;
   left: var(--x);
   top: var(--y);
   rotate: var(--r);
 }
-.about[data-mode='pin'] .a-id { width: 44cqmin; }
-.about[data-mode='pin'] .a-card { width: 24cqmin; }
-.about[data-mode='pin'] .a-photo { width: 27cqmin; }
+.about[data-mode='pin'] .a-id { width: 50cqmin; }
+.about[data-mode='pin'] .a-card { width: 27cqmin; }
+.about[data-mode='pin'] .a-photo { width: 29cqmin; }
 .about[data-mode='pin'] .a-tape { width: 40cqmin; }
-.about[data-mode='pin'] .a-note { width: 26cqmin; }
+.about[data-mode='pin'] .a-note { width: 30cqmin; }
 .about[data-mode='pin'] .a-stamp { width: 18cqmin; }
 .about[data-mode='pin'] .about-door { position: absolute; left: 4cqw; bottom: 5cqh; }
 .about[data-mode='pin'] .facet { font-size: clamp(0.7rem, 1.9cqmin, 0.9rem); }
@@ -177,7 +177,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
 }
-.about[data-mode='stack'] .about-title { grid-column: 1 / -1; font-size: min(8.3vw, 5.4rem); margin-bottom: 1rem; }
+.about[data-mode='stack'] .about-title { grid-column: 1 / -1; font-size: min(7vw, 3.6rem); margin-bottom: 1rem; }
 .about[data-mode='stack'] .a-id,
 .about[data-mode='stack'] .a-tape,
 .about[data-mode='stack'] .a-note { grid-column: 1 / -1; }
@@ -194,3 +194,6 @@
 @media (prefers-reduced-motion: reduce) {
   .stamp svg, .note-caret, .cassette[data-playing='true'] .reel { animation: none; }
 }
+
+.polaroid figcaption a { position: relative; }
+.polaroid figcaption a::after { content: ""; position: absolute; inset: -14px -10px; }

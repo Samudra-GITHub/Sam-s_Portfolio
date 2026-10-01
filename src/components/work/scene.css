@@ -10,6 +10,7 @@
   background: var(--ink);
   overflow: hidden;
   isolation: isolate;
+  perspective: 1100px;
   transition: box-shadow 0.25s var(--ease-snap), transform 0.25s var(--ease-snap);
 }
 .scene-frame[data-cursor]:hover { box-shadow: 4px 4px 0 var(--c-fg, var(--ink)); transform: translate(4px, 4px); }

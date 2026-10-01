@@ -1,0 +1,54 @@
+.side-index {
+  position: fixed;
+  right: clamp(0.6rem, 1.4vw, 1.4rem);
+  top: 50%;
+  z-index: calc(var(--z-nav) - 1);
+  transform: translate(40px, -50%);
+  opacity: 0;
+  transition: transform 0.9s var(--ease-snap) 0.4s, opacity 0.9s 0.4s;
+  color: #fff;
+  mix-blend-mode: difference;
+}
+.side-index[data-ready='true'] { transform: translate(0, -50%); opacity: 1; }
+
+.side-index ol { display: grid; gap: 0.2rem; justify-items: end; }
+
+.side-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0;
+}
+.side-num { font-size: 0.58rem; opacity: 0.55; transition: opacity 0.3s; }
+.side-label {
+  font-size: 0.6rem;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s, transform 0.4s var(--ease-snap);
+  white-space: nowrap;
+}
+.side-tick {
+  display: block;
+  width: 14px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.55;
+  transform-origin: 100% 50%;
+  transition: width 0.45s var(--ease-snap), opacity 0.3s;
+}
+.side-link:hover .side-label,
+.side-link:focus-visible .side-label,
+.side-link[data-active='true'] .side-label { opacity: 1; transform: none; }
+.side-link:hover .side-num,
+.side-link[data-active='true'] .side-num { opacity: 1; }
+.side-link:hover .side-tick,
+.side-link[data-active='true'] .side-tick { width: 34px; opacity: 1; }
+.side-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* thumbs and small screens already have the top nav; the rail would crowd them */
+@media (max-width: 999px) {
+  .side-index { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-index, .side-label, .side-tick { transition: none; }
+}

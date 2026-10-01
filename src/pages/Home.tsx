@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { ScrollTrigger } from '../lib/gsap';
 import Hero from '../components/hero/Hero';
 import Work from '../components/work/Work';
-import Lab from '../components/lab/Lab';
+import Stack from '../components/stack/Stack';
 import About from '../components/about/About';
 import Contact from '../components/contact/Contact';
 
@@ -23,7 +23,7 @@ export default function Home() {
     <main id="main">
       <Hero />
       <Work />
-      <Lab />
+      <Stack />
       <About />
       <Contact />
     </main>

@@ -50,6 +50,10 @@ export default function SceneFrame({ project, index, total, progress, onOpen, in
 
   const readout = useTransform(progress, (v) => `${String(Math.round(v * 100)).padStart(3, '0')}`);
 
+  // the whole scene leans a couple of degrees toward the cursor (and sways a little on its own)
+  const tiltX = useTransform(y, [-1, 1], [2.4, -2.4]);
+  const tiltY = useTransform(x, [-1, 1], [-3, 3]);
+
   return (
     <SceneContext.Provider value={state}>
       <div
@@ -69,7 +73,9 @@ export default function SceneFrame({ project, index, total, progress, onOpen, in
         <div className="scene-tab mono">
           World {String(index + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}
         </div>
-        <div className="scene-canvas">{children}</div>
+        <motion.div className="scene-canvas" style={{ rotateX: tiltX, rotateY: tiltY, scale: reduce ? 1 : 1.035 }}>
+          {children}
+        </motion.div>
         <div className="scene-readout mono" aria-hidden="true">
           scene <motion.span>{readout}</motion.span>
         </div>

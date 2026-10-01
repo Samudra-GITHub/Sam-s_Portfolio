@@ -2,6 +2,7 @@ import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useM
 import { gsap } from '../../lib/gsap';
 import { getLenis } from '../../lib/scroll';
 import { matches, MQ, setPaused } from '../../lib/runtime';
+import { whoosh } from '../../lib/sound';
 import './kage.css';
 
 const loadScene = () => import('./SecretScene');
@@ -49,6 +50,7 @@ export function KageProvider({ children }: { children: ReactNode }) {
     originRef.current = o;
     returnFocus.current = document.activeElement;
     go('opening');
+    whoosh();
     void loadScene();
 
     const reduce = matches(MQ.reducedMotion);

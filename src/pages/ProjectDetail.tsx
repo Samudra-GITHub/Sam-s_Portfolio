@@ -158,7 +158,7 @@ function ProjectView({ project }: { project: Project }) {
                   progress.set(Number(e.currentTarget.value) / 1000);
                 }}
               />
-              <button type="button" className="lab-btn mono" aria-pressed={auto} onClick={() => setAuto((a) => !a)}>
+              <button type="button" className="scrub-btn mono" aria-pressed={auto} onClick={() => setAuto((a) => !a)}>
                 {auto ? 'Playing' : 'Paused'}
               </button>
             </div>

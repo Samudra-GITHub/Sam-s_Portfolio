@@ -76,8 +76,23 @@
   transform-origin: 0 50%;
 }
 
+/* optional UI sound, off by default */
+.nav-sound {
+  padding: 0.28rem 0.6rem;
+  border: var(--border-width) solid var(--ink);
+  font-size: 0.6rem;
+  background: var(--paper);
+  transition: background-color 0.15s, transform 0.15s var(--ease-snap), box-shadow 0.15s var(--ease-snap);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.nav-sound:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+.nav-sound[aria-pressed='true'] { background: var(--lime); }
+
 @media (max-width: 960px) {
   .nav-status { display: none; }
+}
+@media (max-width: 640px) {
+  .nav-sound { display: none; }
 }
 @media (max-width: 560px) {
   .nav-inner { gap: 0.5rem; }
@@ -85,4 +100,20 @@
   .nav-link { font-size: 0.58rem; letter-spacing: 0.02em; padding: 0.8rem 0.5rem; }
   .nav-link::before { display: none; }
   .nav-brand { font-size: 1rem; }
+}
+
+/* small phones: the surname folds away so all four links fit, and every link keeps a 44px hit area */
+.nav-brand { position: relative; }
+.nav-brand::after { content: ''; position: absolute; inset: -14px -6px; }
+@media (max-width: 560px) {
+  .nav-link { min-width: 44px; text-align: center; }
+}
+@media (max-width: 400px) {
+  .nav-brand-kar { display: none; }
+  .nav-link { padding-inline: 0.4rem; }
+}
+
+@media (max-width: 340px) {
+  .nav-link { min-width: 0; padding-inline: 0.28rem; font-size: 0.54rem; }
+  .nav-links { gap: 0; }
 }

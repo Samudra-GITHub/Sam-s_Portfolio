@@ -1,0 +1,125 @@
+.stack {
+  position: relative;
+  z-index: 20;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--paper-2);
+  background-image: radial-gradient(rgba(17, 18, 21, 0.16) 1.2px, transparent 1.4px);
+  background-size: 26px 26px;
+  color: var(--ink);
+}
+/* the Toolbox slides over the last chapter, like every chapter before it */
+@media (min-width: 1000px) and (prefers-reduced-motion: no-preference) {
+  .stack { margin-top: -100dvh; }
+}
+
+/* a strip of masking tape across the top edge */
+.stack-tape {
+  height: 30px;
+  border-top: var(--border-width) solid var(--ink);
+  border-bottom: var(--border-width) solid var(--ink);
+  background: var(--lime);
+  background-image: repeating-linear-gradient(90deg, transparent 0 22px, rgba(17, 18, 21, 0.12) 22px 24px);
+}
+
+.stack-inner {
+  flex: 1;
+  display: grid;
+  align-content: center;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--gutter) clamp(3rem, 7vw, 5rem);
+}
+
+.stack-head { text-align: center; }
+.stack-title {
+  display: inline-block;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+.stack-sub {
+  margin: 0.9rem auto 0;
+  max-width: 46ch;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.sticker-sheet {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.1rem 0.9rem;
+}
+.stack-hint { text-align: center; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; opacity: 0.7; }
+.sticker-slot { rotate: var(--rot); }
+
+.sticker {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55em 0.95em;
+  border: var(--border-width) solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--fill);
+  color: var(--text);
+  white-space: nowrap;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.sticker:active { cursor: grabbing; box-shadow: 1px 1px 0 var(--ink); }
+
+.sticker-name { font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+.sticker-count { font-size: 0.56rem; opacity: 0.7; }
+
+/* sizes: type stays modest; weight and padding carry the emphasis */
+.sticker[data-size='xl'] { font-size: 2.3rem; padding: 0.5em 1em; }
+.sticker[data-size='l'] { font-size: 1.8rem; }
+.sticker[data-size='m'] { font-size: 1.35rem; }
+.sticker[data-size='s'] { font-size: 1rem; }
+
+/* shapes */
+.sticker[data-shape='pill'] { border-radius: 999px; }
+.sticker[data-shape='rect'] { border-radius: 0; }
+.sticker[data-shape='round'] { border-radius: 0.9em; }
+.sticker[data-shape='ticket'] { border-radius: 0.3em; padding-inline: 1.3em; }
+.sticker[data-shape='ticket']::before,
+.sticker[data-shape='ticket']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0.55em;
+  height: 0.55em;
+  margin-top: -0.275em;
+  border-radius: 50%;
+  background: var(--paper-2);
+  border: var(--border-width) solid var(--ink);
+}
+.sticker[data-shape='ticket']::before { left: -0.3em; }
+.sticker[data-shape='ticket']::after { right: -0.3em; }
+
+/* fills (text colour chosen for contrast on each) */
+.sticker[data-fill='lime'] { --fill: var(--lime); --text: var(--ink); }
+.sticker[data-fill='vermilion'] { --fill: var(--vermilion); --text: var(--ink); }
+.sticker[data-fill='cobalt'] { --fill: var(--cobalt); --text: var(--paper); }
+.sticker[data-fill='paper'] { --fill: var(--paper); --text: var(--ink); }
+.sticker[data-fill='ink'] { --fill: var(--ink); --text: var(--lime); }
+.sticker[data-fill='sand'] { --fill: var(--sand); --text: var(--ink); }
+
+@media (max-width: 640px) {
+  .sticker[data-size='xl'] { font-size: 1.5rem; }
+  .sticker[data-size='l'] { font-size: 1.25rem; }
+  .sticker[data-size='m'] { font-size: 1rem; }
+  .sticker[data-size='s'] { font-size: 0.82rem; }
+  .sticker-sheet { gap: 0.7rem 0.5rem; }
+}
