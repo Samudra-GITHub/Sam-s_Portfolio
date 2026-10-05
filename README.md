@@ -322,7 +322,7 @@ Adding a project world means a new file in `src/components/work/worlds/` and one
 
 ## Kage
 
-The Kage scene is the authored `KageLandingPage` from [`@designcodeio/threeui`](https://threeui.com), used **unmodified**, with the same props. The component loads `/landing-pages/kage.html` from the site root, so [`scripts/sync-kage.mjs`](scripts/sync-kage.mjs) copies those files out of the package into `public/landing-pages/` and **verifies every file's sha256 against [`kage-landing-page.json`](kage-landing-page.json)**. It runs automatically before `dev` and `build` and fails loudly if anything doesn't match.
+The Kage scene is the authored `KageLandingPage` from [`@designcodeio/threeui`](https://threeui.com), used **unmodified**, with the same props. The component loads `/landing-pages/kage.html` from the site root, so [`scripts/sync-kage.mjs`](scripts/sync-kage.mjs) copies those files out of the package into `public/landing-pages/` and **verifies every file's sha256 against [`scripts/kage-landing-page.json`](scripts/kage-landing-page.json)**. It runs automatically before `dev` and `build` and fails loudly if anything doesn't match.
 
 The scene is a lazy chunk, so visitors who never open it never download it.
 
@@ -333,7 +333,7 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 ├── backend/                 optional Express contact API (Resend, Zod, helmet, rate limit); not used by the UI right now
 ├── docs/                    README screenshots and the scroll GIF
 ├── public/                  favicon, plus Kage's assets (synced + verified)
-├── scripts/sync-kage.mjs    copy and sha256-verify the Kage assets
+├── scripts/                 sync-kage.mjs (copy + sha256-verify Kage assets) and kage-landing-page.json (its manifest)
 ├── src/
 │   ├── lib/                 runtime (media queries, pause), pointer, scroll, ticker hooks, gsap setup
 │   ├── data/                config.ts, projects.ts   ← content lives here
@@ -349,8 +349,7 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 │   │   └── kage/            the hidden door (lazy) and its trigger
 │   ├── pages/               Home, ProjectDetail, NotFound
 │   └── styles/              design tokens and base styles
-├── render.yaml · vercel.json
-└── kage-landing-page.json   the authored Kage manifest used for verification
+└── render.yaml · vercel.json
 ```
 
 ## Design system
