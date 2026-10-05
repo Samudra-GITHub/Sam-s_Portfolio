@@ -32,3 +32,10 @@ dist-ssr
 .claude/
 .claude-flow/
 **/.claude-flow/
+
+# Added by repository cleanup
+CLAUDE.md
+AGENTS.md
+*.tsbuildinfo
+__pycache__/
+.venv/
