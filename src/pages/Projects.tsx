@@ -44,14 +44,19 @@ export default function Projects() {
   const [sel, setSel] = useState<string | null>(urlSel);
   const [room, setRoomState] = useState<Kind | null>(kind);
   const [viewState, setViewState] = useState(view);
-  // when the URL changes from outside (back/forward, a pasted link), follow it
-  const [seen, setSeen] = useState({ urlSel, kind, view });
-  if (seen.urlSel !== urlSel || seen.kind !== kind || seen.view !== view) {
-    setSeen({ urlSel, kind, view });
-    setSel(urlSel);
-    setRoomState(kind);
-    setViewState(view);
-  }
+  // The page writes its own state into the URL, and the router applies those writes later, at low
+  // priority, so the URL is not a reliable mirror while a transition runs. A shared link mounts the
+  // page fresh (and is read above); the only other outside change is back/forward, so follow that.
+  useEffect(() => {
+    const onPop = () => {
+      const q = new URLSearchParams(window.location.search);
+      setSel(q.get('p'));
+      setRoomState((q.get('room') as Kind | null) ?? null);
+      setViewState(q.get('view') === 'index' ? 'index' : 'wall');
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
   const [live, setLive] = useState<string | null>(null);
   const dlgRef = useRef<HTMLDialogElement>(null);
 
@@ -110,14 +115,19 @@ export default function Projects() {
       const art = artOf(slug);
       if (art) art.style.viewTransitionName = 'ex-focus';
     });
+    let settled = false;
     const settle = () => {
+      if (settled) return;
+      settled = true;
       const art = artOf(slug);
       if (art) art.style.viewTransitionName = '';
       // after the dialog has handed focus back (to whatever opened it first), put it on the print you were last looking at
       requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-tile="${slug}"]`)?.focus({ preventScroll: true }));
     };
-    if (vt) vt.finished.then(settle, settle);
-    else settle();
+    if (vt) {
+      vt.finished.then(settle, settle);
+      window.setTimeout(settle, 900); // never let a stalled transition hold the print's name or block the next open
+    } else settle();
     patch((n) => n.delete('p'));
   };
   const step = (dir: 1 | -1) => {

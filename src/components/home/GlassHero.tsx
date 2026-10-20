@@ -411,7 +411,7 @@ export default function GlassHero() {
 
   const [first, last] = config.name.split(' ');
   return (
-    <section ref={rootRef} className="gh" data-gl={gl} aria-labelledby="gh-name">
+    <section ref={rootRef} className="gh" data-gl={gl} aria-labelledby="gh-name" data-cursor={gl === 'on' ? 'drag' : undefined} data-cursor-label="DRAG">
       <div ref={wrapRef} className="gh-canvas" aria-hidden="true" />
       <div className="gh-stage">
         <h1 id="gh-name" ref={nameRef} className="gh-name">

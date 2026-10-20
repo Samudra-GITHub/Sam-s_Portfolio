@@ -25,6 +25,14 @@
 }
 .cursor-label:not(:empty) { opacity: 1; transform: none; }
 .cursor[data-kind='cta'] .cursor-label { background: var(--lime); color: var(--cy-950); border-color: var(--lime); }
+.cursor[data-flip-x='true'] .cursor-label { left: auto; right: 6px; transform-origin: 100% 0; }
+.cursor[data-flip-y='true'] .cursor-label { top: auto; bottom: 6px; }
+
+/* a modal <dialog> sits in the browser's top layer, above anything a page can draw (including this arrow),
+   so while one is open the real system cursor comes back, the same way it does for Kage */
+html.has-cursor:has(dialog[open]) * { cursor: auto !important; }
+html.has-cursor:has(dialog[open]) :is(a[href], button, [role='button'], summary, label) { cursor: pointer !important; }
+html:has(dialog[open]) .cursor-pos { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .cursor-arrow, .cursor-label { transition: none; }

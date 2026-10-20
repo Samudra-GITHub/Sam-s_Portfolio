@@ -47,6 +47,11 @@ function CursorTool() {
       if (e.pointerType === 'touch') return;
       html.classList.add('has-cursor');
       root.dataset.hidden = 'false';
+      // near the right or bottom edge the readout moves to the other side of the tip, so it is never cut off
+      const fx = e.clientX > window.innerWidth - 150 ? 'true' : 'false';
+      const fy = e.clientY > window.innerHeight - 64 ? 'true' : 'false';
+      if (root.dataset.flipX !== fx) root.dataset.flipX = fx;
+      if (root.dataset.flipY !== fy) root.dataset.flipY = fy;
     };
     const onOver = (e: PointerEvent) => {
       const target = e.target as Element | null;
@@ -77,7 +82,7 @@ function CursorTool() {
   }, []);
 
   return (
-    <div ref={rootRef} className="cursor" data-kind="default" data-hidden="true" data-down="false" aria-hidden="true">
+    <div ref={rootRef} className="cursor" data-kind="default" data-hidden="true" data-down="false" data-flip-x="false" data-flip-y="false" aria-hidden="true">
       <motion.div className="cursor-pos" style={{ x: pointer.x, y: pointer.y }}>
         <svg className="cursor-arrow" width="26" height="30" viewBox="0 0 26 30">
           <path className="cursor-shadow" d="M2 2 L2 24 L8 18.5 L12.5 28 L17 26 L12.6 16.8 L21 16.5 Z" />
