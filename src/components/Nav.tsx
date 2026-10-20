@@ -10,7 +10,6 @@ import Monogram from './core/Monogram';
 import './nav.css';
 
 const LINKS = [
-  { id: 'home', label: 'Home', to: '/' },
   { id: 'projects', label: 'Projects', to: '/projects' },
   { id: 'about', label: 'About', to: '/about' },
   { id: 'contact', label: 'Contact', to: '/contact' },
@@ -58,6 +57,7 @@ export default function Nav() {
       className="nav"
       data-hidden={hidden && !focused}
       data-top={onHome && atTop}
+      data-home={onHome || undefined}
       onFocusCapture={() => setFocused(true)}
       onBlurCapture={() => setFocused(false)}
       initial={{ y: -80 }}
@@ -71,15 +71,13 @@ export default function Nav() {
           <span className="nav-brand-studio mono">{config.studio}</span>
         </Link>
 
-        <p className="nav-status mono" aria-label="Availability">
-          <span className="nav-pulse" aria-hidden="true" />
-          Available for new experiments
-        </p>
 
-        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Optional interface sounds: a soft tick when the homepage browser turns a page, a shutter click when you fix a print. Off by default; nothing ever plays on its own.">
+        {!onHome && (
+        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Optional interface sounds. Off by default; nothing ever plays on its own.">
           <span className="nav-sound-dot" aria-hidden="true" />
           Sound {soundOn ? 'on' : 'off'}
         </button>
+        )}
 
         <nav aria-label="Primary">
           <ul className="nav-links">

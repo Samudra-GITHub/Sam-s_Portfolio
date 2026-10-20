@@ -142,3 +142,7 @@
 @media (hover: hover) and (pointer: fine) {
   .nav-brand:hover .nav-mark { transform: rotate(-24deg); }
 }
+
+/* the homepage is one screen: the bar stays out of the way */
+.nav[data-home] { border-bottom-color: transparent; background: transparent; }
+.nav[data-home] .nav-progress { display: none; }

@@ -1,10 +1,10 @@
-import Filmstrip from '../components/home/Filmstrip';
+import GlassHero from '../components/home/GlassHero';
 
-/** The homepage is an introduction, not an archive: who, what, and how he works, on one strip of film. The work lives on /projects. */
+/** The homepage is one screen: one name, one line, one drop of glass, one way in. The work lives on /projects. */
 export default function Home() {
   return (
     <main id="main" className="home">
-      <Filmstrip />
+      <GlassHero />
     </main>
   );
 }

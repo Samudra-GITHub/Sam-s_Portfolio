@@ -1,0 +1,122 @@
+/* The homepage: one drop of glass on one name. See GlassHero.tsx.
+   Mobile first: the whole thing is one screen, the name stacks, the drop sits
+   on the join. Desktop: the name runs as one line and the drop has room. */
+.gh {
+  position: relative;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 520px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: radial-gradient(90% 70% at 50% 42%, #123688, #07163f 72%);
+  color: var(--sheet);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.gh[data-holding] { cursor: grabbing; }
+.gh-canvas { position: absolute; inset: 0; }
+.gh-canvas canvas { width: 100%; height: 100%; display: block; }
+.gh[data-gl='off'] .gh-canvas { display: none; }
+
+.gh-stage { position: relative; display: grid; place-items: center; padding-top: var(--nav-height); min-height: 0; }
+.gh-name {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  font-family: var(--font-display);
+  font-stretch: 100%;
+  font-weight: 820;
+  font-size: clamp(3.2rem, 18.4vw, 7.5rem);
+  line-height: 0.88;
+  row-gap: 0.9em; /* the drop rests in this gap */
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* the WebGL pass draws these words so the glass can bend them; the text stays real */
+  color: transparent;
+  pointer-events: none;
+}
+.gh[data-gl='off'] .gh-name { color: var(--sheet); }
+.gh-line { display: block; }
+
+.gh-foot {
+  position: relative;
+  display: grid;
+  gap: var(--s-3);
+  padding: 0 var(--gutter) calc(var(--s-5) + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.gh-foot > * { pointer-events: auto; }
+.gh-role { color: var(--lime); font-size: var(--t-xs); letter-spacing: 0.16em; text-transform: uppercase; }
+.gh-line-copy { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 600; font-size: clamp(1.05rem, 4.4vw, 1.35rem); line-height: 1.3; max-width: 28ch; }
+.gh-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-height: 54px;
+  margin-top: var(--s-2);
+  padding: 0 var(--s-5);
+  background: var(--sheet);
+  color: var(--cy-950);
+  font-family: var(--font-display);
+  font-stretch: var(--semi);
+  font-weight: 720;
+  font-size: var(--t-md);
+  cursor: pointer;
+  transition: background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.gh-cta .arrow { width: 18px; height: 18px; transition: transform var(--dur-ui) var(--ease-out); }
+.gh-cta:active { transform: scale(0.97); }
+.gh-cta:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .gh-cta:hover { background: var(--lime); }
+  .gh-cta:hover .arrow { transform: translateX(5px); }
+}
+
+/* the words under the drop arrive after it has welled up */
+@media (prefers-reduced-motion: no-preference) {
+  .gh-foot > * { animation: gh-in 700ms var(--ease-out) both; }
+  .gh-role { animation-delay: 700ms; }
+  /* the sentence is the page's largest text: it moves in but is never invisible, so it paints at once */
+  .gh-line-copy { animation-name: gh-rise; animation-delay: 0ms; }
+  .gh-cta { animation-delay: 900ms; }
+  .gh[data-gl='off'] .gh-line { animation: gh-in 900ms var(--ease-out) both; }
+}
+@keyframes gh-in { from { opacity: 0; translate: 0 14px; } }
+@keyframes gh-rise { from { translate: 0 14px; } }
+
+/* ---------- wide screens: one line, more air ---------- */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  .gh-name { display: flex; gap: 1.55em; font-stretch: var(--wide); font-size: clamp(3.6rem, 7.6vw, 10rem); line-height: 0.86; letter-spacing: -0.035em; }
+  .gh-foot {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'role cta' 'copy cta';
+    align-items: end;
+    column-gap: var(--s-7);
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding-bottom: calc(var(--s-7) + env(safe-area-inset-bottom));
+  }
+  .gh-role { grid-area: role; }
+  .gh-line-copy { grid-area: copy; font-size: var(--t-lg); max-width: 34ch; }
+  .gh-cta { grid-area: cta; margin: 0; min-height: 58px; padding: 0 var(--s-6); gap: var(--s-5); }
+}
+/* tablets in portrait: the phone arrangement, scaled */
+@media (min-width: 600px) and (max-aspect-ratio: 1/1) {
+  .gh-name { font-size: clamp(4rem, 17vw, 10rem); }
+  .gh-foot { justify-items: start; padding-bottom: calc(var(--s-7) + env(safe-area-inset-bottom)); }
+  .gh-line-copy { font-size: var(--t-xl); }
+}
+/* short phones (landscape or small): keep it one screen */
+@media (max-height: 640px) and (max-width: 899px) {
+  .gh-name { font-size: clamp(2.6rem, 15vw, 6rem); }
+  .gh-cta { min-height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gh-cta, .gh-cta .arrow { transition: none; }
+}
