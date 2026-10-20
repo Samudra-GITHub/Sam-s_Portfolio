@@ -76,7 +76,7 @@ export default function Nav() {
           Available for new experiments
         </p>
 
-        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Toggle interface sounds">
+        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Optional interface sounds: a soft tick when the homepage browser turns a page, a shutter click when you fix a print. Off by default; nothing ever plays on its own.">
           <span className="nav-sound-dot" aria-hidden="true" />
           Sound {soundOn ? 'on' : 'off'}
         </button>

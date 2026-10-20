@@ -50,7 +50,8 @@ export default function App() {
             </Routes>
           </Suspense>
         </div>
-        {import.meta.env.DEV && <DevDataToggle />}
+        {/* dev-only stress fixtures (break-ui): shown only with ?dev or ?data= so the preview stays clean */}
+        {import.meta.env.DEV && /[?&](dev|data)/.test(window.location.search) && <DevDataToggle />}
       </KageProvider>
     </PageTransitionProvider>
   );

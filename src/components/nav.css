@@ -73,9 +73,13 @@
   transition: transform var(--dur-ui) var(--ease-out);
 }
 .nav-link[data-active='true'] { color: var(--line); }
-.nav-link[data-active='true']::after { transform: none; }
+.nav-link[data-active='true']::after { transform: none; height: 2px; }
+.nav-link:active { transform: translateY(1px); }
+.nav-link:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; color: var(--line); }
 @media (hover: hover) and (pointer: fine) {
+  /* hover hints the line the page would commit to */
   .nav-link:hover { color: var(--line); }
+  .nav-link:not([data-active='true']):hover::after { transform: scaleX(0.35); }
 }
 
 .nav-sound {
