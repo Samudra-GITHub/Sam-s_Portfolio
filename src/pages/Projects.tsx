@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects, paged, type Project } from '../data/projects';
 import { KINDS, kindsOf, type Kind } from '../data/kinds';
 import { real } from '../lib/content';
-import { useReducedMotion } from '../lib/runtime';
+import { useFinePointer, useReducedMotion } from '../lib/runtime';
+import { getLenis } from '../lib/scroll';
 import { usePageTransition } from '../components/core/PageTransition';
 import Specimen from '../components/projects/Specimen';
 import Arrow from '../components/core/Arrow';
@@ -12,192 +13,341 @@ import './projects.css';
 
 /**
  * /projects: the exhibition. Every project on the account that earned a place
- * (see docs/github-project-audit.md) hangs on one wall as a live specimen.
- * The wall is visual; words appear on demand. Pick a specimen and it moves
- * into the spotlight with its real links. Filters re-hang the wall with a
- * view transition where the browser supports one.
+ * (see docs/github-project-audit.md) hangs here as a live specimen drawn from
+ * what it actually does.
+ *
+ *  Wall    the specimens hang as prints: they come up out of the blue as they
+ *          scroll in, lean toward the hand, and play only while you look.
+ *  Index   the same collection as one fast list, for people who know what they want.
+ *  Rooms   filters re-hang the wall with a view transition; each room has its own light.
+ *  Focus   picking a print lifts it off the wall into a full-screen viewing room
+ *          (a shared-element transition: the same picture travels). Arrow keys
+ *          walk the room, Escape puts it back where it came from.
+ *
+ * The room, the view and the print in focus all live in the URL.
  */
 const hasPage = new Set(paged.map((p) => p.id));
+const ROOM_LIGHT: Record<Kind, string> = { ai: '#d8f827', web: '#7fb2ff', creative: '#ff7a4d', full: '#f3f5f9', embedded: '#ffb21f' };
+
+type VT = { finished: Promise<void>; ready: Promise<void> };
+type Doc = Document & { startViewTransition?: (cb: () => void) => VT };
 
 export default function Projects() {
   const { go } = usePageTransition();
   const reduce = useReducedMotion();
+  const fine = useFinePointer();
   const [params, setParams] = useSearchParams();
   const kind = (params.get('room') as Kind | null) ?? null;
-  const [sel, setSel] = useState<string | null>(params.get('p'));
+  const view = params.get('view') === 'index' ? 'index' : 'wall';
+  // the print in focus is local state (so a view transition can flush it synchronously); the URL follows it
+  const urlSel = params.get('p');
+  const [sel, setSel] = useState<string | null>(urlSel);
+  const [room, setRoomState] = useState<Kind | null>(kind);
+  const [viewState, setViewState] = useState(view);
+  // when the URL changes from outside (back/forward, a pasted link), follow it
+  const [seen, setSeen] = useState({ urlSel, kind, view });
+  if (seen.urlSel !== urlSel || seen.kind !== kind || seen.view !== view) {
+    setSeen({ urlSel, kind, view });
+    setSel(urlSel);
+    setRoomState(kind);
+    setViewState(view);
+  }
   const [live, setLive] = useState<string | null>(null);
-  const spotRef = useRef<HTMLDivElement>(null);
+  const dlgRef = useRef<HTMLDialogElement>(null);
 
-  const shown = useMemo(() => projects.filter((p) => !kind || kindsOf(p.slug).includes(kind)), [kind]);
+  const shown = useMemo(() => projects.filter((p) => !room || kindsOf(p.slug).includes(room)), [room]);
   const current = projects.find((p) => p.slug === sel) ?? null;
-
   const counts = useMemo(() => Object.fromEntries(KINDS.map((k) => [k.id, projects.filter((p) => kindsOf(p.slug).includes(k.id)).length])), []);
 
-  const withTransition = (fn: () => void) => {
-    const d = document as Document & { startViewTransition?: (cb: () => void) => unknown };
-    if (!reduce && d.startViewTransition) d.startViewTransition(fn);
-    else fn();
+  const transition = (fn: () => void) => {
+    const d = document as Doc;
+    if (reduce || !d.startViewTransition) {
+      fn();
+      return null;
+    }
+    const vt = d.startViewTransition(() => flushSync(fn));
+    // a transition can be skipped (another one started, the tab hid): that is fine, the state still lands
+    vt.ready.catch(() => {});
+    vt.finished.catch(() => {});
+    return vt;
   };
-
-  const setRoom = (k: Kind | null) =>
-    withTransition(() =>
-      setParams(
-        (prev) => {
-          const n = new URLSearchParams(prev);
-          if (k) n.set('room', k);
-          else n.delete('room');
-          return n;
-        },
-        { replace: true },
-      ),
-    );
-
-  const pick = (p: Project) => {
-    setSel(p.slug);
+  const patch = (edit: (n: URLSearchParams) => void) =>
     setParams(
       (prev) => {
         const n = new URLSearchParams(prev);
-        n.set('p', p.slug);
+        edit(n);
         return n;
       },
       { replace: true },
     );
+
+  const setRoom = (k: Kind | null) => {
+    transition(() => setRoomState(k));
+    patch((n) => (k ? n.set('room', k) : n.delete('room')));
+  };
+  const setView = (v: 'wall' | 'index') => {
+    transition(() => setViewState(v));
+    patch((n) => (v === 'index' ? n.set('view', 'index') : n.delete('view')));
+  };
+
+  // ---------- the viewing room ----------
+  const artOf = (slug: string) => document.querySelector<HTMLElement>(`[data-art="${slug}"]`);
+  const open = (p: Project) => {
+    const art = artOf(p.slug);
+    if (art) art.style.viewTransitionName = 'ex-focus';
+    const vt = transition(() => {
+      if (art) art.style.viewTransitionName = '';
+      setSel(p.slug);
+    });
+    if (!vt && art) art.style.viewTransitionName = '';
+    patch((n) => n.set('p', p.slug));
   };
   const close = () => {
-    setSel(null);
-    setParams(
-      (prev) => {
-        const n = new URLSearchParams(prev);
-        n.delete('p');
-        return n;
-      },
-      { replace: true },
-    );
+    if (!current) return;
+    const slug = current.slug;
+    const vt = transition(() => {
+      setSel(null);
+      const art = artOf(slug);
+      if (art) art.style.viewTransitionName = 'ex-focus';
+    });
+    const settle = () => {
+      const art = artOf(slug);
+      if (art) art.style.viewTransitionName = '';
+      // after the dialog has handed focus back (to whatever opened it first), put it on the print you were last looking at
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-tile="${slug}"]`)?.focus({ preventScroll: true }));
+    };
+    if (vt) vt.finished.then(settle, settle);
+    else settle();
+    patch((n) => n.delete('p'));
+  };
+  const step = (dir: 1 | -1) => {
+    if (!current) return;
+    const list = shown.some((p) => p.slug === current.slug) ? shown : projects;
+    const i = list.findIndex((p) => p.slug === current.slug);
+    const next = list[(i + dir + list.length) % list.length];
+    transition(() => setSel(next.slug));
+    patch((n) => n.set('p', next.slug));
   };
 
-  // bring the spotlight into view when something is picked
+  // the dialog follows the URL (so a shared link opens straight into the room)
+  useLayoutEffect(() => {
+    const dlg = dlgRef.current;
+    if (!dlg) return;
+    if (current && !dlg.open) dlg.showModal();
+    if (!current && dlg.open) dlg.close();
+  }, [current]);
   useEffect(() => {
-    if (!sel) return;
-    spotRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
-  }, [sel, reduce]);
-  useEffect(() => {
-    if (!sel) return;
-    const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && close();
-    window.addEventListener('keydown', onEsc);
-    return () => window.removeEventListener('keydown', onEsc);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sel]);
+    const lenis = getLenis();
+    if (current) lenis?.stop();
+    else lenis?.start();
+    return () => lenis?.start();
+  }, [current]);
+
+  const onDialogKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+  };
 
   const openCase = (p: Project) => (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
+    getLenis()?.start();
     go(`/work/${p.slug}`, { color: p.palette.bg, ink: p.palette.fg, label: p.title });
   };
 
-  return (
-    <main id="main" className="ex">
-      <header className="ex-head">
-        <h1 className="ex-title">
-          The exhibition <span className="ex-count mono">{projects.length} works</span>
-        </h1>
-        <nav className="ex-rooms" aria-label="Filter projects">
-          <button type="button" aria-pressed={!kind} onClick={() => setRoom(null)}>
-            All <span className="mono">{projects.length}</span>
-          </button>
-          {KINDS.map((k) =>
-            counts[k.id] ? (
-              <button key={k.id} type="button" aria-pressed={kind === k.id} onClick={() => setRoom(kind === k.id ? null : k.id)}>
-                {k.label} <span className="mono">{counts[k.id]}</span>
-              </button>
-            ) : null,
-          )}
-        </nav>
-      </header>
+  // a print leans toward the hand
+  const lean = (e: PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== 'mouse' || reduce) return;
+    const el = e.currentTarget.querySelector<HTMLElement>('.ex-tile-art');
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty('--rx', `${(-y * 7).toFixed(2)}deg`);
+    el.style.setProperty('--ry', `${(x * 9).toFixed(2)}deg`);
+    el.style.setProperty('--mx', `${((x + 0.5) * 100).toFixed(1)}%`);
+    el.style.setProperty('--my', `${((y + 0.5) * 100).toFixed(1)}%`);
+  };
+  const rest = (e: PointerEvent<HTMLElement>) => {
+    const el = e.currentTarget.querySelector<HTMLElement>('.ex-tile-art');
+    el?.style.setProperty('--rx', '0deg');
+    el?.style.setProperty('--ry', '0deg');
+    setLive(null);
+  };
 
-      <div ref={spotRef} className="ex-spot-wrap" aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
-          {current && (
-            <motion.section
-              key={current.id}
-              className="ex-spot"
-              aria-label={`${current.title}, in the spotlight`}
-              style={{ '--s-bg': current.palette.bg, '--s-fg': current.palette.fg, '--len': Math.max(...current.title.split(' ').map((w) => w.length)) } as CSSProperties}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, transform: 'translateY(12px)' }}
-              animate={reduce ? { opacity: 1 } : { opacity: 1, transform: 'translateY(0px)' }}
-              exit={reduce ? { opacity: 0 } : { opacity: 0, transform: 'translateY(-8px)' }}
-              transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
-            >
-              <div className="ex-spot-art">
-                <Specimen project={current} live />
-              </div>
-              <div className="ex-spot-text">
-                <p className="mono ex-spot-k">{kindsOf(current.slug).map((k) => KINDS.find((x) => x.id === k)?.label).join(' · ')}</p>
-                <h2 className="ex-spot-title">{current.title}</h2>
-                <p className="ex-spot-tag">{current.tagline}</p>
-                <ul className="dotlist mono ex-spot-tech" aria-label="Built with">
-                  {current.tech.slice(0, 5).map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-                {current.team && <p className="ex-spot-team">{current.team}{current.role ? `. Role: ${current.role}.` : ''}</p>}
-                <div className="ex-spot-links">
-                  {hasPage.has(current.id) && (
-                    <Link to={`/work/${current.slug}`} className="btn" onClick={openCase(current)}>
-                      Case study <Arrow dir="right" className="btn-arrow" />
-                    </Link>
-                  )}
-                  {real(current.live) && (
-                    <a href={current.live} className="tlink" target="_blank" rel="noreferrer">
-                      Live <Arrow dir="out" />
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
-                  )}
-                  {current.github && (
-                    <a href={current.github} className="tlink" target="_blank" rel="noreferrer">
-                      GitHub <Arrow dir="out" />
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
-                  )}
-                  <button type="button" className="tlink ex-spot-close" onClick={close}>
-                    Close
-                  </button>
-                </div>
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
-      </div>
+  // the index: a small print follows the pointer down the list
+  const peekRef = useRef<HTMLDivElement>(null);
+  const [peek, setPeek] = useState<Project | null>(null);
+  const movePeek = (e: PointerEvent) => {
+    const el = peekRef.current;
+    if (el) el.style.transform = `translate3d(${e.clientX + 24}px, ${e.clientY - 80}px, 0)`;
+  };
+
+  const kindLabel = (p: Project) => kindsOf(p.slug).map((k) => KINDS.find((x) => x.id === k)?.label).join(' · ');
+
+  return (
+    <main id="main" className="ex" data-view={viewState} style={{ '--room': room ? ROOM_LIGHT[room] : 'var(--lime)' } as CSSProperties}>
+      <header className="ex-head">
+        <p className="ex-kicker mono">Sam's Studio · the exhibition</p>
+        <h1 className="ex-title">
+          <span>The work</span> <span className="ex-count mono">{shown.length === projects.length ? `${projects.length} works` : `${shown.length} of ${projects.length}`}</span>
+        </h1>
+        <div className="ex-bar">
+          <nav className="ex-rooms" aria-label="Filter projects by kind">
+            <button type="button" aria-pressed={!room} onClick={() => setRoom(null)}>
+              All <span className="mono">{projects.length}</span>
+            </button>
+            {KINDS.map((k) =>
+              counts[k.id] ? (
+                <button key={k.id} type="button" aria-pressed={room === k.id} onClick={() => setRoom(room === k.id ? null : k.id)} style={{ '--k': ROOM_LIGHT[k.id] } as CSSProperties}>
+                  <span className="ex-room-dot" aria-hidden="true" />
+                  {k.label} <span className="mono">{counts[k.id]}</span>
+                </button>
+              ) : null,
+            )}
+          </nav>
+          <div className="ex-views" role="group" aria-label="View">
+            <button type="button" aria-pressed={viewState === 'wall'} onClick={() => setView('wall')}>
+              Wall
+            </button>
+            <button type="button" aria-pressed={viewState === 'index'} onClick={() => setView('index')}>
+              Index
+            </button>
+          </div>
+        </div>
+      </header>
 
       {shown.length === 0 ? (
         <p className="ex-empty">Nothing in this room yet.</p>
-      ) : (
+      ) : viewState === 'wall' ? (
         <ul className="ex-wall">
-          {shown.map((p) => (
-            <li key={p.id} className="ex-item" data-tier={p.tier} style={{ viewTransitionName: `ex-${p.slug}` } as CSSProperties}>
+          {shown.map((p, i) => (
+            <li key={p.id} className="ex-item" data-tier={p.tier} style={{ viewTransitionName: `ex-${p.slug}`, '--i': i } as CSSProperties}>
               <button
                 type="button"
                 className="ex-tile"
-                aria-pressed={sel === p.slug}
-                onClick={() => (sel === p.slug ? close() : pick(p))}
+                data-tile={p.slug}
+                aria-haspopup="dialog"
+                onClick={() => open(p)}
                 onPointerEnter={(e) => e.pointerType === 'mouse' && setLive(p.slug)}
-                onPointerLeave={() => setLive(null)}
+                onPointerMove={lean}
+                onPointerLeave={rest}
                 onFocus={() => setLive(p.slug)}
                 onBlur={() => setLive(null)}
                 data-cursor="project"
                 data-cursor-label="VIEW"
               >
-                <span className="ex-tile-art">
-                  <Specimen project={p} live={live === p.slug || sel === p.slug} />
+                <span className="ex-tile-art" data-art={p.slug}>
+                  <Specimen project={p} live={live === p.slug} />
+                  <span className="ex-tile-n mono" aria-hidden="true">{String(projects.indexOf(p) + 1).padStart(2, '0')}</span>
                 </span>
                 <span className="ex-tile-cap">
                   <span className="ex-tile-title">{p.title}</span>
                   <span className="ex-tile-tag">{p.tagline}</span>
+                  <span className="ex-tile-k mono">{kindLabel(p)}</span>
                 </span>
               </button>
             </li>
           ))}
         </ul>
+      ) : (
+        <div className="ex-index-wrap" onPointerMove={fine ? movePeek : undefined} onPointerLeave={() => setPeek(null)}>
+          <ol className="ex-index">
+            {shown.map((p) => (
+              <li key={p.id} style={{ viewTransitionName: `ex-${p.slug}` } as CSSProperties}>
+                <button type="button" className="ex-row" data-tile={p.slug} aria-haspopup="dialog" onClick={() => open(p)} onPointerEnter={() => fine && setPeek(p)} onFocus={() => setPeek(null)}>
+                  <span className="ex-row-n mono">{String(projects.indexOf(p) + 1).padStart(2, '0')}</span>
+                  <span className="ex-row-art" data-art={p.slug} aria-hidden="true">
+                    <Specimen project={p} />
+                  </span>
+                  <span className="ex-row-title">{p.title}</span>
+                  <span className="ex-row-tag">{p.tagline}</span>
+                  <span className="ex-row-k mono">{kindLabel(p)}</span>
+                  <span className="ex-row-y mono">{p.year}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+          {fine && (
+            <div ref={peekRef} className="ex-peek" data-on={peek ? '' : undefined} aria-hidden="true">
+              {peek && <Specimen project={peek} live />}
+            </div>
+          )}
+        </div>
       )}
+
+      <dialog
+        ref={dlgRef}
+        className="ex-room"
+        aria-labelledby={current ? 'ex-room-title' : undefined}
+        onCancel={(e) => {
+          e.preventDefault();
+          close();
+        }}
+        onClick={(e) => e.target === e.currentTarget && close()}
+        onKeyDown={onDialogKey}
+        data-lenis-prevent
+        style={current ? ({ '--s-bg': current.palette.bg, '--s-fg': current.palette.fg, '--s-acc': current.palette.accent, '--len': Math.max(...current.title.split(' ').map((w) => w.length)) } as CSSProperties) : undefined}
+      >
+        {current && (
+          <div className="ex-room-inner">
+            <div className="ex-room-art" style={{ viewTransitionName: 'ex-focus' } as CSSProperties}>
+              <Specimen project={current} live />
+            </div>
+            <div className="ex-room-text" key={current.id}>
+              <p className="mono ex-room-k">
+                {String(projects.indexOf(current) + 1).padStart(2, '0')} / {projects.length} · {kindLabel(current)}
+              </p>
+              <h2 id="ex-room-title" className="ex-room-title" tabIndex={-1} autoFocus>
+                {current.title}
+              </h2>
+              <p className="ex-room-tag">{current.tagline}</p>
+              <p className="ex-room-desc">{current.description}</p>
+              <ul className="dotlist mono ex-room-tech" aria-label="Built with">
+                {current.tech.slice(0, 6).map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+              {current.team && (
+                <p className="ex-room-team">
+                  {current.team}
+                  {current.role ? `. Role: ${current.role}.` : ''}
+                </p>
+              )}
+              <div className="ex-room-links">
+                {hasPage.has(current.id) && (
+                  <Link to={`/work/${current.slug}`} className="btn" onClick={openCase(current)}>
+                    Case study <Arrow dir="right" className="btn-arrow" />
+                  </Link>
+                )}
+                {real(current.live) && (
+                  <a href={current.live} className="tlink" target="_blank" rel="noreferrer">
+                    Live demo <Arrow dir="out" />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+                {current.github && (
+                  <a href={current.github} className="tlink" target="_blank" rel="noreferrer">
+                    GitHub <Arrow dir="out" />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="ex-room-ctl">
+              <button type="button" className="ex-room-btn" onClick={() => step(-1)} aria-label="Previous project">
+                <Arrow dir="left" />
+              </button>
+              <button type="button" className="ex-room-btn" onClick={() => step(1)} aria-label="Next project">
+                <Arrow dir="right" />
+              </button>
+              <button type="button" className="ex-room-btn ex-room-close mono" onClick={close}>
+                Close <span aria-hidden="true">Esc</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
     </main>
   );
 }

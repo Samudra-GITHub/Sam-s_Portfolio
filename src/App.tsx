@@ -7,7 +7,6 @@ import SmoothScroll from './components/core/SmoothScroll';
 import { PageTransitionProvider } from './components/core/PageTransition';
 import { KageProvider } from './components/kage/Kage';
 import Nav from './components/Nav';
-import SideIndex from './components/SideIndex';
 import Home from './pages/Home';
 import DevDataToggle from './components/core/DevDataToggle';
 import NotFound from './pages/NotFound';
@@ -40,7 +39,6 @@ export default function App() {
         </a>
         <div id="site">
           <Nav />
-          <SideIndex />
           <Suspense fallback={<div style={{ minHeight: '100dvh' }} />}>
             <Routes>
               <Route path="/" element={<Home />} />

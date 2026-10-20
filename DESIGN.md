@@ -175,6 +175,28 @@ Motion is orbital: continuous, velocity-coupled, settling on a long ease-out. No
 - No drop shadows and no rounded tiles; circles are the only curved form.
 - Project bodies carry each project's own enamel palette.
 
+## Exposure (the final direction)
+
+The cyanotype is no longer only a palette; it is the interaction model. A cyanotype is paper that turns Prussian blue where light reaches it and stays white where something lies on it.
+
+- **Home** is the print being made. The pointer is the lamp. The name is the masked part of the sheet, so it develops white out of the blue; letters lift toward the lamp and cast shadows away from it. Three photogram objects stand for the work (interface, sound, vision) and their shadows swing and soften with the light. The brushed sensitiser edge frames the sheet.
+- **Projects** is the dark room. Prints come up blue and develop to their own colour as they scroll in; a picked print lifts into a full-screen viewing room.
+- **About** is the contact sheet: one roll, seven frames, one loupe.
+- **Contact** is the last print, hung at night.
+
+## Motion
+
+Motion is chosen by purpose (`src/lib/motion.ts`, tokens in `tokens.css`):
+
+| Character | Used for | Curve |
+| --- | --- | --- |
+| respond | presses, hovers, toggles | `--ease-out`, 140-260ms, no overshoot |
+| carry | something the hand threw (drags) | spring, bounce 0.18 |
+| scene | views arriving and leaving, view transitions | `--ease-drawer`, 420-620ms |
+| develop | an image coming up out of the paper | ease-out, about 1.1s, once |
+
+Rules: nothing waits on an entrance (any input finishes it); everything a hand can interrupt re-targets from its live value; expensive scenes render only while visible; reduced motion keeps every state and drops the travel.
+
 ## Colors
 
 A single-hue cyanotype print with one acid signal, and enamel colours that belong to the projects rather than to the frame.

@@ -95,6 +95,13 @@
   --dur-press: 140ms;
   --dur-hover: 200ms;
   --dur-ui: 260ms;
+  /* the motion system (see lib/motion.ts and DESIGN.md)
+     press/hover/ui  respond to the hand: fast, ease-out, never wait
+     scene           a view arriving or leaving: ease-in-out across the screen
+     develop         a print coming up out of the paper: slow, ease-out, once */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-scene: 620ms;
+  --dur-develop: 1100ms;
 
   /* z-index scale: layers, not a race */
   --z-stage: 2;

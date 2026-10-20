@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion';
-import { ScrollTrigger } from '../lib/gsap';
 import { scrollToTarget, scrollVelocity, scrollY } from '../lib/scroll';
 import { usePageTransition } from './core/PageTransition';
 import { useIntroDone } from '../lib/intro';
@@ -11,7 +10,7 @@ import Monogram from './core/Monogram';
 import './nav.css';
 
 const LINKS = [
-  { id: 'work', label: 'Worlds', to: '/#work' },
+  { id: 'home', label: 'Home', to: '/' },
   { id: 'projects', label: 'Projects', to: '/projects' },
   { id: 'about', label: 'About', to: '/about' },
   { id: 'contact', label: 'Contact', to: '/contact' },
@@ -21,7 +20,6 @@ export default function Nav() {
   const { pathname } = useLocation();
   const { go } = usePageTransition();
   const onHome = pathname === '/';
-  const [active, setActive] = useState<string>('');
   const [hidden, setHidden] = useState(false);
   const [focused, setFocused] = useState(false);
   const [atTop, setAtTop] = useState(true);
@@ -40,34 +38,11 @@ export default function Nav() {
     else if (v < -3) setHidden(false);
   });
 
-  // Which section is on screen
-  useEffect(() => {
-    if (!onHome) return;
-    const triggers = LINKS.filter((l) => l.id === 'work').map(({ id }) =>
-      ScrollTrigger.create({
-        trigger: `#${id}`,
-        start: 'top 55%',
-        end: 'bottom 55%',
-        onToggle: (self) => {
-          if (self.isActive) setActive(id);
-          else setActive((cur) => (cur === id ? '' : cur));
-        },
-      }),
-    );
-    return () => triggers.forEach((t) => t.kill());
-  }, [onHome]);
-
-  const route = pathname.startsWith('/projects') || pathname.startsWith('/work/') ? 'projects' : pathname.startsWith('/about') ? 'about' : pathname.startsWith('/contact') ? 'contact' : '';
-  const shown = onHome ? active : route;
+  const shown = pathname.startsWith('/projects') || pathname.startsWith('/work/') ? 'projects' : pathname.startsWith('/about') ? 'about' : pathname.startsWith('/contact') ? 'contact' : onHome ? 'home' : '';
 
   const jump = (l: (typeof LINKS)[number]) => (e: React.MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
-    if (l.id === 'work') {
-      if (onHome) scrollToTarget('#work', { duration: 1.6 });
-      else go('/', { scrollTo: '#work', label: 'Worlds', color: '#123a8c', ink: '#eef2fc' });
-      return;
-    }
     if (pathname === l.to) return scrollToTarget(0, { duration: 1 });
     go(l.to, { label: l.label, color: '#081c4a', ink: '#eef2fc' });
   };

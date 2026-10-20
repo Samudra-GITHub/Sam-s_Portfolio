@@ -1,0 +1,110 @@
+/* The homepage: one sun print. See Exposure.tsx. */
+.xp {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--cy-700);
+  color: var(--sheet);
+  isolation: isolate;
+}
+.xp[data-fallback] { background: radial-gradient(120% 90% at 70% 40%, var(--cy-600), var(--cy-950)); }
+.xp-canvas { position: absolute; inset: 0; z-index: -1; }
+
+.xp-copy {
+  align-self: center;
+  display: grid;
+  gap: var(--s-4);
+  justify-items: start;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: calc(var(--nav-height) + var(--s-6)) var(--gutter) var(--s-6);
+}
+.xp-kicker { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--t-xs); letter-spacing: 0.14em; color: var(--sheet); opacity: 0.86; }
+.xp-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 4px rgb(216 248 39 / 0.18); }
+
+.xp-name {
+  display: grid;
+  font-family: var(--font-display);
+  font-stretch: var(--wide);
+  font-weight: 820;
+  font-size: clamp(3.4rem, 11.2vw, 12.5rem);
+  line-height: 0.8;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  margin: var(--s-2) 0 var(--s-4);
+}
+.xp-word { display: block; white-space: nowrap; }
+.xp-word + .xp-word { padding-left: 0.42em; } /* the surname steps in: the name reads as a mark, not a line */
+.xp-ch { display: inline-block; will-change: transform; }
+
+.xp-what { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 620; font-size: var(--t-lg); line-height: 1.25; max-width: 30ch; }
+.xp-what em { font-style: normal; color: var(--lime); }
+.xp-care { color: var(--sheet); opacity: 0.8; font-size: var(--t-md); max-width: 40ch; }
+
+.xp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gutter) calc(var(--s-7) + env(safe-area-inset-bottom));
+}
+.xp-enter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 48px;
+  padding: 0 var(--s-5);
+  background: var(--sheet);
+  color: var(--cy-950);
+  font-family: var(--font-display);
+  font-stretch: var(--semi);
+  font-weight: 720;
+  font-size: var(--t-md);
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-hover) ease;
+}
+.xp-enter .arrow { transition: transform var(--dur-ui) var(--ease-out); }
+.xp-enter:active { transform: scale(0.97); }
+.xp-enter:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .xp-enter:hover { background: var(--lime); }
+  .xp-enter:hover .arrow { transform: translateX(5px); }
+}
+.xp-hint { font-size: var(--t-2xs); letter-spacing: 0.14em; color: var(--sheet); opacity: 0.7; }
+
+/* ---------- entrance: the print develops ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .xp-ch { animation: xp-rise 900ms var(--ease-out) both; }
+  .xp-kicker, .xp-what, .xp-care, .xp-foot { animation: xp-rise 800ms var(--ease-out) both; }
+  .xp-kicker { animation-delay: 200ms; }
+  .xp-what { animation-delay: 620ms; }
+  .xp-care { animation-delay: 760ms; }
+  .xp-foot { animation-delay: 900ms; }
+  /* a second visit, or any input: no waiting */
+  .xp[data-returning] .xp-ch,
+  .xp[data-returning] :is(.xp-kicker, .xp-what, .xp-care, .xp-foot) { animation-duration: 420ms; animation-delay: 0ms !important; }
+  .xp[data-done] :is(.xp-kicker, .xp-what, .xp-care, .xp-foot) { animation-delay: 0ms; }
+}
+/* `translate` is animated, `transform` is left free for the lamp's lift */
+@keyframes xp-rise { from { translate: 0 0.4em; opacity: 0; filter: blur(8px); } }
+
+@media (max-aspect-ratio: 9/10) {
+  .xp-copy { align-self: end; padding-bottom: var(--s-6); }
+}
+@media (max-width: 760px) {
+  .xp-copy { align-self: end; padding-bottom: var(--s-5); }
+  .xp-name { font-size: clamp(2.6rem, 13.2vw, 6rem); }
+  .xp-foot { flex-direction: column; align-items: stretch; gap: var(--s-3); padding-bottom: calc(var(--s-6) + env(safe-area-inset-bottom)); }
+  .xp-enter { justify-content: space-between; }
+  .xp-hint { text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-hint { visibility: hidden; } /* the lamp holds still, so there is nothing to move */
+}

@@ -104,15 +104,17 @@ Somewhere on the About desk is a faint mark. (Or type `kage` anywhere.) Open it 
 
 ## Pages
 
+The site is one sun print being made: a cyanotype (iron-salt paper that turns Prussian blue in light and stays white where something covers it).
+
 | Route | What it is |
 | --- | --- |
-| `/` | The universe, the featured worlds, a gate into the exhibition, contact |
-| `/projects` | The exhibition: every project as a live SVG specimen, filters (`?room=ai`), a spotlight (`?p=slug`), Escape to close |
-| `/about` | The desk and the grouped toolbox |
-| `/contact` | Instagram, GitHub, LinkedIn and the rest, over the night field |
-| `/work/:slug` | Case studies |
+| `/` | Identity only. A full-screen WebGL cyanotype: the pointer is the lamp, three objects (an interface window, a sound wave, a lens) cast photogram shadows that swing with it, and the name develops white out of the blue. Any key, click or wheel skips the entrance. |
+| `/projects` | The exhibition: all 16 projects as live SVG specimens. Wall view (prints lean toward the pointer and develop from blue to colour as they scroll in) or Index view (a fast list with a hover preview). Filters per kind (`?room=ai`), each with its own light. Picking a print opens a full-screen viewing room with a shared-element transition; arrow keys step through, Escape puts it back. `?p=slug` opens straight into it. |
+| `/about` | A contact sheet: seven frames from one roll (designer, developer, student, photography, creative coding, AI, experiments) with a loupe; what is on the bench now; the toolbox. Arrow keys walk the frames. |
+| `/contact` | The last print, at night: the WebGL field and enamel orb answer the channel you aim at; Instagram, GitHub and LinkedIn as tall rows. Email shows automatically once `config.contact.email` is filled in. |
+| `/work/:slug` | Case studies, including the interactive worlds. |
 
-Filters and the spotlight live in the URL, so links and refreshes land on the same view. Project categories are in `src/data/kinds.ts`.
+The motion system (springs and curves by purpose) is in `src/lib/motion.ts` and `src/styles/tokens.css`. Project categories are in `src/data/kinds.ts`.
 
 ## The worlds
 
