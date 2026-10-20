@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { config } from '../../data/config';
 import { useReducedMotion } from '../../lib/runtime';
 import { usePageTransition } from '../core/PageTransition';
+import { glassLift, glassSettle } from '../../lib/sound';
 import Arrow from '../core/Arrow';
 import './glass.css';
 
@@ -344,6 +345,7 @@ export default function GlassHero() {
       s.leanT = [0, 0];
       s.lightT = [x, y + s.r * 0.4];
       root.setAttribute('data-holding', '');
+      glassLift(y / s.h);
       root.setPointerCapture?.(e.pointerId);
       kick();
     };
@@ -351,6 +353,7 @@ export default function GlassHero() {
       if (!s.drag) return;
       s.drag = false;
       root.removeAttribute('data-holding');
+      glassSettle(Math.hypot(s.vx, s.vy) / (s.r * 20));
       kick();
     };
     const onLeave = () => {

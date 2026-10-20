@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { initPointer, pointer } from '../../lib/pointer';
 import { useFinePointer } from '../../lib/runtime';
-import { thunk, tick } from '../../lib/sound';
 import './cursor.css';
 
 /**
@@ -40,7 +39,6 @@ function CursorTool() {
     const setKind = (kind: string, text: string) => {
       if (root.dataset.kind !== kind) {
         root.dataset.kind = kind;
-        if (kind !== 'default') tick();
       }
       if (label.textContent !== text) label.textContent = text;
     };
@@ -59,7 +57,6 @@ function CursorTool() {
     };
     const onDown = () => {
       root.dataset.down = 'true';
-      if (root.dataset.kind !== 'default') thunk();
     };
     const onUp = () => (root.dataset.down = 'false');
     const onLeave = () => (root.dataset.hidden = 'true');

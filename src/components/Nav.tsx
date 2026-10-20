@@ -72,12 +72,6 @@ export default function Nav() {
         </Link>
 
 
-        {!onHome && (
-        <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Optional interface sounds. Off by default; nothing ever plays on its own.">
-          <span className="nav-sound-dot" aria-hidden="true" />
-          Sound {soundOn ? 'on' : 'off'}
-        </button>
-        )}
 
         <nav aria-label="Primary">
           <ul className="nav-links">
@@ -90,6 +84,28 @@ export default function Nav() {
             ))}
           </ul>
         </nav>
+
+        <button
+          type="button"
+          className="nav-sound"
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Sound on: ambient music and interface sounds. Turn off' : 'Sound off. Turn on ambient music and interface sounds'}
+          title={soundOn ? 'Sound on' : 'Sound off'}
+          onClick={() => setSound(!soundOn)}
+          data-sound="none"
+          data-cursor="cta"
+          data-cursor-label={soundOn ? 'MUTE' : 'SOUND'}
+        >
+          <span className="nav-sound-bars" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="nav-sound-label mono" aria-hidden="true">
+            {soundOn ? 'On' : 'Off'}
+          </span>
+        </button>
       </div>
       <motion.div className="nav-progress" style={{ scaleX: progress }} aria-hidden="true" />
     </motion.header>

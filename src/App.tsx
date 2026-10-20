@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { scrollToTarget } from './lib/scroll';
 import { initPointer } from './lib/pointer';
+import { initSoundDelegation } from './lib/sound';
 import Cursor from './components/core/Cursor';
 import SmoothScroll from './components/core/SmoothScroll';
 import { PageTransitionProvider } from './components/core/PageTransition';
@@ -22,6 +23,7 @@ export default function App() {
 
   useEffect(() => {
     initPointer();
+    initSoundDelegation();
   }, []);
 
   // every route starts at the top (page transitions then land on their own target)

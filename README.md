@@ -116,6 +116,14 @@ The site is printed in cyanotype: Prussian blue, paper white, one acid-lime sign
 
 The motion system (springs and curves by purpose) is in `src/lib/motion.ts` and `src/styles/tokens.css`. Project categories are in `src/data/kinds.ts`.
 
+## Sound
+
+Off by default on every visit; nothing plays until the sound control (top right, on every page) is pressed. Everything is synthesised with Web Audio in `src/lib/sound.ts`, so there are no audio files to load or license.
+
+- **Ambient:** a slow pad in D (four open chords, detuned triangles through a breathing low-pass, generated room reverb, a faint band of air, an occasional distant glass note). It is scheduled chord by chord, so it never loops or restarts; it fades in over about 3s and out over 0.6s.
+- **Interface:** a glass dyad when a link is taken, a soft tactile click when a button is pressed, glass tones when the homepage drop is picked up and let go, and a rising/falling pair when sound is turned on/off. Never on hover.
+- **Behaviour:** one AudioContext for the whole visit (it survives route changes, so the music never doubles), a master limiter, quiet levels for phone speakers, fades and suspends when the tab is hidden, and the site works the same without Web Audio.
+
 ## The worlds
 
 Every featured project is a small interactive scene with **its own motion personality and its own visual language**, driven by scroll, cursor, hover and scroll velocity. All of them run from the same `SceneContext`, so the scene in a chapter and the large one on the case-study page are the same component. The instrument frames them; it does not repaint them.
