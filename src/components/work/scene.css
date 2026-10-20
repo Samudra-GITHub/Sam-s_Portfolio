@@ -1,19 +1,22 @@
-/* The frame is a size container: worlds size themselves in cqw / cqh */
+/* The frame is a size container: worlds size themselves in cqw / cqh.
+   It is a print mounted on the chapter: one hairline, no shadow. */
 .scene-frame {
   position: relative;
   width: 100%;
   aspect-ratio: 5 / 4;
-  max-height: calc(100dvh - var(--nav-height) - 5.5rem);
+  max-height: calc(100dvh - var(--nav-height) - 6rem);
   container-type: size;
-  border: var(--border-width) solid var(--c-fg, var(--ink));
-  box-shadow: 8px 8px 0 var(--c-fg, var(--ink));
+  outline: 1px solid var(--c-fg, var(--line));
+  outline-offset: 6px;
   background: var(--ink);
   overflow: hidden;
   isolation: isolate;
   perspective: 1100px;
-  transition: box-shadow 0.25s var(--ease-snap), transform 0.25s var(--ease-snap);
+  transition: outline-offset var(--dur-ui) var(--ease-out);
 }
-.scene-frame[data-cursor]:hover { box-shadow: 4px 4px 0 var(--c-fg, var(--ink)); transform: translate(4px, 4px); }
+@media (hover: hover) and (pointer: fine) {
+  .scene-frame[data-cursor]:hover { outline-offset: 2px; }
+}
 
 .scene-canvas { position: absolute; inset: 0; overflow: hidden; }
 
@@ -21,26 +24,29 @@
 .scene-readout {
   position: absolute;
   z-index: 20;
-  padding: 0.2rem 0.55rem;
-  background: var(--paper);
-  color: var(--ink);
-  border: var(--border-width) solid var(--ink);
-  font-size: 0.66rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--c-bg, var(--cy-800));
+  color: var(--c-fg, var(--line));
+  font-family: var(--font-mono);
+  font-size: var(--t-2xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   pointer-events: none;
 }
-.scene-tab { top: 0.9rem; left: 0.9rem; }
-.scene-readout { bottom: 0.9rem; right: 0.9rem; background: var(--lime); font-variant-numeric: tabular-nums; }
+.scene-tab { top: 0; left: 0; }
+.scene-readout { bottom: 0; right: 0; font-variant-numeric: tabular-nums; }
 
 /* shared layer helpers for worlds */
 .layer { position: absolute; inset: 0; pointer-events: none; }
-.world-fallback { position: absolute; inset: 0; background: var(--ink); }
+.world-fallback { position: absolute; inset: 0; background: var(--c-bg, var(--ink)); }
 .world-label {
   position: absolute;
   z-index: 10;
   padding: 0.15rem 0.45rem;
   border: 1.5px solid currentColor;
   font-family: var(--font-mono);
-  font-size: clamp(0.55rem, 2.4cqw, 0.7rem);
+  font-size: clamp(var(--t-2xs), 2.4cqw, var(--t-xs));
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;

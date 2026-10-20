@@ -1,16 +1,18 @@
 import { Suspense, useRef, useState, useEffect, type CSSProperties, type MouseEvent } from 'react';
 import type { MotionValue } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import type { Project } from '../../data/projects';
+import type { Project, WorldId } from '../../data/projects';
 import { real } from '../../lib/content';
 import { usePageTransition } from '../core/PageTransition';
 import Split from '../core/Split';
 import Magnetic from '../core/Magnetic';
+import RingLocator from './RingLocator';
 import SceneFrame from './SceneFrame';
 import { WORLDS } from './worlds';
+import Arrow from '../core/Arrow';
 
 interface Props {
-  project: Project;
+  project: Project & { world: WorldId };
   index: number;
   total: number;
   progress: MotionValue<number>;
@@ -74,25 +76,24 @@ export default function Chapter({ project, index, total, progress }: Props) {
         <div className="chapter-bgword" aria-hidden="true">
           {project.title}
         </div>
-        <div className="chapter-numeral font-display" aria-hidden="true">
-          {String(index + 1).padStart(2, '0')}
+        <div className="chapter-locator" aria-hidden="true">
+          <RingLocator index={index} total={total} />
+          <span className="mono">
+            World {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
         </div>
 
         <div className="chapter-inner">
           <div className="chapter-text">
-            <p className="chapter-index mono chapter-reveal">
-              World {String(index + 1).padStart(2, '0')} of {String(total).padStart(2, '0')}
-            </p>
-            <h3 id={`t-${project.slug}`} className="chapter-title font-display">
+            <h3 id={`t-${project.slug}`} className="chapter-title">
+              <span className="sr-only">World {index + 1} of {total}: </span>
               <Split text={project.title} by="chars" />
             </h3>
             {project.alias && <p className="chapter-alias mono chapter-reveal">also known as {project.alias}</p>}
             <p className="chapter-tagline chapter-reveal">{project.tagline}</p>
-            <ul className="chapter-chips chapter-reveal">
+            <ul className="chapter-facts mono chapter-reveal" aria-label="Facts">
               {facts.map((f) => (
-                <li key={f} className="chip mono">
-                  {f}
-                </li>
+                <li key={f}>{f}</li>
               ))}
             </ul>
             <p className="chapter-desc chapter-reveal">{real(project.description)}</p>
@@ -100,12 +101,13 @@ export default function Chapter({ project, index, total, progress }: Props) {
               <Magnetic>
                 <Link to={`/work/${project.slug}`} className="btn btn--chapter" onClick={onLink} data-cursor="cta" data-cursor-label="OPEN">
                   View case study
-                  <span aria-hidden="true">&rarr;</span>
+                  <Arrow dir="right" className="btn-arrow" />
                 </Link>
               </Magnetic>
               {project.github && (
-                <a href={project.github} className="chapter-link mono" target="_blank" rel="noreferrer">
-                  Source on GitHub &#8599;
+                <a href={project.github} className="tlink" target="_blank" rel="noreferrer">
+                  Source on GitHub <Arrow dir="out" />
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               )}
             </div>

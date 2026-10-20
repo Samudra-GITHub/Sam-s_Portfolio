@@ -11,7 +11,8 @@ import './side-index.css';
  */
 const CHAPTERS = [
   { id: 'top', label: 'Intro' },
-  { id: 'work', label: 'Work' },
+  { id: 'work', label: 'Worlds' },
+  { id: 'more', label: 'More work' },
   { id: 'stack', label: 'Toolbox' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Find me' },

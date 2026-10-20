@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { ScrollTrigger } from '../lib/gsap';
-import Hero from '../components/hero/Hero';
+import Universe from '../components/home/Universe';
 import Work from '../components/work/Work';
+import MoreWork from '../components/more/MoreWork';
 import Stack from '../components/stack/Stack';
 import About from '../components/about/About';
 import Contact from '../components/contact/Contact';
@@ -21,8 +22,9 @@ export default function Home() {
 
   return (
     <main id="main">
-      <Hero />
+      <Universe />
       <Work />
+      <MoreWork />
       <Stack />
       <About />
       <Contact />

@@ -1,3 +1,4 @@
+/* The instrument strip: one blue rule across the top of every page. */
 .nav {
   position: fixed;
   top: 0;
@@ -5,10 +6,13 @@
   width: 100%;
   height: var(--nav-height);
   z-index: var(--z-nav);
-  background: var(--paper);
-  border-bottom: var(--border-width) solid var(--ink);
-  transition: transform 0.5s var(--ease-snap);
+  background: var(--cy-800);
+  color: var(--line);
+  border-bottom: 1px solid var(--rule);
+  transition: transform var(--dur-ui) var(--ease-out), background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
 }
+/* over the homepage universe the strip dissolves into the scene */
+.nav[data-top='true'] { background: transparent; border-bottom-color: transparent; }
 .nav[data-hidden='true'] { transform: translateY(-101%) !important; }
 
 .nav-inner {
@@ -18,102 +22,119 @@
   padding: 0 var(--gutter);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: var(--s-6);
 }
 
-.nav-brand {
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-transform: lowercase;
-  white-space: nowrap;
+.nav-brand { position: relative; display: flex; align-items: baseline; gap: var(--s-3); white-space: nowrap; margin-right: auto; }
+.nav-brand::after { content: ''; position: absolute; inset: -14px -6px; }
+.nav-brand-name {
+  font-family: var(--font-display);
+  font-stretch: var(--wide);
+  font-weight: 700;
+  font-size: var(--t-md);
+  letter-spacing: -0.01em;
 }
-.nav-brand-paren { color: var(--cobalt); }
+.nav-brand-studio { color: var(--line-2); }
 
 .nav-status {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.25rem 0.8rem;
-  border: var(--border-width) solid var(--ink);
-  border-radius: 9999px;
-  background: var(--sand);
+  gap: var(--s-2);
+  color: var(--line-2);
   white-space: nowrap;
 }
-.nav-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--lime);
-  border: 1.5px solid var(--ink);
-  animation: nav-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@keyframes nav-pulse { 50% { opacity: 0.4; } }
+.nav-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
 
-.nav-links { display: flex; gap: clamp(1rem, 2.4vw, 2rem); align-items: center; }
-.nav-link { position: relative; display: inline-block; padding: 0.5rem 0; }
-.nav-link::before {
-  content: '>';
-  position: absolute;
-  left: -0.95rem;
-  opacity: 0;
-  color: var(--cobalt);
-  transform: translateX(-8px);
-  transition: opacity 0.2s, transform 0.2s var(--ease-snap);
+.nav-links { display: flex; gap: clamp(1rem, 2.2vw, 2rem); align-items: center; }
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--line-2);
+  transition: color var(--dur-hover) ease;
 }
-.nav-link:hover::before,
-.nav-link[data-active='true']::before { opacity: 1; transform: none; }
-.nav-link[data-active='true'] { color: var(--cobalt); }
+/* the active section gets a solid line, like a committed ring */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9px;
+  height: 1px;
+  background: var(--lime);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--dur-ui) var(--ease-out);
+}
+.nav-link[data-active='true'] { color: var(--line); }
+.nav-link[data-active='true']::after { transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover { color: var(--line); }
+}
+
+.nav-sound {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  color: var(--line-2);
+  transition: color var(--dur-hover) ease;
+}
+.nav-sound-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; transition: background-color var(--dur-hover) ease; }
+.nav-sound[aria-pressed='true'] { color: var(--line); }
+.nav-sound[aria-pressed='true'] .nav-sound-dot { background: var(--lime); border-color: var(--lime); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-sound:hover { color: var(--line); }
+}
 
 .nav-progress {
   position: absolute;
   left: 0;
-  bottom: -2px;
+  bottom: -1px;
   width: 100%;
-  height: 4px;
-  background: var(--vermilion);
+  height: 1px;
+  background: var(--lime);
   transform-origin: 0 50%;
 }
 
-/* optional UI sound, off by default */
-.nav-sound {
-  padding: 0.28rem 0.6rem;
-  border: var(--border-width) solid var(--ink);
-  font-size: 0.6rem;
-  background: var(--paper);
-  transition: background-color 0.15s, transform 0.15s var(--ease-snap), box-shadow 0.15s var(--ease-snap);
-  box-shadow: 2px 2px 0 var(--ink);
-}
-.nav-sound:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
-.nav-sound[aria-pressed='true'] { background: var(--lime); }
-
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .nav-status { display: none; }
 }
-@media (max-width: 640px) {
-  .nav-sound { display: none; }
+@media (max-width: 720px) {
+  .nav-sound, .nav-brand-studio { display: none; }
+  .nav-inner { gap: var(--s-4); }
 }
 @media (max-width: 560px) {
-  .nav-inner { gap: 0.5rem; }
-  .nav-links { gap: 0.2rem; }
-  .nav-link { font-size: 0.58rem; letter-spacing: 0.02em; padding: 0.8rem 0.5rem; }
-  .nav-link::before { display: none; }
-  .nav-brand { font-size: 1rem; }
-}
-
-/* small phones: the surname folds away so all four links fit, and every link keeps a 44px hit area */
-.nav-brand { position: relative; }
-.nav-brand::after { content: ''; position: absolute; inset: -14px -6px; }
-@media (max-width: 560px) {
-  .nav-link { min-width: 44px; text-align: center; }
-}
-@media (max-width: 400px) {
-  .nav-brand-kar { display: none; }
-  .nav-link { padding-inline: 0.4rem; }
-}
-
-@media (max-width: 340px) {
-  .nav-link { min-width: 0; padding-inline: 0.28rem; font-size: 0.54rem; }
   .nav-links { gap: 0; }
+  .nav-link { padding-inline: 0.45rem; font-size: var(--t-2xs); letter-spacing: 0.06em; }
+  .nav-link::after { left: 0.45rem; right: 0.45rem; }
+  .nav-brand-name { font-size: var(--t-sm); font-stretch: var(--semi); }
+}
+@media (max-width: 370px) {
+  .nav-link { padding-inline: 0.3rem; font-size: var(--t-2xs); letter-spacing: 0.03em; }
+}
+@media (max-width: 430px) {
+  /* phones: the monogram carries the brand; the name stays in the link's accessible name */
+  .nav-brand-name {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+}
+
+/* the studio mark */
+.monogram { flex: none; overflow: visible; }
+.monogram-ring { fill: none; stroke: currentColor; stroke-width: 2; opacity: 0.45; }
+.monogram-disc { fill: var(--line); }
+.monogram-type { fill: var(--cy-800); font-family: var(--font-display); font-stretch: 125%; font-weight: 800; font-size: 27px; letter-spacing: -0.02em; }
+.monogram-body { fill: var(--lime); }
+.nav-brand { align-items: center; }
+.nav-mark { transition: transform var(--dur-ui) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-brand:hover .nav-mark { transform: rotate(-24deg); }
 }

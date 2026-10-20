@@ -18,7 +18,7 @@ const DEFAULT_LABELS: Record<string, string> = {
   play: 'PLAY',
   drag: 'DRAG',
   image: 'LOOK',
-  scroll: '↓',
+  scroll: 'SCROLL',
   cta: 'SAY HI',
 };
 

@@ -1,0 +1,236 @@
+{
+  "title": "Choose the visual world for Samudra Kar's portfolio",
+  "question": "The roll assigned the Cyanotype Orrery. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "kind": "assigned",
+      "label": "Cyanotype Orrery",
+      "kicker": "THE ROLL",
+      "lineage": "brass orreries, celestial atlas plates and sun-printed cyanotypes",
+      "thesis": "Seven worlds in one working instrument: the portfolio is an orrery you turn by scrolling, with Samudra at the centre.",
+      "palette": [
+        "#123a8c",
+        "#0b2763",
+        "#e9eefb",
+        "#d8f827",
+        "#ff5226"
+      ],
+      "materials": [
+        "cyanotype blue ground",
+        "white engraved linework",
+        "enamel planets in each world's own colour"
+      ],
+      "viewport": "Name set huge in expanded caps on the left; on the right a line-drawn orrery with seven dashed orbits, one solid for the world in conjunction, labels set along the rings, a readout naming it; Enter the worlds as the primary action.",
+      "risk": "Space imagery slides toward the near-black-and-neon cliché if the blue ground and engraved line discipline slip.",
+      "raised": [
+        {
+          "from": "medium-native-fluid-ink-basin",
+          "raise": "Honest physics: orbit speed follows scroll velocity and every control has an instrument verb (turn, align, enter), never decoration."
+        },
+        {
+          "from": "posters-covers-sleeves-fight-poster",
+          "raise": "Hierarchy by type size alone: no cards, boxes or badges; the active world is bigger, the rest step down."
+        },
+        {
+          "from": "fashion-folded-worlds-sewing-pattern-envelope",
+          "raise": "Committed vs available states: unselected orbits and frames are dashed, the committed one is solid, everywhere on the site."
+        },
+        {
+          "from": "galaxies-nebulae-deep-time-accretion-disk-threshold",
+          "raise": "Labels ride the rings: names, numbers and readouts are set along orbit paths and the dial rim, the centre held quiet."
+        }
+      ],
+      "html": ".impeccable/mocks/decision/assigned.html"
+    },
+    {
+      "id": "model-pick",
+      "kind": "pick",
+      "label": "Contact Sheet",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "35mm contact sheets, grease pencil and the photographer's loupe",
+      "thesis": "One roll of film: seven projects are frames, the circled ones are selects, and a loupe under the cursor shows each world up close.",
+      "palette": [
+        "#141210",
+        "#0a0908",
+        "#f2ede4",
+        "#f39a2a"
+      ],
+      "materials": [
+        "film rebate with edge numbers",
+        "white grease pencil",
+        "glass loupe"
+      ],
+      "viewport": "Two film strips frame a condensed name; frame 4A is circled in grease pencil, a loupe magnifies the frame under the pointer.",
+      "risk": "Familiar: dark photography portfolios are where many personal sites land, and it leans on a facet (photography) with no photos on hand.",
+      "html": ".impeccable/mocks/decision/model-pick.html"
+    },
+    {
+      "id": "challenger-bebop",
+      "kind": "challenger",
+      "catalogId": "pop-culture-shelf-bebop-title-card",
+      "label": "Session Title Card",
+      "verdict": "competitive",
+      "lineage": "jazz-session anime title cards",
+      "thesis": "Every project is a numbered session cut like a title frame: flat colour fields, colliding caps, hard cuts on the beat.",
+      "palette": [
+        "#e3a92b",
+        "#b6402a",
+        "#2f8a86",
+        "#f2e6cf",
+        "#141210"
+      ],
+      "materials": [
+        "flat cel colour",
+        "print grain",
+        "hard asymmetric bars"
+      ],
+      "viewport": "Mustard field sliced by a teal bar and a brick column, the name crashing in tight caps, the buddy as a freeze-frame silhouette, a numbered session strip along the bottom.",
+      "case": "Wins on product clarity (numbered running order, project names at poster scale); ties on audience identification, and sits closest to the current loud style.",
+      "risk": "Can read as a costume of a specific show if the bars and grain are applied without the beat-cut structure.",
+      "html": ".impeccable/mocks/decision/challenger-bebop.html",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-bebop-title-card-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/pop-culture-shelf-bebop-title-card.webp"
+    },
+    {
+      "id": "challenger-darkroom",
+      "kind": "challenger",
+      "catalogId": "signals-instruments-darkroom-safelight-bay",
+      "label": "Safelight Darkroom",
+      "verdict": "competitive",
+      "lineage": "print darkrooms under amber safelight",
+      "thesis": "Projects develop like prints: test strips preview a world, the timer runs, and the image emerges as you scroll.",
+      "palette": [
+        "#7a1f0c",
+        "#2a0b05",
+        "#ffcf9a",
+        "#efe7da"
+      ],
+      "materials": [
+        "amber safelight wash",
+        "test-strip bands",
+        "enamel tray white"
+      ],
+      "viewport": "Safelight-red room, stepped test strips on the right with one print developing, the name in amber, a timer readout.",
+      "case": "Holds audience identification through the photography facet; loses product clarity because worlds hide until developed.",
+      "risk": "Monochrome red wash fights the seven worlds' own palettes and is hard on contrast.",
+      "html": ".impeccable/mocks/decision/challenger-darkroom.html",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-darkroom-safelight-bay-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-darkroom-safelight-bay.webp"
+    },
+    {
+      "id": "challenger-ink",
+      "kind": "challenger",
+      "catalogId": "medium-native-fluid-ink-basin",
+      "label": "Suminagashi Basin",
+      "verdict": "declined",
+      "lineage": "suminagashi ink marbling",
+      "thesis": "The page is a basin of ink the cursor stirs.",
+      "palette": [
+        "#f4f2ec",
+        "#1d2a4f",
+        "#2b2b2b"
+      ],
+      "materials": [
+        "marbled ink",
+        "water"
+      ],
+      "viewport": "A basin of marbled currents with a quiet name in the margin.",
+      "case": "Loses both axes: the seven worlds dissolve into swirls and recruiters lose the project list.",
+      "kept": "Honest physics: every motion obeys a real rule with a real name.",
+      "risk": "Beautiful and unreadable as a portfolio.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-fluid-ink-basin-hero.webp"
+    },
+    {
+      "id": "challenger-fight",
+      "kind": "challenger",
+      "catalogId": "posters-covers-sleeves-fight-poster",
+      "label": "Fight Poster",
+      "verdict": "declined",
+      "lineage": "boxing fight posters",
+      "thesis": "Two names collide at a versus mark.",
+      "palette": [
+        "#efe6d2",
+        "#141210",
+        "#c9a227"
+      ],
+      "materials": [
+        "newsprint",
+        "slab ink"
+      ],
+      "viewport": "A versus split with the undercard shrinking below.",
+      "case": "Loses both axes: nothing in the portfolio is a comparison.",
+      "kept": "Ranking by type size alone.",
+      "risk": "Forces a fake rivalry."
+    },
+    {
+      "id": "challenger-pattern",
+      "kind": "challenger",
+      "catalogId": "fashion-folded-worlds-sewing-pattern-envelope",
+      "label": "Sewing Pattern",
+      "verdict": "declined",
+      "lineage": "home sewing pattern envelopes",
+      "thesis": "Projects as numbered pattern pieces on tissue.",
+      "palette": [
+        "#e9dcb8",
+        "#141210",
+        "#c23a2b"
+      ],
+      "materials": [
+        "manila tissue",
+        "drafting marks"
+      ],
+      "viewport": "An envelope front indexing views A to G.",
+      "case": "Loses both axes: the metaphor has nothing to do with the work.",
+      "kept": "Dashed for available, solid for committed.",
+      "risk": "Costume."
+    },
+    {
+      "id": "challenger-disk",
+      "kind": "challenger",
+      "catalogId": "galaxies-nebulae-deep-time-accretion-disk-threshold",
+      "label": "Accretion Disk",
+      "verdict": "declined",
+      "lineage": "black-hole accretion disks",
+      "thesis": "Worlds orbit an event horizon.",
+      "palette": [
+        "#050507",
+        "#dfe8ff",
+        "#e0552a",
+        "#e8c35a"
+      ],
+      "materials": [
+        "void",
+        "lensed light"
+      ],
+      "viewport": "A glowing disk with labels orbiting the rim.",
+      "case": "Loses both axes against the orrery: same orbit idea, darker, glowier and closer to the neon cliché.",
+      "kept": "Labels set along the rings, the centre held quiet.",
+      "risk": "The near-black-and-glow rut."
+    }
+  ],
+  "reroll": {
+    "registers": [
+      "safer",
+      "bolder"
+    ]
+  },
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "The category standard",
+    "thesis": "A clean developer portfolio: big name, short intro, a grid of project cards, about, contact.",
+    "palette": [
+      "#ffffff",
+      "#111827",
+      "#2563eb"
+    ],
+    "materials": [
+      "clean grid",
+      "project thumbnails"
+    ],
+    "viewport": "Name and one-line intro, buttons for work and contact, a 3-up grid of project cards below.",
+    "risk": "Indistinguishable from thousands of student portfolios by design; the seven worlds become thumbnails."
+  },
+  "steer": true
+}

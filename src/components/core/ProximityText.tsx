@@ -31,7 +31,8 @@ interface Props {
 /**
  * Typography as a physical object. Every letter is its own slot with its own
  * weight: the pointer thickens and lifts the letters it passes over (variable
- * font weight axis), scroll velocity leans them. Slots are sized for the
+ * font weight axis), scroll velocity leans them. On entrance the letters rise
+ * in with transform and opacity only. Slots are sized for the
  * resting weight and letters swell past them symmetrically, so the line
  * never reflows.
  */
@@ -83,38 +84,28 @@ export default function ProximityText({
     return () => ro.disconnect();
   }, [text, weight]);
 
-  // entrance: letters inflate from thin to heavy while rising
+  // entrance: letters rise into place, staggered. Transform and opacity only:
+  // tweening font-weight here re-laid out the whole page every frame.
   useEffect(() => {
     const root = rootRef.current!;
     const glyphs = Array.from(root.querySelectorAll<HTMLElement>('.prox-glyph'));
     if (!intro || reduce) {
       root.classList.remove('prox--pre');
-      glyphs.forEach((g) => (g.style.fontWeight = ''));
       ready.current = true;
       return;
     }
     if (!start) return; // glyphs stay hidden (.prox--pre) until the intro is released
-    const state = { w: 250 };
     const tl = gsap.timeline({
       delay: introDelay,
       onComplete: () => {
         ready.current = true;
-        glyphs.forEach((g) => (g.style.fontWeight = ''));
       },
     });
-    tl.add(() => root.classList.remove('prox--pre'), 0)
-      .fromTo(glyphs, { yPercent: 55, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.1, ease: 'expo.out', stagger: 0.055 })
-      .fromTo(
-        state,
-        { w: 250 },
-        {
-          w: weight,
-          duration: 1.2,
-          ease: 'power3.out',
-          onUpdate: () => glyphs.forEach((g) => (g.style.fontWeight = String(Math.round(state.w)))),
-        },
-        0,
-      );
+    tl.add(() => root.classList.remove('prox--pre'), 0).fromTo(
+      glyphs,
+      { yPercent: 55, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: 0.9, ease: 'expo.out', stagger: 0.045, clearProps: 'transform' },
+    );
     return () => {
       tl.kill();
     };
@@ -138,29 +129,43 @@ export default function ProximityText({
     const amount = new Array(slots.length).fill(0);
     const last = new Array(slots.length).fill(-1);
 
-    const tick = (time: number, deltaMs: number) => {
+    // Work only while something can change: the pointer moved, the scroll is
+    // leaning the letters, or the letters are still settling. With no pointer
+    // (touch, keyboard) the letters rest; there is no idle animation.
+    let lastPx = NaN;
+    let lastPy = NaN;
+    let lastLean = 0;
+    let settled = true;
+    const tick = (_time: number, deltaMs: number) => {
       if (!ready.current || paused || !onScreen.current || isPaused()) return;
       const dt = Math.min(deltaMs, 64) / 1000;
+      const usePointer = pointer.seen;
       const px = pointer.x.get();
       const py = pointer.y.get();
-      const usePointer = pointer.seen;
       const lean = velocity ? clamp(scrollVelocity.get() / 60, -1, 1) * 9 : 0;
+      const moved = usePointer && (px !== lastPx || py !== lastPy);
+      const leaning = Math.abs(lean - lastLean) > 0.05 || Math.abs(lean) > 0.05;
+      if (!moved && !leaning && settled) return;
+      lastPx = px;
+      lastPy = py;
+      lastLean = lean;
       const follow = 1 - Math.exp(-dt * 9);
 
-      // read phase
-      const rects = slots.map((s) => s.getBoundingClientRect());
+      // read phase (only when a pointer is in play)
+      const rects = usePointer ? slots.map((s) => s.getBoundingClientRect()) : null;
       // write phase
+      settled = true;
       for (let i = 0; i < slots.length; i++) {
-        const r = rects[i];
-        let target: number;
-        if (usePointer) {
+        let target = 0;
+        if (rects) {
+          const r = rects[i];
           const d = Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2));
           target = clamp(1 - d / radius);
           target *= target;
-        } else {
-          target = 0.25 + 0.25 * Math.sin(time * 1.3 + i * 0.6);
         }
         amount[i] += (target - amount[i]) * follow;
+        if (Math.abs(target - amount[i]) > 0.003) settled = false;
+        else amount[i] = target;
         const a = amount[i];
         const stamp = Math.round(a * 200) + Math.round(lean * 10);
         if (stamp === last[i]) continue;

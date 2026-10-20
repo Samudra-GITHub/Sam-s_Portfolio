@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { motionValue } from 'framer-motion';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { MQ, useMedia, useReducedMotion } from '../../lib/runtime';
-import { projects } from '../../data/projects';
+import { featured } from '../../data/projects';
 import Chapter from './Chapter';
 import WorkIntro from './WorkIntro';
 import './work.css';
@@ -11,7 +11,7 @@ const CLIP_FROM = ['inset(100% 0% 0% 0%)', 'inset(0% 100% 0% 0%)', 'circle(0% at
 const CLIP_TO = ['inset(-8% -8% -8% -8%)', 'inset(-8% -8% -8% -8%)', 'circle(120% at 50% 50%)', 'inset(-8% -8% -8% -8%)'];
 
 /**
- * Work is one continuous system, not seven sections.
+ * Work is one continuous system, not a stack of sections.
  *
  * pin mode (desktop): every chapter is a sticky 100dvh stage. The next chapter
  * has a negative top margin, so it slides up over the pinned one (scene handoff)
@@ -25,7 +25,7 @@ export default function Work() {
   const rootRef = useRef<HTMLElement>(null);
   const pin = useMedia(`${MQ.desktop} and (prefers-reduced-motion: no-preference)`);
   const reduce = useReducedMotion();
-  const list = useMemo(() => projects.filter((p) => p.featured), []);
+  const list = featured;
   const progress = useMemo(() => list.map(() => motionValue(0.5)), [list]);
 
   useEffect(() => {
@@ -123,6 +123,7 @@ export default function Work() {
   return (
     <section ref={rootRef} id="work" className="work" data-mode={pin ? 'pin' : 'stack'} data-theme="ink" aria-label="Selected work">
       <WorkIntro />
+      {list.length === 0 && <p className="work-empty">The worlds are still being built. Meanwhile, the rest of the work is below.</p>}
       <div className="chapters">
         {list.map((p, i) => (
           <Chapter key={p.id} project={p} index={i} total={list.length} progress={progress[i]} />

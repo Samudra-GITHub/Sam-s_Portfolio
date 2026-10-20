@@ -19,7 +19,7 @@ export default function NotFound() {
             className="btn"
             onClick={(e) => {
               e.preventDefault();
-              go('/', { label: 'Home', color: '#d8f827', ink: '#111215' });
+              go('/', { label: 'Home', color: '#123a8c', ink: '#eef2fc' });
             }}
           >
             Take me back

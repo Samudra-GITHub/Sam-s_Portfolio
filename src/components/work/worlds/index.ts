@@ -9,5 +9,7 @@ export const WORLDS: Record<WorldId, LazyExoticComponent<ComponentType>> = {
   skycast: lazy(() => import('./SkycastWorld')),
   krama: lazy(() => import('./KramaWorld')),
   grama: lazy(() => import('./GramaWorld')),
+  noir: lazy(() => import('./NoirWorld')),
+  prahari: lazy(() => import('./PrahariWorld')),
   portfolio: lazy(() => import('./PortfolioWorld')),
 };
