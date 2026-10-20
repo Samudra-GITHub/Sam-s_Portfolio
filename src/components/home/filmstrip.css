@@ -1,0 +1,183 @@
+/* The homepage: one strip of film. See Filmstrip.tsx.
+   Hierarchy: the frame in the gate (the strip) > the caption under it > the edges.
+   The name lives inside frame 00; the work lives in the frames after it. */
+@property --light {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d8f827;
+}
+
+.fs {
+  /* frame pitch: the gate frame plus its share of film between frames */
+  --fw: min(56vw, 82svh);
+  --ar: 3 / 2;
+  --band: 34px;
+  --hole: var(--cy-700);
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-content: center;
+  gap: var(--s-5);
+  padding: calc(var(--nav-height) + var(--s-5)) 0 calc(var(--s-6) + env(safe-area-inset-bottom));
+  overflow: hidden;
+  color: var(--sheet);
+  isolation: isolate;
+  transition: --light 700ms ease;
+  background:
+    radial-gradient(60% 55% at 50% 44%, color-mix(in srgb, var(--light) 16%, transparent), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--cy-700);
+}
+
+/* ---------- the gate and the strip ---------- */
+.fs-gate { position: relative; align-self: center; width: 100%; overflow: hidden; touch-action: pan-y; cursor: grab; outline: none; user-select: none; -webkit-user-select: none; }
+.fs-gate:active { cursor: grabbing; }
+.fs-gate:focus-visible::after { content: ''; position: absolute; inset: 4px calc(50% - var(--fw) / 2 - 6px); outline: 2px solid var(--lime); pointer-events: none; }
+.fs-track {
+  position: relative;
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  /* film base, with the sprocket holes punched top and bottom; the blue of the page shows through them */
+  background:
+    radial-gradient(closest-side, var(--hole) 78%, transparent 100%) 0 7px / 26px 16px repeat-x,
+    radial-gradient(closest-side, var(--hole) 78%, transparent 100%) 0 calc(100% - 7px) / 26px 16px repeat-x,
+    #0a1124;
+  box-shadow: 0 30px 70px -30px rgb(2 8 24 / 0.9);
+}
+/* the leader before frame 00 and the tail after the last frame: the roll goes on past the gate */
+.fs-track::before, .fs-track::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60vw; background: inherit; }
+.fs-track::before { right: 100%; -webkit-mask: linear-gradient(to left, #000 40%, transparent); mask: linear-gradient(to left, #000 40%, transparent); }
+.fs-track::after { left: 100%; -webkit-mask: linear-gradient(to right, #000 40%, transparent); mask: linear-gradient(to right, #000 40%, transparent); }
+.fs-frame { --dev: 0; position: relative; flex: none; width: var(--fw); padding: var(--band) calc(var(--fw) * 0.022); cursor: pointer; }
+.fs-pic {
+  position: relative;
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+  background: #000;
+  transform: scale(calc(0.93 + 0.07 * var(--dev)));
+}
+.fs-pic > .spec { width: 100%; height: 100%; display: block; }
+/* a frame outside the gate waits as a negative: blue, dim. In the gate it develops. */
+.fs-pic::before { content: ''; position: absolute; inset: 0; z-index: 2; background: var(--cy-600); mix-blend-mode: color; opacity: calc(1 - var(--dev)); pointer-events: none; }
+.fs-pic::after { content: ''; position: absolute; inset: 0; z-index: 3; background: #050b1c; opacity: calc((1 - var(--dev)) * 0.55); pointer-events: none; }
+.fs-edge { position: absolute; left: calc(var(--fw) * 0.022); right: calc(var(--fw) * 0.022); bottom: 25px; display: flex; justify-content: space-between; gap: var(--s-3); font-size: 0.625rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lime); opacity: calc(0.35 + 0.5 * var(--dev)); white-space: nowrap; overflow: hidden; pointer-events: none; }
+.fs-edge span:last-child { overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- frame 00: him ---------- */
+.fs-me {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 6% 6.5%;
+  background:
+    radial-gradient(90% 80% at 75% 20%, var(--cy-500), transparent 70%),
+    var(--cy-800);
+  color: var(--sheet);
+}
+.fs-me-k { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--t-2xs); letter-spacing: 0.16em; text-transform: uppercase; }
+.fs-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
+.fs-name {
+  align-self: center;
+  display: grid;
+  font-family: var(--font-display);
+  font-stretch: var(--wide);
+  font-weight: 820;
+  font-size: calc(var(--fw) * 0.128);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+.fs-line { display: block; overflow: hidden; padding-bottom: 0.04em; }
+.fs-line > span { display: inline-block; }
+.fs-line + .fs-line { padding-left: 0.5em; }
+.fs-me-what { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 620; font-size: clamp(0.95rem, calc(var(--fw) * 0.026), 1.35rem); line-height: 1.3; max-width: 30ch; }
+
+/* ---------- the caption under the gate ---------- */
+.fs-cap {
+  width: calc(var(--fw) * 0.956);
+  max-width: calc(100% - 2 * var(--gutter));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--s-5);
+}
+.fs-counter { display: flex; align-items: baseline; gap: var(--s-2); }
+.fs-counter-win { display: inline-block; overflow: hidden; height: 1.1em; padding: 0.2rem 0.45rem; box-sizing: content-box; background: #0a1124; color: var(--lime); font-size: var(--t-xl); line-height: 1.1; font-weight: 700; }
+.fs-counter-win > span { display: block; }
+.fs-counter-of { color: var(--line-2); font-size: var(--t-xs); }
+.fs-cap-body { display: grid; gap: var(--s-1); min-width: 0; }
+.fs-cap-title { font-family: var(--font-display); font-stretch: var(--wide); font-weight: 780; font-size: var(--t-lg); line-height: 1.1; text-transform: uppercase; }
+.fs-cap-tag { color: var(--sheet); font-size: var(--t-md); line-height: 1.4; max-width: 46ch; }
+.fs-cap-meta { color: var(--line-2); font-size: var(--t-2xs); letter-spacing: 0.08em; text-transform: uppercase; }
+.fs-cap-act { display: grid; gap: var(--s-3); justify-items: end; }
+.fs-open { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-4); background: var(--sheet); color: var(--cy-950); font-family: var(--font-display); font-stretch: var(--semi); font-weight: 720; font-size: var(--t-sm); white-space: nowrap; transition: background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out); }
+.fs-open .arrow { transition: transform var(--dur-ui) var(--ease-out); }
+.fs-open:active { transform: scale(0.97); }
+.fs-live { font-size: var(--t-sm); }
+.fs-lever-row { display: flex; gap: var(--s-2); }
+.fs-rewind, .fs-lever { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-width: 44px; min-height: 44px; padding: 0 var(--s-3); border: 1px solid var(--rule-strong); color: var(--sheet); transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out), opacity var(--dur-hover) ease; }
+.fs-rewind:disabled { opacity: 0.35; cursor: default; }
+.fs-lever .mono { font-size: var(--t-2xs); letter-spacing: 0.12em; text-transform: uppercase; }
+.fs-lever svg { width: 30px; height: 15px; fill: currentColor; transform-origin: 8px 12px; overflow: visible; }
+.fs-lever:active, .fs-rewind:active:not(:disabled) { transform: scale(0.96); }
+:is(.fs-open, .fs-rewind, .fs-lever, .fs-live):focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .fs-open:hover { background: var(--lime); }
+  .fs-open:hover .arrow { transform: translateX(4px); }
+  .fs-lever:hover, .fs-rewind:hover:not(:disabled) { background: var(--sheet); color: var(--cy-950); }
+}
+
+/* ---------- motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* the lever throws and springs back each time it is pulled */
+  .fs-lever svg[data-pulled] { animation: fs-pull 420ms var(--ease-out); }
+  /* the counter rolls to the next number; the caption follows the frame */
+  .fs-counter-win > span { animation: fs-roll 320ms var(--ease-out) both; }
+  .fs-cap-body > * { animation: fs-in 360ms var(--ease-out) both; }
+  .fs-cap-body > :nth-child(2) { animation-delay: 40ms; }
+  .fs-cap-body > :nth-child(3) { animation-delay: 80ms; }
+  /* entrance: the film is fed into the gate once */
+  .fs[data-first] .fs-gate { animation: fs-feed 1100ms var(--ease-out) both; }
+  .fs[data-first] .fs-line > span { animation: fs-rise 900ms var(--ease-out) both 380ms; }
+  .fs[data-first] .fs-line + .fs-line > span { animation-delay: 470ms; }
+  .fs[data-first] .fs-cap { animation: fs-in 600ms var(--ease-out) both 700ms; }
+}
+@keyframes fs-pull { 40% { transform: rotate(-38deg); } }
+@keyframes fs-roll { from { transform: translateY(100%); } }
+@keyframes fs-in { from { opacity: 0; translate: 0 8px; } }
+@keyframes fs-feed { from { translate: 22vw 0; } }
+@keyframes fs-rise { from { transform: translateY(104%); } }
+
+/* ---------- tablet portrait: bigger frames, caption stacks under ---------- */
+@media (max-aspect-ratio: 4/5) {
+  .fs { --fw: min(80vw, 54svh); --ar: 4 / 5; align-content: center; }
+  .fs-name { font-size: calc(var(--fw) * 0.122); }
+  .fs-line + .fs-line { padding-left: 0; }
+  .fs-me { grid-template-rows: auto 1fr auto; }
+  .fs-me-what { font-size: clamp(0.95rem, calc(var(--fw) * 0.042), 1.35rem); }
+  .fs-cap { grid-template-columns: auto minmax(0, 1fr); }
+  .fs-cap-act { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; justify-items: stretch; }
+  .fs-open { justify-content: space-between; }
+  .fs-live { display: none; }
+}
+/* phones */
+@media (max-width: 560px) {
+  .fs { --fw: 82vw; --band: 26px; gap: var(--s-4); }
+  .fs-track { background-size: 20px 12px, 20px 12px, auto; background-position: 0 6px, 0 calc(100% - 6px), 0 0; }
+  .fs-edge { bottom: 4px; font-size: 0.5625rem; }
+  .fs-edge span:nth-child(1) { display: none; }
+  .fs-cap { gap: var(--s-3) var(--s-4); }
+  .fs-cap-title { font-size: var(--t-md); }
+  .fs-cap-tag { font-size: var(--t-sm); }
+  .fs-counter-win { font-size: var(--t-lg); }
+  .fs-cap-act { grid-template-columns: minmax(0, 1fr); }
+  .fs-lever-row { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs { transition: none; }
+  .fs-open, .fs-lever, .fs-rewind { transition: none; }
+}

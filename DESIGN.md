@@ -179,7 +179,7 @@ Motion is orbital: continuous, velocity-coupled, settling on a long ease-out. No
 
 The cyanotype is no longer only a palette; it is the interaction model. A cyanotype is paper that turns Prussian blue where light reaches it and stays white where something lies on it.
 
-- **Home** is the loupe on the print: the name is the horizon, one lens is the only object. The focus ring is the interaction (detents, momentum, an iris between states) and the glass shows either the name, magnified, or one featured project.
+- **Home** is one strip of film: frame 00 is the name, frames 01-09 the featured work. Advancing the film is the only interaction; the gate frame develops, the caption, counter and page light follow it.
 - **Projects** is the dark room. Prints come up blue and develop to their own colour as they scroll in; a picked print lifts into a full-screen viewing room.
 - **About** is the contact sheet: one roll, seven frames, one loupe.
 - **Contact** is the last print, hung at night.
