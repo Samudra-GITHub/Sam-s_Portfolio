@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { featured, moreWork, paged } from '../../data/projects';
+import { featured, projects } from '../../data/projects';
 import { real } from '../../lib/content';
 import { useTicker, useVisibleRef } from '../../lib/hooks';
 import { scrollToTarget, scrollY, scrollVelocity } from '../../lib/scroll';
@@ -386,12 +386,6 @@ export default function Universe() {
   };
 
   const current = selected !== null ? featured[selected] : null;
-  const count = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][n] ?? String(n);
-  const stack = useMemo(() => {
-    const tally = new Map<string, number>();
-    paged.forEach((p) => p.tech.forEach((t) => tally.set(t, (tally.get(t) ?? 0) + 1)));
-    return [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5).map(([t]) => t);
-  }, []);
 
   const openCase = (slug: string, color: string, ink: string, label: string) => (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
@@ -444,26 +438,13 @@ export default function Universe() {
         </div>
       </div>
 
-      {/* the overview copy: who, what, how to explore */}
+      {/* the overview copy: who, and how to explore. One line each. */}
       <div className="uni-intro">
         <p className="uni-lede">
-          <strong>Designer and developer</strong>, and a student. I build tactile interfaces, web toys and AI tools.
+          <strong>Designer &amp; developer.</strong> Interfaces, web toys, AI tools.
         </p>
-        {stack.length > 0 && (
-          <p className="uni-stack">
-            <span className="mono uni-stack-k">Most used here</span>
-            <span className="dotlist mono">
-              {stack.map((t) => (
-                <span key={t}>{t}</span>
-              ))}
-            </span>
-          </p>
-        )}
       </div>
-      <p className="uni-hint">
-        <span className="uni-hint-big">{count.charAt(0).toUpperCase() + count.slice(1)} worlds orbit this name.</span>
-        <span className="mono">Drag to turn the system. Pick a world to land on it.</span>
-      </p>
+      <p className="uni-hint mono">Drag to turn · pick a world</p>
 
       {/* the focused world */}
       <div className="uni-panel" aria-live="polite">
@@ -552,18 +533,9 @@ export default function Universe() {
             </li>
           ))}
         </ol>
-        {moreWork.length > 0 && (
-          <a
-            href="#more"
-            className="tlink uni-rail-more"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTarget('#more', { duration: 2.4 });
-            }}
-          >
-            {moreWork.length} more <Arrow dir="down" />
-          </a>
-        )}
+        <Link to="/projects" className="tlink uni-rail-more" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); go('/projects', { color: '#081c4a', ink: '#eef2fc', label: 'The exhibition' }); }}>
+          All {projects.length} <Arrow dir="right" />
+        </Link>
       </nav>
 
     </section>

@@ -11,10 +11,10 @@ import Monogram from './core/Monogram';
 import './nav.css';
 
 const LINKS = [
-  { id: 'work', label: 'Work' },
-  { id: 'stack', label: 'Toolbox' },
-  { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'work', label: 'Worlds', to: '/#work' },
+  { id: 'projects', label: 'Projects', to: '/projects' },
+  { id: 'about', label: 'About', to: '/about' },
+  { id: 'contact', label: 'Contact', to: '/contact' },
 ] as const;
 
 export default function Nav() {
@@ -43,7 +43,7 @@ export default function Nav() {
   // Which section is on screen
   useEffect(() => {
     if (!onHome) return;
-    const triggers = LINKS.map(({ id }) =>
+    const triggers = LINKS.filter((l) => l.id === 'work').map(({ id }) =>
       ScrollTrigger.create({
         trigger: `#${id}`,
         start: 'top 55%',
@@ -57,12 +57,19 @@ export default function Nav() {
     return () => triggers.forEach((t) => t.kill());
   }, [onHome]);
 
-  const shown = onHome ? active : '';
+  const route = pathname.startsWith('/projects') || pathname.startsWith('/work/') ? 'projects' : pathname.startsWith('/about') ? 'about' : pathname.startsWith('/contact') ? 'contact' : '';
+  const shown = onHome ? active : route;
 
-  const jump = (id: string) => (e: React.MouseEvent) => {
+  const jump = (l: (typeof LINKS)[number]) => (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
-    if (onHome) scrollToTarget(`#${id}`, { duration: 1.6 });
-    else go('/', { scrollTo: `#${id}`, label: id, color: '#123a8c', ink: '#eef2fc' });
+    if (l.id === 'work') {
+      if (onHome) scrollToTarget('#work', { duration: 1.6 });
+      else go('/', { scrollTo: '#work', label: 'Worlds', color: '#123a8c', ink: '#eef2fc' });
+      return;
+    }
+    if (pathname === l.to) return scrollToTarget(0, { duration: 1 });
+    go(l.to, { label: l.label, color: '#081c4a', ink: '#eef2fc' });
   };
 
   const goHome = (e: React.MouseEvent) => {
@@ -103,7 +110,7 @@ export default function Nav() {
           <ul className="nav-links">
             {LINKS.map((l) => (
               <li key={l.id}>
-                <a href={`/#${l.id}`} className="nav-link mono" data-active={shown === l.id} onClick={jump(l.id)} aria-current={shown === l.id ? 'true' : undefined}>
+                <a href={l.to} className="nav-link mono" data-active={shown === l.id} onClick={jump(l)} aria-current={shown === l.id ? 'page' : undefined}>
                   {l.label}
                 </a>
               </li>

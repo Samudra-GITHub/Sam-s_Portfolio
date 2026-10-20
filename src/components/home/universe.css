@@ -102,9 +102,7 @@
 .uni-stack { display: grid; gap: var(--s-2); margin-top: var(--s-4); }
 .uni-stack-k { color: var(--line-2); }
 
-.uni-hint { right: var(--gutter); width: min(22rem, 26vw); display: grid; gap: var(--s-2); justify-items: end; text-align: right; }
-.uni-hint-big { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 600; font-size: var(--t-lg); line-height: 1.2; }
-.uni-hint .mono { color: var(--lime); line-height: 1.6; }
+.uni-hint { right: var(--gutter); color: var(--lime); text-align: right; }
 
 .uni[data-focus='true'] .uni-intro,
 .uni[data-focus='true'] .uni-hint { opacity: 0; translate: 0 -8px; pointer-events: none; }

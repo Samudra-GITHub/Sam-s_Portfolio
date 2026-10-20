@@ -1,0 +1,36 @@
+/* ---------- /about ---------- */
+.pg-open {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: calc(var(--nav-height) + var(--s-9)) var(--gutter) var(--s-8);
+  display: grid;
+  gap: var(--s-5);
+  justify-items: start;
+}
+.pg-kicker-line { color: var(--lime); }
+.pg-title {
+  font-size: var(--t-3xl);
+  font-weight: 760;
+  line-height: 0.95;
+  max-width: 16ch;
+  letter-spacing: -0.02em;
+}
+.pg-title-soft { color: var(--line-2); font-stretch: var(--semi); font-weight: 600; }
+.pg-roles { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
+.pg-roles li {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--rule-strong);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-transform: capitalize;
+  animation: pg-in 420ms var(--ease-out) both;
+}
+@keyframes pg-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* ---------- /contact: the section stands on its own ---------- */
+.pg-contact .contact { margin-top: 0 !important; padding-top: var(--nav-height) !important; min-height: 100svh; }
+.pg-contact .contact-dome { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-roles li { animation: none; }
+}

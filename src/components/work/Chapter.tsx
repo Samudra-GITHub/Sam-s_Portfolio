@@ -2,7 +2,6 @@ import { Suspense, useRef, useState, useEffect, type CSSProperties, type MouseEv
 import type { MotionValue } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import type { Project, WorldId } from '../../data/projects';
-import { real } from '../../lib/content';
 import { usePageTransition } from '../core/PageTransition';
 import Split from '../core/Split';
 import Magnetic from '../core/Magnetic';
@@ -37,7 +36,7 @@ export default function Chapter({ project, index, total, progress }: Props) {
   const [ref, near] = useNear<HTMLElement>();
   const World = WORLDS[project.world];
   const flip = index % 2 === 1;
-  const facts = [project.year, project.category, ...project.tech.slice(0, 3)];
+  const facts = [project.category, ...project.tech.slice(0, 2)];
 
   const open = (rect?: DOMRect | null) =>
     go(`/work/${project.slug}`, {
@@ -96,7 +95,6 @@ export default function Chapter({ project, index, total, progress }: Props) {
                 <li key={f}>{f}</li>
               ))}
             </ul>
-            <p className="chapter-desc chapter-reveal">{real(project.description)}</p>
             <div className="chapter-actions chapter-reveal">
               <Magnetic>
                 <Link to={`/work/${project.slug}`} className="btn btn--chapter" onClick={onLink} data-cursor="cta" data-cursor-label="OPEN">

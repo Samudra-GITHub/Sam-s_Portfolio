@@ -1,0 +1,32 @@
+.gate {
+  position: relative;
+  z-index: 20;
+  background: var(--cy-950);
+  border-top: 1px solid var(--rule);
+  padding-bottom: 14dvh; /* room for the contact dome */
+}
+/* the contact scene rises 35dvh over whatever precedes it; leave it that room */
+@media (min-width: 1000px) and (prefers-reduced-motion: no-preference) {
+  .gate { margin-top: -100dvh; padding-bottom: 35dvh; }
+}
+.gate-link { display: grid; gap: var(--s-6); padding: var(--s-9) 0; color: var(--line); }
+
+.gate-strip { display: block; overflow: hidden; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+.gate-track { display: flex; gap: var(--s-4); width: max-content; animation: gate-run 60s linear infinite; animation-play-state: paused; }
+/* the strip only runs while you reach for it */
+.gate-track[data-live] { animation-play-state: running; }
+.gate-frame { flex: none; width: clamp(160px, 18vw, 260px); aspect-ratio: 4 / 3; outline: 1px solid var(--rule); overflow: hidden; }
+.gate-frame .spec { width: 100%; height: 100%; display: block; }
+@keyframes gate-run { to { transform: translateX(-50%); } }
+
+.gate-text { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s-4) var(--s-6); max-width: var(--max-width); width: 100%; margin: 0 auto; padding: 0 var(--gutter); }
+.gate-title { font-family: var(--font-display); font-stretch: var(--wide); font-weight: 760; font-size: var(--t-3xl); line-height: 0.9; letter-spacing: -0.02em; }
+.gate-go { display: inline-flex; align-items: center; gap: var(--s-2); color: var(--lime); font-size: var(--t-sm); }
+.gate-go .arrow { transition: transform var(--dur-ui) var(--ease-out); }
+.gate-link:focus-visible { outline-offset: -4px; }
+@media (hover: hover) and (pointer: fine) {
+  .gate-link:hover .gate-go .arrow { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gate-track { animation: none; }
+}

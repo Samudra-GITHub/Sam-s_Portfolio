@@ -14,6 +14,9 @@ import NotFound from './pages/NotFound';
 
 // The case-study page is a separate chunk: the home page never pays for it.
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const Projects = lazy(() => import('./pages/Projects'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 export default function App() {
   const { pathname } = useLocation();
@@ -41,6 +44,9 @@ export default function App() {
           <Suspense fallback={<div style={{ minHeight: '100dvh' }} />}>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/work/:slug" element={<ProjectDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

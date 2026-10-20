@@ -64,7 +64,7 @@ export default function About() {
         tl.from(q('.about-word'), { clipPath: 'inset(0 100% 0 0)', duration: 0.6, stagger: 0.55, ease: 'power2.out' }, 0)
           .from(q('.artifact'), { yPercent: -170, rotation: (i: number) => (i % 2 ? 16 : -16), opacity: 0, duration: 0.8, stagger: 0.42 }, 0.2);
         // everything has landed after ~1.3 screens; the rest is time to look around before Contact rises
-        ScrollTrigger.create({ trigger: section, start: 'top top', end: '+=130%', scrub: 0.8, animation: tl });
+        ScrollTrigger.create({ trigger: section, start: 'top 75%', end: '+=150%', scrub: 0.8, animation: tl });
       } else {
         gsap.from(q('.artifact-inner'), {
           y: 50,

@@ -1,0 +1,164 @@
+/* The exhibition: a deep room, a wall of live specimens, a spotlight. */
+.ex {
+  min-height: 100svh;
+  padding: calc(var(--nav-height) + var(--s-7)) var(--gutter) var(--s-9);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--s-6);
+  align-content: start;
+}
+.ex > * { min-width: 0; }
+
+.ex-head { display: grid; gap: var(--s-5); }
+.ex-title { font-size: var(--t-3xl); font-weight: 760; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-5); }
+.ex-count { font-size: var(--t-xs); color: var(--lime); letter-spacing: 0.12em; }
+
+.ex-rooms { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.ex-rooms button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  border: 1px solid var(--rule);
+  color: var(--line-2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  transition: color var(--dur-hover) ease, border-color var(--dur-hover) ease, background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.ex-rooms button .mono { font-size: var(--t-2xs); opacity: 0.8; }
+.ex-rooms button:active { transform: scale(0.97); }
+.ex-rooms button[aria-pressed='true'] { color: var(--cy-950); background: var(--line); border-color: var(--line); }
+@media (hover: hover) and (pointer: fine) {
+  .ex-rooms button:hover { color: var(--line); border-color: var(--rule-strong); }
+  .ex-rooms button[aria-pressed='true']:hover { color: var(--cy-950); }
+}
+
+/* ---------- the spotlight ---------- */
+.ex-spot-wrap { scroll-margin-top: calc(var(--nav-height) + var(--s-4)); }
+.ex-spot {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+  padding: var(--s-5) 0 var(--s-7);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.ex-spot-art { aspect-ratio: 4 / 3; outline: 1px solid var(--line); outline-offset: 6px; overflow: hidden; }
+.ex-spot-art .spec { width: 100%; height: 100%; display: block; }
+.ex-spot-text { display: grid; gap: var(--s-3); justify-items: start; container-type: inline-size; }
+.ex-spot-k { color: var(--lime); }
+.ex-spot-title { font-size: min(var(--t-2xl), calc(100cqw / (var(--len, 8) * 0.86))); font-weight: 760; line-height: 0.95; overflow-wrap: anywhere; }
+.ex-spot-tag { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 600; font-size: var(--t-lg); line-height: 1.25; max-width: 30ch; }
+.ex-spot-tech { color: var(--line-2); }
+.ex-spot-team { color: var(--line-2); font-size: var(--t-sm); }
+.ex-spot-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4) var(--s-5); margin-top: var(--s-3); }
+.ex-spot-close { color: var(--line-2); }
+
+/* ---------- the wall ---------- */
+.ex-wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: clamp(1rem, 2.4vw, 2rem);
+}
+/* featured works hang larger */
+.ex-item[data-tier='featured'] { grid-column: span 2; }
+.ex-item[data-tier='earlier'] .ex-tile-art { opacity: 0.85; }
+
+.ex-tile { display: grid; gap: var(--s-3); width: 100%; text-align: left; color: var(--line); }
+.ex-tile-art {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  outline: 1px solid var(--rule);
+  outline-offset: 0;
+  transition: outline-color var(--dur-hover) ease, outline-offset var(--dur-ui) var(--ease-out);
+}
+.ex-tile-art .spec { width: 100%; height: 100%; display: block; transition: transform 600ms var(--ease-out); }
+.ex-tile-cap { display: grid; gap: 0.2rem; min-width: 0; }
+.ex-tile-title { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 680; font-size: var(--t-lg); line-height: 1.1; overflow-wrap: anywhere; }
+.ex-item[data-tier='featured'] .ex-tile-title { font-size: var(--t-xl); font-stretch: var(--wide); font-weight: 720; }
+/* the line appears on demand */
+.ex-tile-tag {
+  color: var(--line-2);
+  font-size: var(--t-sm);
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity var(--dur-hover) ease, transform var(--dur-ui) var(--ease-out);
+}
+.ex-tile:focus-visible { outline: none; }
+.ex-tile:focus-visible .ex-tile-art { outline: 2px solid var(--lime); outline-offset: 4px; }
+.ex-tile:focus-visible .ex-tile-tag,
+.ex-tile[aria-pressed='true'] .ex-tile-tag { opacity: 1; transform: none; }
+.ex-tile[aria-pressed='true'] .ex-tile-art { outline: 2px solid var(--lime); outline-offset: 4px; }
+.ex-tile:active .ex-tile-art .spec { transform: scale(0.985); }
+@media (hover: hover) and (pointer: fine) {
+  .ex-tile:hover .ex-tile-art { outline-color: var(--line); outline-offset: 4px; }
+  .ex-tile:hover .ex-tile-art .spec { transform: scale(1.03); }
+  .ex-tile:hover .ex-tile-tag { opacity: 1; transform: none; }
+}
+/* touch: there is no hover, so the line is always there */
+@media (hover: none) {
+  .ex-tile-tag { opacity: 1; transform: none; }
+}
+.ex-empty { color: var(--line-2); }
+
+/* view transitions re-hang the wall smoothly when a room is chosen */
+::view-transition-group(*) { animation-duration: 340ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+
+@media (max-width: 1099px) {
+  .ex-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .ex-spot { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .ex-wall { grid-template-columns: minmax(0, 1fr); }
+  .ex-item[data-tier='featured'] { grid-column: auto; }
+  .ex-rooms { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter) var(--s-1); scrollbar-width: none; }
+  .ex-rooms button { flex: none; }
+}
+
+/* ---------- specimen motion: plays only while live ---------- */
+.spec * { animation-play-state: paused; }
+.spec[data-live] * { animation-play-state: running; }
+.spec-spin { animation: spec-spin 5s linear infinite; }
+.spec-bar, .spec-wave { animation: spec-eq 0.9s ease-in-out infinite alternate; }
+.spec-step { animation: spec-step 2.2s ease-in-out infinite; }
+.spec-cloud { animation: spec-clear 3.2s ease-in-out infinite alternate; }
+.spec-sweep { animation: spec-sweep 3.2s ease-in-out infinite alternate; }
+.spec-sun { animation: spec-arc 6s ease-in-out infinite alternate; }
+.spec-drift { animation: spec-drift 7s ease-in-out infinite alternate; }
+.spec-tilt { animation: spec-tilt 3.6s ease-in-out infinite alternate; }
+.spec-pour, .spec-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.spec[data-live] .spec-pour, .spec[data-live] .spec-draw { animation: spec-draw 2.4s var(--ease-out) infinite; }
+.spec-ping { animation: spec-ping 1.4s ease-out infinite; }
+.spec-fill { animation: spec-fill 2.8s var(--ease-out) infinite alternate; }
+.spec-palette { animation: spec-palette 2.4s var(--ease-out) infinite alternate; }
+.spec-grow { animation: spec-grow 1.8s var(--ease-out) infinite alternate; }
+.spec-float { animation: spec-float 3s ease-in-out infinite alternate; }
+.spec-blink { animation: spec-blink 1s steps(1) infinite; }
+
+@keyframes spec-spin { to { transform: rotate(360deg); } }
+@keyframes spec-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
+@keyframes spec-step { 0%, 100% { opacity: 0.35; } 40% { opacity: 1; } }
+@keyframes spec-clear { from { opacity: 0.92; } to { opacity: 0.12; } }
+@keyframes spec-sweep { from { transform: translateX(10px); } to { transform: translateX(190px); } }
+@keyframes spec-arc { from { transform: translate(0, 12px); } to { transform: translate(80px, -6px); } }
+@keyframes spec-drift { to { transform: translateX(-34px); } }
+@keyframes spec-tilt { from { transform: rotate(-4deg) translateY(2px); } to { transform: rotate(5deg) translateY(-4px); } }
+@keyframes spec-draw { from { stroke-dashoffset: 1; } 70%, to { stroke-dashoffset: 0; } }
+@keyframes spec-ping { from { transform: scale(1); opacity: 1; } to { transform: scale(5); opacity: 0; } }
+@keyframes spec-fill { from { transform: scaleY(0.2); } to { transform: scaleY(0.74); } }
+@keyframes spec-palette { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes spec-grow { from { transform: scaleX(0.3); } to { transform: scaleX(1); } }
+@keyframes spec-float { to { transform: translate(-6px, -6px); } }
+@keyframes spec-blink { 50% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spec * { animation: none !important; }
+  .ex-tile-art .spec, .ex-tile-tag { transition: none; }
+}

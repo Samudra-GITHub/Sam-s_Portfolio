@@ -12,9 +12,7 @@ import './side-index.css';
 const CHAPTERS = [
   { id: 'top', label: 'Intro' },
   { id: 'work', label: 'Worlds' },
-  { id: 'more', label: 'More work' },
-  { id: 'stack', label: 'Toolbox' },
-  { id: 'about', label: 'About' },
+  { id: 'gate', label: 'All works' },
   { id: 'contact', label: 'Find me' },
 ] as const;
 

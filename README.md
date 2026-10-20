@@ -102,6 +102,18 @@ Somewhere on the About desk is a faint mark. (Or type `kage` anywhere.) Open it 
 
 <img src="docs/screenshots/kage.jpg" alt="The Kage scene: a moonlit temple gate with a Back to Samudra button" width="100%" />
 
+## Pages
+
+| Route | What it is |
+| --- | --- |
+| `/` | The universe, the featured worlds, a gate into the exhibition, contact |
+| `/projects` | The exhibition: every project as a live SVG specimen, filters (`?room=ai`), a spotlight (`?p=slug`), Escape to close |
+| `/about` | The desk and the grouped toolbox |
+| `/contact` | Instagram, GitHub, LinkedIn and the rest, over the night field |
+| `/work/:slug` | Case studies |
+
+Filters and the spotlight live in the URL, so links and refreshes land on the same view. Project categories are in `src/data/kinds.ts`.
+
 ## The worlds
 
 Every featured project is a small interactive scene with **its own motion personality and its own visual language**, driven by scroll, cursor, hover and scroll velocity. All of them run from the same `SceneContext`, so the scene in a chapter and the large one on the case-study page are the same component. The instrument frames them; it does not repaint them.
