@@ -1,0 +1,191 @@
+/* The homepage: one lens on one name. See Aperture.tsx.
+   Composition: the name is the horizon, the lens is the only object.
+   Everything else is small, at the edges, and quiet. */
+.ap {
+  --d: min(46svh, 29vw);
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 'kick kick' '. .' 'copy read';
+  gap: var(--s-5);
+  padding: calc(var(--nav-height) + var(--s-5)) var(--gutter) calc(var(--s-6) + env(safe-area-inset-bottom));
+  overflow: hidden;
+  color: var(--sheet);
+  isolation: isolate;
+  /* the sheet: Prussian blue, brushed, a little uneven, like the real thing */
+  background:
+    radial-gradient(120% 80% at 50% 50%, transparent 40%, rgb(4 14 40 / 0.45)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--cy-700);
+}
+
+/* ---------- the stage: name and lens share one coordinate space ---------- */
+.ap-stage { position: absolute; inset: 0; z-index: 0; }
+.ap-name, .ap-mag-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--sw, 100%);
+  height: var(--sh, 100%);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  gap: 0 0.26em;
+  font-family: var(--font-display);
+  font-stretch: var(--wide);
+  font-weight: 820;
+  font-size: clamp(3rem, 9.3vw, 11rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ap-name { color: var(--sheet); }
+.ap-line { display: block; overflow: hidden; padding: 0.06em 0.02em; }
+.ap-line > span { display: inline-block; }
+
+/* ---------- the lens ---------- */
+.ap-lens {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: var(--d);
+  height: var(--d);
+  margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  border-radius: 50%;
+  transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+.ap-lens:active { cursor: grabbing; }
+/* the ring is part of the lens: grab it anywhere */
+.ap-lens::before { content: ''; position: absolute; inset: -15%; border-radius: 50%; }
+.ap-lens:focus-visible::after { content: ''; position: absolute; inset: -20%; border-radius: 50%; outline: 2px solid var(--lime); outline-offset: 0; }
+
+.ap-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--sheet);
+  box-shadow: 0 40px 80px -30px rgb(3 10 30 / 0.85), 0 0 0 1px rgb(255 255 255 / 0.5) inset;
+  transition: transform var(--dur-press) var(--ease-out);
+}
+.ap-lens:active .ap-glass { transform: scale(0.985); }
+.ap-mag { position: absolute; inset: 0; }
+.ap-mag-name {
+  left: calc(-1 * var(--lx, 0px) - var(--mx, 0px));
+  top: calc(-1 * var(--ly, 0px) - var(--my, 0px));
+  color: var(--cy-700);
+  transform: scale(1.6);
+  transform-origin: calc(var(--lcx, 50%) + var(--mx, 0px)) calc(var(--lcy, 50%) + var(--my, 0px));
+}
+/* the loupe's reticle: a fine cross and a scale */
+.ap-mag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--cy-700), var(--cy-700)) 50% 50% / 1px 26% no-repeat,
+    linear-gradient(var(--cy-700), var(--cy-700)) 50% 50% / 26% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--cy-700) 0 1px, transparent 1px 7%) 50% 84% / 44% 6px no-repeat;
+  opacity: 0.45;
+}
+.ap-work { position: absolute; inset: 0; }
+.ap-work .spec { width: 100%; height: 100%; display: block; }
+.ap[data-mode='work'] .ap-mag { visibility: hidden; }
+.ap-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at calc(32% - var(--mx, 0px) * 1.5) calc(26% - var(--my, 0px) * 1.5), rgb(255 255 255 / 0.5), transparent 34%),
+    radial-gradient(circle at 50% 50%, transparent 62%, rgb(8 28 74 / 0.22) 100%);
+  pointer-events: none;
+}
+
+.ap-ring { position: absolute; left: -14%; top: -14%; width: 128%; height: 128%; max-width: none; overflow: visible; pointer-events: none; }
+.ap-band { fill: none; stroke: #0a1430; stroke-width: 9.5; }
+.ap-knurl { stroke: var(--sheet); stroke-opacity: 0.32; stroke-width: 0.45; }
+.ap-num { fill: var(--sheet); font-family: var(--font-mono); font-size: 3.1px; font-weight: 600; letter-spacing: 0.02em; }
+.ap-rim { fill: none; stroke: #0a1430; stroke-width: 1.4; }
+.ap-blades polygon { fill: #0c1838; stroke: rgb(238 242 252 / 0.28); stroke-width: 0.35; }
+.ap-index { fill: var(--lime); }
+
+/* ---------- the edges: small, quiet, around the object ---------- */
+.ap-kicker { grid-area: kick; position: relative; z-index: 3; display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; }
+.ap-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
+
+.ap-copy { grid-area: copy; position: relative; z-index: 3; align-self: end; display: grid; gap: var(--s-3); justify-items: start; max-width: 34ch; }
+.ap-what { font-family: var(--font-display); font-stretch: var(--semi); font-weight: 640; font-size: var(--t-lg); line-height: 1.25; }
+.ap-what em { font-style: normal; color: var(--lime); }
+.ap-how { color: var(--line-2); font-size: var(--t-md); line-height: 1.45; }
+.ap-all { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; margin-top: var(--s-1); padding: 0 var(--s-4); background: var(--sheet); color: var(--cy-950); font-family: var(--font-display); font-stretch: var(--semi); font-weight: 720; font-size: var(--t-sm); transition: background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out); }
+.ap-all .arrow { transition: transform var(--dur-ui) var(--ease-out); }
+.ap-all:active { transform: scale(0.97); }
+.ap-all:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+
+.ap-read { grid-area: read; position: relative; z-index: 3; align-self: end; justify-self: end; display: grid; gap: var(--s-2); justify-items: end; text-align: right; max-width: 30ch; }
+.ap-read-k { color: var(--lime); font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; }
+.ap-read-t { font-size: var(--t-md); line-height: 1.35; }
+.ap-read-ctl { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-1); }
+.ap-step { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--rule-strong); color: var(--sheet); transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out); }
+.ap-step:active { transform: scale(0.94); }
+.ap-step:focus-visible, .ap-open:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.ap-open { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-4); background: var(--lime); color: var(--cy-950); font-size: var(--t-2xs); letter-spacing: 0.1em; text-transform: uppercase; transition: transform var(--dur-press) var(--ease-out); }
+.ap-open:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .ap-all:hover { background: var(--lime); }
+  .ap-all:hover .arrow, .ap-open:hover .arrow { transform: translateX(4px); }
+  .ap-step:hover { background: var(--sheet); color: var(--cy-950); }
+}
+
+/* ---------- motion: one entrance, then stillness ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .ap[data-first] .ap-line > span { animation: ap-rise 1000ms var(--ease-out) both; }
+  .ap[data-first] .ap-line + .ap-line > span { animation-delay: 90ms; }
+  .ap[data-first] .ap-lens { animation: ap-lens 900ms var(--ease-out) both 120ms; }
+  .ap[data-first] :is(.ap-kicker, .ap-copy, .ap-read) { animation: ap-fade 600ms var(--ease-out) both 650ms; }
+  .ap-read-k, .ap-read-t { animation: ap-fade 260ms var(--ease-out) both; }
+}
+@keyframes ap-rise { from { transform: translateY(102%); } }
+@keyframes ap-lens { from { opacity: 0; scale: 0.9; } }
+@keyframes ap-fade { from { opacity: 0; translate: 0 10px; } }
+
+/* ---------- tall screens: the name stacks, the lens sits on the join ---------- */
+@media (max-aspect-ratio: 4/5), (max-width: 760px) {
+  .ap {
+    --d: min(64vw, 33svh);
+    --fs: clamp(2.6rem, 15vw, 9rem);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: 'kick' 'stage' 'read' 'copy';
+    gap: var(--s-4);
+  }
+  .ap-stage { position: relative; inset: auto; grid-area: stage; min-height: calc(var(--d) * 1.32 + var(--fs) * 1.8); margin: 0 calc(-1 * var(--gutter)); }
+  .ap-name, .ap-mag-name { flex-direction: column; justify-content: flex-start; padding-top: calc(var(--d) * 0.66); font-size: var(--fs); line-height: 0.84; gap: calc(var(--d) * 0.62); }
+  /* the lens sits on the first name line, as it sits on the middle of the name on wide screens */
+  .ap-lens { top: 0; margin-top: calc(var(--d) * 0.16 + var(--fs) * 0.42); }
+  .ap-read { justify-self: center; justify-items: center; text-align: center; max-width: 34ch; }
+  .ap-copy { max-width: none; }
+}
+/* tablets in portrait: same arrangement, a little tighter so it fits one screen */
+@media (max-aspect-ratio: 4/5) and (min-width: 561px) {
+  .ap { --fs: clamp(2.6rem, 12.5vw, 9rem); gap: var(--s-3); padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 560px) {
+  .ap-what { font-size: var(--t-md); }
+  .ap-how { font-size: var(--t-sm); }
+  .ap-copy { grid-template-columns: minmax(0, 1fr); }
+  .ap-all { justify-self: stretch; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ap-glass, .ap-all, .ap-step { transition: none; }
+}

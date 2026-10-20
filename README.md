@@ -104,11 +104,11 @@ Somewhere on the About desk is a faint mark. (Or type `kage` anywhere.) Open it 
 
 ## Pages
 
-The site is one sun print being made: a cyanotype (iron-salt paper that turns Prussian blue in light and stays white where something covers it).
+The site is printed in cyanotype: Prussian blue, paper white, one acid-lime signal.
 
 | Route | What it is |
 | --- | --- |
-| `/` | Identity only, and something to do. A full-screen WebGL cyanotype: the pointer is the lamp. Three things lie on the sheet and cast photogram shadows that swing with it: a real little browser that pages through the featured work (its real addresses; arrows, ← → or a swipe), a sound wave, and a lens. **Hold anywhere (or the Hold to expose button with Space) to expose a print:** the blue deepens, shadows sharpen, the lens closes and its lime meter fills; let go and that photogram is fixed on the sheet. The layers drift at different depths. Any key, click or wheel skips the entrance. |
+| `/` | Identity only, as one object. His name runs the full width; a single lens sits on it and magnifies it (blue ink on white paper, like a loupe on a print). Turn the focus ring (drag or flick it, scroll over it, ← → / Home / End, or the arrow buttons) and it clicks through ten detents: the loupe, then the nine featured projects. At each click the iris blades close and open on that project's specimen; press the glass (or Enter) to open it in the exhibition. Flicks are projected to the nearest detent; nothing moves when nobody touches it. |
 | `/projects` | The exhibition: all 16 projects as live SVG specimens. Wall view (prints lean toward the pointer and develop from blue to colour as they scroll in) or Index view (a fast list with a hover preview). Filters per kind (`?room=ai`), each with its own light. Picking a print opens a full-screen viewing room with a shared-element transition; arrow keys step through, Escape puts it back. `?p=slug` opens straight into it. |
 | `/about` | A contact sheet: seven frames from one roll (designer, developer, student, photography, creative coding, AI, experiments) with a loupe; what is on the bench now; the toolbox. Arrow keys walk the frames. |
 | `/contact` | The last print, at night: the WebGL field and enamel orb answer the channel you aim at; Instagram, GitHub and LinkedIn as tall rows. Email shows automatically once `config.contact.email` is filled in. |

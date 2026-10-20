@@ -1,10 +1,10 @@
-import Exposure from '../components/home/Exposure';
+import Aperture from '../components/home/Aperture';
 
-/** The homepage is an introduction, not an archive: who, what, and what he cares about. The work lives on /projects. */
+/** The homepage is an introduction, not an archive: who, what, and how he works. The work lives on /projects. */
 export default function Home() {
   return (
     <main id="main" className="home">
-      <Exposure />
+      <Aperture />
     </main>
   );
 }
