@@ -47,8 +47,13 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
       const land = async () => {
         navigate(to);
         await nextFrames(3);
+        // the router commits in a transition: wait (briefly) for the section we are landing on to exist
+        const sel = opts.scrollTo;
+        for (let i = 0; sel && !document.querySelector(sel) && i < 60; i++) await nextFrames(1);
+        // and let the app's own scroll-to-top on route change run first
+        await nextFrames(2);
         ScrollTrigger.refresh();
-        scrollToTarget(opts.scrollTo ?? 0, { immediate: true });
+        scrollToTarget(sel ?? 0, { immediate: true });
       };
 
       const curtain = curtainRef.current;
@@ -60,7 +65,7 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
 
       busy.current = true;
       whoosh();
-      const { from, color = '#111215', ink = '#fdf9f1', label: text = '' } = opts;
+      const { from, color = '#123a8c', ink = '#eef2fc', label: text = '' } = opts;
       curtain.style.background = color;
       curtain.style.color = ink;
       label.textContent = text;

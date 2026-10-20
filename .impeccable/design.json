@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T00:00:00Z",
+  "title": "Design System: Sam's Studio",
+  "extensions": {
+    "colorMeta": {
+      "cyanotype-deep": { "role": "primary", "displayName": "Cyanotype Deep", "canonical": "#081c4a", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "cyanotype-night": { "role": "primary", "displayName": "Cyanotype Night", "canonical": "#0b2560", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "cyanotype-strip": { "role": "primary", "displayName": "Cyanotype Strip", "canonical": "#0e2d72", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "cyanotype-ground": { "role": "primary", "displayName": "Cyanotype Ground", "canonical": "#123a8c", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "cyanotype-lit": { "role": "primary", "displayName": "Cyanotype Lit", "canonical": "#1a49a6", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "cyanotype-exposed": { "role": "primary", "displayName": "Cyanotype Exposed", "canonical": "#2a5cc0", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#1a49a6", "#2a5cc0", "#aebee2", "#eef2fc"] },
+      "engraved-line": { "role": "neutral", "displayName": "Engraved Line", "canonical": "#eef2fc", "tonalRamp": ["#081c4a", "#0e2d72", "#123a8c", "#2a5cc0", "#3d5591", "#aebee2", "#e4e9f3", "#eef2fc"] },
+      "engraved-line-soft": { "role": "neutral", "displayName": "Engraved Line Soft", "canonical": "#aebee2", "tonalRamp": ["#081c4a", "#0e2d72", "#123a8c", "#2a5cc0", "#3d5591", "#aebee2", "#e4e9f3", "#eef2fc"] },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "rgb(238 242 252 / 0.22)" },
+      "hairline-strong": { "role": "neutral", "displayName": "Hairline Strong", "canonical": "rgb(238 242 252 / 0.5)" },
+      "sheet": { "role": "neutral", "displayName": "Unexposed Sheet", "canonical": "#f3f5f9", "tonalRamp": ["#0e2d72", "#3d5591", "oklch(62% 0.03 265)", "oklch(74% 0.02 265)", "oklch(84% 0.015 265)", "#e4e9f3", "#f3f5f9", "#ffffff"] },
+      "sheet-shade": { "role": "neutral", "displayName": "Sheet Shade", "canonical": "#e4e9f3", "tonalRamp": ["#0e2d72", "#3d5591", "oklch(62% 0.03 265)", "oklch(74% 0.02 265)", "oklch(84% 0.015 265)", "#e4e9f3", "#f3f5f9", "#ffffff"] },
+      "sheet-ink": { "role": "neutral", "displayName": "Sheet Ink", "canonical": "#0e2d72", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#3d5591", "#aebee2", "#e4e9f3", "#f3f5f9"] },
+      "sheet-ink-soft": { "role": "neutral", "displayName": "Sheet Ink Soft", "canonical": "#3d5591", "tonalRamp": ["#081c4a", "#0b2560", "#0e2d72", "#123a8c", "#3d5591", "#aebee2", "#e4e9f3", "#f3f5f9"] },
+      "sheet-hairline": { "role": "neutral", "displayName": "Sheet Hairline", "canonical": "rgb(14 45 114 / 0.2)" },
+      "signal-lime": { "role": "secondary", "displayName": "Signal Lime", "canonical": "#d8f827", "tonalRamp": ["oklch(18% 0.06 118)", "oklch(30% 0.1 118)", "oklch(42% 0.14 118)", "oklch(55% 0.18 118)", "oklch(68% 0.2 118)", "oklch(80% 0.21 118)", "oklch(91% 0.2 118)", "oklch(96% 0.1 118)"] },
+      "enamel-cobalt": { "role": "tertiary", "displayName": "Enamel Cobalt", "canonical": "#1e3ae8", "tonalRamp": ["oklch(18% 0.1 266)", "oklch(28% 0.16 266)", "oklch(38% 0.22 266)", "oklch(48% 0.26 266)", "oklch(60% 0.2 266)", "oklch(72% 0.14 266)", "oklch(84% 0.08 266)", "oklch(95% 0.03 266)"] },
+      "enamel-vermilion": { "role": "tertiary", "displayName": "Enamel Vermilion", "canonical": "#ff5226", "tonalRamp": ["oklch(20% 0.07 35)", "oklch(32% 0.12 35)", "oklch(45% 0.17 35)", "oklch(57% 0.21 35)", "oklch(67% 0.22 35)", "oklch(77% 0.16 35)", "oklch(87% 0.09 35)", "oklch(95% 0.03 35)"] },
+      "mount-ink": { "role": "neutral", "displayName": "Mount Ink", "canonical": "#111215", "tonalRamp": ["oklch(15% 0.005 270)", "oklch(19% 0.005 270)", "oklch(28% 0.005 270)", "oklch(40% 0.005 270)", "oklch(55% 0.005 270)", "oklch(70% 0.005 270)", "oklch(84% 0.005 270)", "oklch(95% 0.005 270)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The hero name in expanded caps; the same treatment, fitted to its column, sets the loader name, contact headline and chapter titles." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles such as Toolbox and More work." },
+      "title": { "displayName": "Title", "purpose": "Index headings, preview titles, lead entries and case-study subheads." },
+      "index-row": { "displayName": "Index Row", "purpose": "World names in the index at normal width; the committed row widens to 125% and 700." },
+      "tagline": { "displayName": "Tagline", "purpose": "Chapter, case-study and lead-entry taglines at semi-wide width." },
+      "body-lg": { "displayName": "Body Large", "purpose": "Hero lede and other short lead paragraphs, max 34-60ch." },
+      "body": { "displayName": "Body", "purpose": "Prose, max 46-60ch." },
+      "label": { "displayName": "Label (Mono)", "purpose": "Nav, buttons, text links, readouts, numbers and facts. Never prose." }
+    },
+    "shadows": [
+      { "name": "none", "value": "none", "purpose": "Instrument surfaces carry no elevation shadows; depth is line weight and tonal steps of the print." },
+      { "name": "label-halo", "value": "paint-order: stroke; stroke: var(--cy-700); stroke-width: 6px; stroke-linejoin: round", "purpose": "Ground-colour halo behind orrery labels so crossing labels stay legible." },
+      { "name": "hairline-mount", "value": "outline: 1px solid currentColor; outline-offset: 6px", "purpose": "Scene frame mount; offset tightens to 2px on hover." },
+      { "name": "focus", "value": "outline: 2px solid var(--lime); outline-offset: 3px", "purpose": "Focus ring on the blue; Cyanotype Lit on the sheet." },
+      { "name": "paper-grain", "value": "fractalNoise SVG, opacity 0.08, mix-blend-mode: overlay", "purpose": "Watercolour-stock fibre over the whole page." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Default for arrivals, floods, underline draws and settles. Nothing overshoots." },
+      { "name": "ease-in-out", "value": "cubic-bezier(0.77, 0, 0.175, 1)", "purpose": "Symmetric moves such as curtains and scrubbed transitions." },
+      { "name": "dur-press", "value": "140ms", "purpose": "Press feedback (scale 0.97)." },
+      { "name": "dur-hover", "value": "200ms", "purpose": "Colour and underline changes on hover." },
+      { "name": "dur-ui", "value": "260ms", "purpose": "Row floods, nav underline, halos, nav hide." },
+      { "name": "dur-arrival", "value": "420ms", "purpose": "Body recolours, role slot width and contact letter rolls." },
+      { "name": "orbital", "value": "scroll- and drag-coupled rotation with velocity carry (springs at stiffness 70, damping 16)", "purpose": "The orrery and contact moon: continuous, velocity-coupled, settling." }
+    ],
+    "breakpoints": [
+      { "name": "phone-diagram", "value": "600px" },
+      { "name": "nav-compact", "value": "720px" },
+      { "name": "pin", "value": "1000px" },
+      { "name": "status-in-nav", "value": "1100px" },
+      { "name": "max-width", "value": "1440px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A white plate printed on the blue; the main call to action, such as Enter the worlds.",
+      "html": "<button class=\"ds-btn\">Enter the worlds <svg class=\"ds-btn-arrow\" viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"square\"><path d=\"M12 4v16M5 13l7 7 7-7\"/></svg></button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 48px; padding: 0 1.4rem; background: var(--line, #eef2fc); color: var(--cy-800, #0e2d72); border: 1px solid var(--line, #eef2fc); border-radius: 0; font-family: var(--font-mono, 'JetBrains Mono', monospace); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: background-color 200ms ease, color 200ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-arrow { transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn:hover { background: transparent; color: var(--line, #eef2fc); } .ds-btn:hover .ds-btn-arrow { transform: translateY(3px); } .ds-btn:active { transform: scale(0.97); } .ds-btn:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: 3px; }"
+    },
+    {
+      "name": "Line Button",
+      "kind": "button",
+      "refersTo": "button-line",
+      "description": "The outlined plate; secondary actions on the blue.",
+      "html": "<button class=\"ds-btn-line\">Case study</button>",
+      "css": ".ds-btn-line { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 48px; padding: 0 1.4rem; background: transparent; color: var(--line, #eef2fc); border: 1px solid var(--line, #eef2fc); border-radius: 0; font-family: var(--font-mono, 'JetBrains Mono', monospace); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background-color 200ms ease, color 200ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-line:hover { background: var(--line, #eef2fc); color: var(--cy-800, #0e2d72); } .ds-btn-line:active { transform: scale(0.97); } .ds-btn-line:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Link",
+      "kind": "custom",
+      "refersTo": "text-link",
+      "description": "Mono link with an engraved underline; socials and secondary navigation.",
+      "html": "<a class=\"ds-tlink\" href=\"#\">GitHub</a>",
+      "css": ".ds-tlink { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--line-2, #aebee2); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.45em; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); transition: text-decoration-color 200ms ease, color 200ms ease; } .ds-tlink:hover { color: var(--line, #eef2fc); text-decoration-color: currentColor; } .ds-tlink:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: 3px; }"
+    },
+    {
+      "name": "Instrument Nav",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "The fixed mono strip with the monogram, section links and a lime progress rule.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-brand\" href=\"#\"><svg class=\"ds-mono\" width=\"28\" height=\"28\" viewBox=\"-50 -50 100 100\"><circle r=\"46\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" opacity=\"0.45\"/><circle r=\"35\" fill=\"#eef2fc\"/><text y=\"9.5\" text-anchor=\"middle\" fill=\"#0e2d72\" font-size=\"27\" font-weight=\"800\">SK</text><circle cx=\"32.5\" cy=\"-32.5\" r=\"6.5\" fill=\"#d8f827\"/></svg><span>Samudra Kar</span></a><div class=\"ds-nav-links\"><a class=\"ds-nav-link\" data-active=\"true\" href=\"#\">Work</a><a class=\"ds-nav-link\" href=\"#\">About</a><a class=\"ds-nav-link\" href=\"#\">Contact</a></div><span class=\"ds-nav-progress\"></span></nav>",
+      "css": ".ds-nav { position: relative; display: flex; align-items: center; gap: 2rem; height: 60px; padding: 0 1.5rem; background: var(--cy-800, #0e2d72); color: var(--line, #eef2fc); border-bottom: 1px solid var(--rule, rgb(238 242 252 / 0.22)); } .ds-nav-brand { display: flex; align-items: center; gap: 0.75rem; margin-right: auto; color: inherit; text-decoration: none; font-family: var(--font-display, 'Archivo', sans-serif); font-stretch: 125%; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; } .ds-mono { transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-nav-brand:hover .ds-mono { transform: rotate(-24deg); } .ds-nav-links { display: flex; gap: 2rem; } .ds-nav-link { position: relative; display: inline-flex; align-items: center; min-height: 44px; color: var(--line-2, #aebee2); text-decoration: none; font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: color 200ms ease; } .ds-nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px; background: var(--lime, #d8f827); transform: scaleX(0); transform-origin: 0 50%; transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-nav-link:hover, .ds-nav-link[data-active='true'] { color: var(--line, #eef2fc); } .ds-nav-link[data-active='true']::after { transform: none; } .ds-nav-link:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: 3px; } .ds-nav-progress { position: absolute; left: 0; bottom: -1px; width: 40%; height: 1px; background: var(--lime, #d8f827); }"
+    },
+    {
+      "name": "Worlds Index Row",
+      "kind": "custom",
+      "refersTo": "index-row",
+      "description": "A hairline-ruled index row that floods with the world's own enamel on hover or focus.",
+      "html": "<ul class=\"ds-index\"><li><a class=\"ds-row\" href=\"#\" style=\"--row-bg:#0f3d3a;--row-fg:#eef6f2;--row-acc:#7ee0b5\"><span class=\"ds-row-num\">03</span><span class=\"ds-row-disc\"></span><span class=\"ds-row-title\">AkashaLens</span><span class=\"ds-row-meta\">ISRO Hackathon</span></a></li><li><a class=\"ds-row\" data-on=\"true\" href=\"#\" style=\"--row-bg:#15123a;--row-fg:#ecebff;--row-acc:#9b8cff\"><span class=\"ds-row-num\">04</span><span class=\"ds-row-disc\"></span><span class=\"ds-row-title\">SkyCast</span><span class=\"ds-row-meta\">Weather</span></a></li></ul>",
+      "css": ".ds-index { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule, rgb(238 242 252 / 0.22)); background: var(--cy-700, #123a8c); } .ds-index li { border-bottom: 1px solid var(--rule, rgb(238 242 252 / 0.22)); } .ds-row { position: relative; isolation: isolate; display: grid; grid-template-columns: 2.75rem 1.1rem minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 4rem; padding: 0 0.75rem; color: var(--line, #eef2fc); text-decoration: none; transition: color 200ms ease; } .ds-row::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--row-bg); transform: scaleY(0); transform-origin: 50% 100%; transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-row-num, .ds-row-meta { color: var(--line-2, #aebee2); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; } .ds-row-disc { width: 1rem; aspect-ratio: 1; border-radius: 50%; border: 1px dashed var(--rule-strong, rgb(238 242 252 / 0.5)); } .ds-row-title { font-family: var(--font-display, 'Archivo', sans-serif); font-stretch: 100%; font-weight: 600; font-size: 2rem; line-height: 1; letter-spacing: -0.015em; transition: font-stretch 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-row[data-on='true'] .ds-row-disc { background: var(--row-bg); border: 1px solid var(--line, #eef2fc); } .ds-row[data-on='true'] .ds-row-title { font-stretch: 125%; font-weight: 700; } .ds-row:hover, .ds-row:focus-visible { color: var(--row-fg); } .ds-row:hover::before, .ds-row:focus-visible::before { transform: none; } .ds-row:hover .ds-row-num, .ds-row:hover .ds-row-meta, .ds-row:focus-visible .ds-row-num, .ds-row:focus-visible .ds-row-meta { color: var(--row-fg); } .ds-row:hover .ds-row-disc { border-color: var(--row-fg); background: var(--row-acc); } .ds-row:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: -2px; }"
+    },
+    {
+      "name": "Orrery Body",
+      "kind": "custom",
+      "refersTo": "orbit-disc",
+      "description": "An enamel body on a dashed orbit with a ground-halo label; solid orbit and lime halo when in conjunction.",
+      "html": "<svg class=\"ds-orrery\" viewBox=\"-160 -90 320 180\" width=\"320\" height=\"180\"><ellipse class=\"ds-orbit\" rx=\"140\" ry=\"60\"/><ellipse class=\"ds-orbit ds-orbit-on\" rx=\"90\" ry=\"38\"/><circle r=\"22\" class=\"ds-sun\"/><g transform=\"translate(90 0)\" style=\"--b-bg:#15123a;--b-fg:#ecebff;--b-acc:#9b8cff\"><circle r=\"16\" class=\"ds-halo\"/><circle r=\"11\" class=\"ds-disc\"/><circle r=\"3.5\" cx=\"7\" cy=\"-7\" class=\"ds-moon\"/><text x=\"18\" y=\"-14\" class=\"ds-label\">SkyCast</text></g></svg>",
+      "css": ".ds-orrery { background: var(--cy-700, #123a8c); overflow: visible; } .ds-orbit { fill: none; stroke: var(--rule-strong, rgb(238 242 252 / 0.5)); stroke-width: 1; stroke-dasharray: 2 7; opacity: 0.75; } .ds-orbit-on { stroke: var(--line, #eef2fc); stroke-dasharray: none; stroke-width: 1.4; opacity: 1; } .ds-sun { fill: var(--line, #eef2fc); } .ds-halo { fill: none; stroke: var(--lime, #d8f827); stroke-width: 1.5; } .ds-disc { fill: var(--b-bg); stroke: var(--line, #eef2fc); stroke-width: 1.5; } .ds-moon { fill: var(--b-acc); stroke: var(--b-fg); stroke-width: 1; } .ds-label { fill: var(--line, #eef2fc); font-family: var(--font-display, 'Archivo', sans-serif); font-stretch: 112%; font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--cy-700, #123a8c); stroke-width: 5px; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Social Row",
+      "kind": "custom",
+      "refersTo": "social-row",
+      "description": "A full-width contact row: white flood wipes in from the left and the stroked arrow ring turns.",
+      "html": "<a class=\"ds-social\" href=\"#\"><span class=\"ds-social-label\">GitHub</span><span class=\"ds-social-handle\">samudra</span><span class=\"ds-social-arrow\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"square\"><path d=\"M6 18 18 6M8 6h10v10\"/></svg></span></a>",
+      "css": ".ds-social { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) max-content 3rem; align-items: center; gap: 1rem; min-height: 56px; padding: 0.9rem 0.35rem; background: var(--cy-950, #081c4a); color: var(--line, #eef2fc); border-top: 1px solid var(--rule, rgb(238 242 252 / 0.22)); border-bottom: 1px solid var(--rule, rgb(238 242 252 / 0.22)); text-decoration: none; transition: color 200ms ease; } .ds-social::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--line, #eef2fc); transform: scaleX(0); transform-origin: 0 50%; transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-social-label { font-family: var(--font-display, 'Archivo', sans-serif); font-stretch: 125%; font-weight: 740; font-size: 2.6rem; line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; } .ds-social-handle { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; } .ds-social-arrow { display: grid; place-items: center; width: 2.8rem; aspect-ratio: 1; border: 1px solid currentColor; border-radius: 50%; transition: background-color 200ms ease, color 200ms ease, transform 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-social:hover, .ds-social:focus-visible { color: var(--cy-800, #0e2d72); } .ds-social:hover::before, .ds-social:focus-visible::before { transform: scaleX(1); } .ds-social:hover .ds-social-arrow, .ds-social:focus-visible .ds-social-arrow { background: var(--cy-800, #0e2d72); color: var(--lime, #d8f827); transform: rotate(45deg); } .ds-social:focus-visible { outline: 2px solid var(--lime, #d8f827); outline-offset: 2px; }"
+    },
+    {
+      "name": "Scene Readout Tab",
+      "kind": "chip",
+      "refersTo": "scene-tab",
+      "description": "Mono readout tab set into the corner of a mounted scene frame.",
+      "html": "<div class=\"ds-frame\"><span class=\"ds-tab\">World 04 / SkyCast</span><span class=\"ds-readout\">t 0.42</span></div>",
+      "css": ".ds-frame { position: relative; width: 320px; aspect-ratio: 5 / 4; background: var(--ink, #111215); outline: 1px solid var(--line, #eef2fc); outline-offset: 6px; transition: outline-offset 260ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-frame:hover { outline-offset: 2px; } .ds-tab, .ds-readout { position: absolute; padding: 0.3rem 0.55rem; background: var(--cy-800, #0e2d72); color: var(--line, #eef2fc); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-variant-numeric: tabular-nums; } .ds-tab { top: 0; left: 0; } .ds-readout { bottom: 0; right: 0; }"
+    },
+    {
+      "name": "Sheet Index Card",
+      "kind": "card",
+      "refersTo": "sheet-card",
+      "description": "A hairline-framed object on the white sheet (About desk); slight tilt, no shadow.",
+      "html": "<div class=\"ds-sheet\"><article class=\"ds-facet\"><h3>Builds</h3><p>Creative coding, AI interfaces and tactile web experiences.</p></article></div>",
+      "css": ".ds-sheet { padding: 2rem; background: var(--sheet, #f3f5f9); } .ds-facet { width: 14rem; padding: 0.8rem 0.95rem 0.95rem; background: var(--sheet, #f3f5f9); color: var(--sheet-ink, #0e2d72); border: 1px solid var(--sheet-rule, rgb(14 45 114 / 0.2)); border-radius: 0; rotate: -2deg; } .ds-facet h3 { margin: 0 0 0.5rem; padding-bottom: 0.45rem; border-bottom: 1px solid var(--sheet-rule, rgb(14 45 114 / 0.2)); color: var(--sheet-ink-2, #3d5591); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; } .ds-facet p { margin: 0; font-family: var(--font-body, 'Archivo', sans-serif); font-size: 0.82rem; line-height: 1.35; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cyanotype Orrery",
+    "overview": "The site is one working instrument printed as a sun print: Prussian blue where light hit the paper, white where it did not. Samudra sits at the centre as the SK monogram sun; the projects are enamel bodies on dashed elliptical rings, and scrolling or dragging turns the whole mechanism. Everything on the blue is drawn as white engraved linework, so hierarchy comes from type size, type width and line weight rather than from boxes, fills or elevation.\n\nDensity is low and deliberate. Long blue passages (hero, worlds index, toolbox, more work) are broken by one quiet material, the unexposed white sheet, which carries About and the case-study bodies in blue ink. The seven project worlds are the loud exception: each keeps its own visual kit and palette, mounted inside the instrument on a hairline frame and never repainted by it.\n\nMotion is orbital: continuous, velocity-coupled, settling on a long ease-out. Nothing overshoots or bounces, and every pin, scrub and smooth-scroll falls back to a static stacked layout under reduced motion.",
+    "keyCharacteristics": [
+      "Drenched cyanotype blue ground, never black; the white sheet for quiet passages.",
+      "White hairline engraving: dashed means available, solid means committed.",
+      "One signal colour (lime) for conjunction, active state, focus and selection.",
+      "Archivo across its width axis: expanded caps display, normal-width reading; JetBrains Mono only for readouts.",
+      "No drop shadows and no rounded tiles; circles are the only curved form.",
+      "Project bodies carry each project's own enamel palette."
+    ],
+    "rules": [
+      { "name": "The Never-Black Rule", "body": "The instrument's darkest value is Cyanotype Deep. Pure or near-black grounds belong only to a project world's own kit.", "section": "colors" },
+      { "name": "The One Signal Rule", "body": "Lime marks what is current or focused: the conjunction, the active link, the selection. It is never decoration and never a section background.", "section": "colors" },
+      { "name": "The Enamel Rule", "body": "A project's body, index-row flood, chapter, case study and transition curtain take that project's own palette. The instrument frames the worlds and never repaints them.", "section": "colors" },
+      { "name": "The Width Axis Rule", "body": "Hierarchy comes from size and width together: wide caps for anything that names, normal width for anything that reads. Display titles are never set in a different family.", "section": "typography" },
+      { "name": "The Mono-Is-Measurement Rule", "body": "Mono is for readouts, numbers, labels and controls. It never sets a sentence of prose.", "section": "typography" },
+      { "name": "The Fitted Title Rule", "body": "Long display titles are sized from their container and longest word (container-query units), so wide caps never spill under a scene or clip on a phone.", "section": "typography" },
+      { "name": "The Line-Weight Depth Rule", "body": "On instrument surfaces, a thing becomes more important by getting a heavier or solid line, a lime halo, or a wider typeface; never by gaining a shadow.", "section": "elevation" },
+      { "name": "The Dashed-Available, Solid-Committed Rule", "body": "An available orbit, row disc or toolbox body is a dashed hairline. Once committed (in conjunction, hovered, focused, selected) it becomes solid and takes its enamel fill.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do print every instrument surface on the cyanotype ramp, from Cyanotype Deep to Cyanotype Exposed, and put quiet long-form passages on the Sheet in Sheet Ink.",
+      "Do draw structure as hairlines: `hairline` at rest, `hairline-strong` for orbits and rims, 1px rules between list rows.",
+      "Do use dashed for available and solid for committed, on orbits, discs and toolbox bodies alike.",
+      "Do keep lime for the current, focused or selected thing only.",
+      "Do set names and titles in Archivo at wide width (125%) and reading text at normal width; use JetBrains Mono only for labels, readouts and controls.",
+      "Do give every project body, flood, chapter and curtain that project's own palette.",
+      "Do keep targets at 44px or more and give every pinned or scrubbed sequence a static stacked fallback for reduced motion and screens under 1000px.",
+      "Do draw icons and arrows as inline stroked SVG, as the contact arrow does."
+    ],
+    "donts": [
+      "Don't use drop shadows or offset shadows on instrument surfaces; depth is line weight and tone. (Project worlds keep their own kits.)",
+      "Don't round corners on buttons, rows, frames or objects; the circle is reserved for bodies.",
+      "Don't use black or near-black as an instrument ground; the darkest value is Cyanotype Deep.",
+      "Don't wrap content in cards on the blue; separate with type size and hairline rules.",
+      "Don't set prose in mono or titles in any face other than Archivo.",
+      "Don't let the orrery bleed or clip on compact screens; it stays whole on the page.",
+      "Don't repaint a project world in the instrument's colours."
+    ]
+  }
+}

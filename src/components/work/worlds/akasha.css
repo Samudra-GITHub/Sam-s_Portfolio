@@ -15,7 +15,7 @@
   background: var(--lime);
   color: var(--ink);
   border: 2px solid var(--ink);
-  font-size: 0.6rem;
+  font-size: var(--t-2xs);
   white-space: nowrap;
   transform: translateX(-50%);
 }

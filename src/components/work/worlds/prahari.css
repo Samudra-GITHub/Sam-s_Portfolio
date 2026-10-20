@@ -1,0 +1,89 @@
+/* PRAHARI keeps a field-instrument language: charcoal ground, bone linework, one amber for risk. */
+.pr {
+  --coal: #2b2a24;
+  --coal-2: #34332c;
+  --bone: #f2ede1;
+  --amber: #f2b632;
+  background: var(--coal);
+  color: var(--bone);
+  perspective: 900px;
+}
+.pr-grid {
+  background-image:
+    linear-gradient(to right, rgb(242 237 225 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(242 237 225 / 0.06) 1px, transparent 1px);
+  background-size: 5cqmin 5cqmin;
+}
+
+.pr-pit { position: absolute; left: 3cqw; top: 6cqh; width: 60cqw; height: 66cqh; transform-style: preserve-3d; }
+.pr-pit svg { width: 100%; height: 100%; overflow: visible; }
+.pr-bench { fill: none; stroke: var(--bone); stroke-width: 0.5; }
+.pr-bench[data-k='0'] { fill: rgb(0 0 0 / 0.28); stroke-opacity: 0.9; }
+.pr-bench[data-k='1'] { stroke-opacity: 0.75; }
+.pr-bench[data-k='2'] { stroke-opacity: 0.6; }
+.pr-bench[data-k='3'] { stroke-opacity: 0.45; stroke-dasharray: 1.2 1.8; }
+.pr-bench[data-k='4'] { stroke-opacity: 0.35; stroke-dasharray: 1.2 1.8; }
+.pr-bench[data-k='5'] { stroke-opacity: 0.25; stroke-dasharray: 1.2 1.8; }
+.pr-haul { fill: none; stroke: var(--bone); stroke-width: 2.2; stroke-opacity: 0.18; stroke-linecap: round; }
+.pr-sensor { fill: var(--bone); }
+.pr-sensor--alert { fill: var(--amber); }
+.pr-alert-ring { fill: none; stroke: var(--amber); stroke-width: 0.8; transform-box: fill-box; transform-origin: center; }
+
+/* score */
+.pr-panel {
+  position: absolute;
+  right: 5cqw;
+  top: 8cqh;
+  width: 31cqw;
+  display: grid;
+  gap: 1.8cqw;
+}
+.pr-score { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid rgb(242 237 225 / 0.3); padding-bottom: 1cqw; }
+.pr-score .mono { font-size: clamp(var(--t-2xs), 1.8cqw, var(--t-xs)); opacity: 0.75; }
+.pr-score-n { font-family: var(--font-mono); font-weight: 600; font-size: clamp(1.2rem, 7cqw, 3.2rem); line-height: 1; color: var(--amber); font-variant-numeric: tabular-nums; }
+.pr-gauge { height: 1.2cqw; min-height: 4px; background: rgb(242 237 225 / 0.14); }
+.pr-gauge i { display: block; height: 100%; background: var(--amber); transform-origin: 0 50%; }
+.pr-reasons { display: grid; gap: 1.2cqw; }
+.pr-reasons li { display: grid; grid-template-columns: 11ch 1fr; align-items: center; gap: 1.2cqw; }
+.pr-reasons .mono { font-size: clamp(var(--t-2xs), 1.7cqw, var(--t-xs)); }
+.pr-reasons i { display: block; height: 0.9cqw; min-height: 3px; background: var(--bone); opacity: 0.6; transform-origin: 0 50%; }
+.pr-copilot { position: relative; justify-self: start; margin-top: 0.6cqw; color: var(--bone); border-color: rgb(242 237 225 / 0.6); }
+
+/* audit chain */
+.pr-chain {
+  position: absolute;
+  left: 6cqw;
+  right: 5cqw;
+  bottom: 7cqh;
+  display: flex;
+  align-items: center;
+  gap: 2.2cqw;
+}
+.pr-block {
+  position: relative;
+  display: grid;
+  gap: 0.6cqw;
+  width: 7cqw;
+  padding: 1cqw;
+  border: 1px solid var(--bone);
+  background: var(--coal-2);
+}
+.pr-block + .pr-block::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 2.2cqw;
+  height: 1px;
+  background: var(--bone);
+  opacity: 0.6;
+}
+.pr-block i { display: block; height: 0.8cqw; min-height: 2px; background: var(--bone); opacity: 0.5; }
+.pr-block i:last-child { width: 60%; background: var(--amber); opacity: 0.9; }
+.pr-chain-label { margin-left: auto; font-size: clamp(var(--t-2xs), 1.7cqw, var(--t-xs)); opacity: 0.75; }
+
+@media (max-width: 999px) {
+  .pr-pit { width: 62cqw; left: 0; }
+  .pr-panel { width: 36cqw; }
+  .pr-block { width: 9cqw; }
+}

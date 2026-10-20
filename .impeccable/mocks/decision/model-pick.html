@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Contact sheet sketch</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1440px;height:900px;overflow:hidden;background:#141210;color:#f2ede4;font-family:Archivo,sans-serif}
+  .strip{position:absolute;left:0;right:0;height:250px;background:#0a0908;display:flex;gap:18px;padding:34px 40px}
+  .strip:before,.strip:after{content:"";position:absolute;left:0;right:0;height:16px;background:repeating-linear-gradient(90deg,transparent 0 14px,#2b2622 14px 30px)}
+  .strip:before{top:8px}.strip:after{bottom:8px}
+  .f{flex:0 0 300px;height:182px;position:relative}
+  .f span{position:absolute;left:0;bottom:-24px;font:700 11px 'JetBrains Mono';color:#f39a2a;letter-spacing:.1em}
+  .s1{top:120px}.s2{top:560px}
+  h1{position:absolute;left:40px;top:400px;font-stretch:62%;font-weight:900;font-size:150px;line-height:.82;text-transform:uppercase}
+  p{position:absolute;left:640px;top:410px;width:420px;font-size:20px;line-height:1.45}
+  .circle{position:absolute;left:356px;top:126px;width:340px;height:220px;border:4px solid #f2ede4;border-radius:50%;transform:rotate(-4deg)}
+  .loupe{position:absolute;left:1120px;top:330px;width:220px;height:220px;border-radius:50%;border:10px solid #2b2622;background:#d8f827}
+  nav{position:absolute;inset:40px 40px auto;display:flex;justify-content:space-between;font:700 12px 'JetBrains Mono';letter-spacing:.12em;text-transform:uppercase;top:40px}
+</style></head><body>
+<div class="strip s1">
+  <div class="f" style="background:#d8f827"><span>▸ 1A TARANG</span></div>
+  <div class="f" style="background:#1e3ae8"><span>▸ 2A RINTI AI</span></div>
+  <div class="f" style="background:#111215;outline:1px solid #333"><span>▸ 3A AKASHALENS</span></div>
+  <div class="f" style="background:#fdf9f1"><span>▸ 4A SKYCAST</span></div>
+</div>
+<div class="circle"></div>
+<h1>Samudra<br>Kar</h1>
+<p>Designer, developer, student, photographer. Seven projects on one roll; the circled frames are the ones worth printing.</p>
+<div class="loupe"></div>
+<div class="strip s2">
+  <div class="f" style="background:#ff5226"><span>▸ 5A KRAMA</span></div>
+  <div class="f" style="background:#ebe5d8"><span>▸ 6A GRAMA SATHI</span></div>
+  <div class="f" style="background:#111215;outline:1px solid #333"><span>▸ 7A PORTFOLIO</span></div>
+</div>
+</body></html>

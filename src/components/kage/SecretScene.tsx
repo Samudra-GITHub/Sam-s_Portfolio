@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { KageLandingPage } from '@designcodeio/threeui/components/KageLandingPage';
 import '@designcodeio/threeui/style.css';
+import Arrow from '../core/Arrow';
 
 /**
  * The authored Kage landing page, unmodified: same component, same props.
@@ -48,7 +49,7 @@ export default function SecretScene({ onClose }: { onClose: () => void }) {
   return (
     <div ref={rootRef} className="kage-scene" role="dialog" aria-modal="true" aria-label="Kage, a hidden scene">
       <button ref={closeRef} type="button" className="kage-return mono" onClick={onClose}>
-        <span aria-hidden="true">&larr;</span> Back to Samudra
+        <Arrow dir="left" /> Back to Samudra
         <kbd>Esc</kbd>
       </button>
 

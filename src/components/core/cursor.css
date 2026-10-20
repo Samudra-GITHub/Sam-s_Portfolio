@@ -1,31 +1,31 @@
 .cursor { display: contents; }
-.cursor-pos { position: fixed; top: 0; left: 0; z-index: var(--z-cursor); pointer-events: none; transition: opacity 0.2s; }
+.cursor-pos { position: fixed; top: 0; left: 0; z-index: var(--z-cursor); pointer-events: none; transition: opacity var(--dur-hover) ease; }
 .cursor[data-hidden='true'] .cursor-pos { opacity: 0; }
 
-.cursor-arrow { display: block; overflow: visible; transform-origin: 2px 2px; transition: transform 0.2s var(--ease-kinetic); }
-.cursor-fill { fill: var(--lime); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-.cursor-shadow { fill: var(--ink); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; transform: translate(3px, 3px); transition: transform 0.15s var(--ease-snap); }
+/* the arrow, engraved: white with a blue hairline, so it reads on the blue print and on the white sheet */
+.cursor-arrow { display: block; overflow: visible; transform-origin: 2px 2px; transition: transform 160ms var(--ease-out); }
+.cursor-fill { fill: var(--line); stroke: var(--cy-800); stroke-width: 1.5; stroke-linejoin: round; }
+.cursor-shadow { display: none; }
 
-/* links and buttons: the arrow lifts like a button */
-.cursor:not([data-kind='default']) .cursor-arrow { transform: rotate(-10deg) scale(1.08); }
-.cursor:not([data-kind='default']) .cursor-shadow { transform: translate(5px, 5px); }
+/* over anything you can use, the arrow tips toward it */
+.cursor:not([data-kind='default']) .cursor-arrow { transform: rotate(-12deg) scale(1.06); }
+.cursor:not([data-kind='default']) .cursor-fill { fill: var(--lime); }
 
-/* press: like .btn:active */
-.cursor[data-down='true'] .cursor-arrow { transform: translate(2px, 2px); }
-.cursor[data-down='true'] .cursor-shadow { transform: translate(0, 0); }
+/* press */
+.cursor[data-down='true'] .cursor-arrow { transform: scale(0.9); }
 
-/* label chip */
+/* label: a readout beside the tip */
 .cursor-label {
   position: absolute; left: 24px; top: 22px;
-  padding: 0.15rem 0.45rem; background: var(--ink); color: var(--lime);
-  border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--lime);
-  font-size: 0.62rem; white-space: nowrap;
-  opacity: 0; transform: translate(-4px, -4px) scale(0.8); transform-origin: 0 0;
-  transition: opacity 0.15s, transform 0.25s var(--ease-kinetic);
+  padding: 0.25rem 0.5rem; background: var(--cy-800); color: var(--line);
+  border: 1px solid var(--rule-strong);
+  font-size: var(--t-2xs); white-space: nowrap;
+  opacity: 0; transform: translateY(-3px); transform-origin: 0 0;
+  transition: opacity 140ms ease, transform 200ms var(--ease-out);
 }
 .cursor-label:not(:empty) { opacity: 1; transform: none; }
-.cursor[data-kind='cta'] .cursor-label { background: var(--vermilion); color: var(--paper); box-shadow: 2px 2px 0 var(--ink); }
+.cursor[data-kind='cta'] .cursor-label { background: var(--lime); color: var(--cy-950); border-color: var(--lime); }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-arrow, .cursor-shadow, .cursor-label { transition: none; }
+  .cursor-arrow, .cursor-label { transition: none; }
 }

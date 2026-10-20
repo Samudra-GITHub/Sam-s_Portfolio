@@ -1,0 +1,70 @@
+/* Noir Café keeps its own language: espresso ground, cream line, one caramel accent, soft corners. */
+.nw {
+  --espresso: #1b1410;
+  --roast: #2a1e17;
+  --cream: #f3e9dc;
+  --caramel: #c98a4b;
+  background: var(--espresso);
+  color: var(--cream);
+}
+.nw-glow { background: radial-gradient(60% 55% at 38% 52%, rgb(201 138 75 / 0.18), transparent 70%); }
+
+.nw-table { inset: -3%; }
+
+.nw-cup { position: absolute; left: 9cqw; top: 50%; width: min(56cqw, 78cqh); translate: 0 -50%; overflow: visible; }
+.nw-saucer { fill: var(--roast); stroke: var(--cream); stroke-width: 0.8; stroke-opacity: 0.55; }
+.nw-saucer-rim { fill: none; stroke: var(--cream); stroke-width: 0.6; stroke-opacity: 0.3; stroke-dasharray: 1.5 3; }
+.nw-handle { fill: var(--roast); stroke: var(--cream); stroke-width: 0.8; stroke-opacity: 0.6; }
+.nw-cup-rim { fill: var(--cream); }
+.nw-coffee { fill: #5a3a24; }
+.nw-crema { fill: var(--caramel); opacity: 0.85; transform-box: fill-box; transform-origin: center; }
+.nw-art { fill: none; stroke: var(--cream); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.nw-steam { transform-box: fill-box; transform-origin: 50% 100%; }
+.nw-steam path { fill: none; stroke: var(--cream); stroke-width: 1.4; stroke-linecap: round; opacity: 0.3; }
+
+/* the wallet-style pass */
+.nw-pass {
+  position: absolute;
+  right: 9cqw;
+  bottom: 14cqh;
+  width: 30cqw;
+  padding: 2.2cqw;
+  display: grid;
+  gap: 1.8cqw;
+  background: var(--caramel);
+  color: var(--espresso);
+  border-radius: 2cqw;
+  transform-origin: 50% 100%;
+  box-shadow: 0 2.2cqw 4cqw -1.6cqw rgb(0 0 0 / 0.5);
+}
+.nw-pass-top { display: flex; justify-content: space-between; align-items: baseline; }
+.nw-pass-brand { font-family: var(--font-display); font-stretch: 125%; font-weight: 800; font-size: clamp(0.7rem, 3.2cqw, 1.3rem); letter-spacing: 0.08em; }
+.nw-pass-top .mono { font-size: clamp(var(--t-2xs), 1.7cqw, var(--t-xs)); }
+.nw-pass-rows { display: grid; gap: 1cqw; }
+.nw-pass-rows i { display: block; height: 1.2cqw; border-radius: 1cqw; background: var(--espresso); opacity: 0.55; }
+.nw-pass-rows i:last-child { width: 62%; opacity: 0.3; }
+.nw-pass-code { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.35cqw; width: 42%; padding: 1cqw; background: var(--cream); border-radius: 0.8cqw; }
+.nw-pass-code b { aspect-ratio: 1; background: transparent; }
+.nw-pass-code b[data-on='1'] { background: var(--espresso); }
+
+/* the menu plate */
+.nw-menu {
+  position: absolute;
+  right: 7cqw;
+  top: 9cqh;
+  display: grid;
+  justify-items: end;
+  gap: 0.6cqw;
+  text-align: right;
+}
+.nw-menu-cur { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.6rem, 11cqw, 5rem); line-height: 0.9; color: var(--caramel); }
+.nw-menu-word { font-family: var(--font-display); font-stretch: 112%; font-weight: 600; font-size: clamp(0.8rem, 3.4cqw, 1.4rem); }
+.nw-menu-code { font-size: clamp(var(--t-2xs), 1.7cqw, var(--t-xs)); opacity: 0.75; }
+
+.nw-label-order { left: 6cqw; top: 8cqh; color: var(--cream); border-color: var(--cream); border-radius: 999px; }
+.nw-label-offline { left: 6cqw; bottom: 8cqh; color: var(--caramel); border-color: var(--caramel); border-radius: 999px; }
+
+@media (max-width: 999px) {
+  .nw-cup { left: 5cqw; width: min(64cqw, 80cqh); }
+  .nw-pass { width: 38cqw; right: 5cqw; }
+}

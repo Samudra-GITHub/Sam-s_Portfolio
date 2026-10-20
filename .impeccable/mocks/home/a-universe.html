@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>A · Digital universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{overflow:hidden;font-family:Archivo,sans-serif;color:#eef2fc;background:radial-gradient(80% 70% at 50% 58%,#1a49a6 0%,#123a8c 38%,#0b2560 72%,#081c4a 100%)}
+  canvas{position:absolute;inset:0;width:100%;height:100%}
+  #front{z-index:3;pointer-events:none}
+  h1{position:absolute;z-index:2;left:0;right:0;top:41%;text-align:center;font-stretch:125%;font-weight:780;font-size:13.5vw;line-height:.8;letter-spacing:-.04em;color:#eef2fc;pointer-events:none}
+  .p{position:absolute;z-index:1;left:0;top:0;border-radius:50%;border:1.5px solid #eef2fc;transform-origin:center}
+  .top{position:absolute;z-index:5;top:28px;left:40px;right:40px;display:flex;justify-content:space-between;font:600 12px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase}
+  .top b{font:700 15px Archivo;font-stretch:125%;letter-spacing:0;text-transform:none}
+  .lede{position:absolute;z-index:5;left:40px;top:17%;width:360px;font-size:19px;line-height:1.4;color:#aebee2}
+  .lede strong{color:#eef2fc}
+  .rail{position:absolute;z-index:5;left:40px;right:40px;bottom:30px;display:flex;gap:6px}
+  .rail span{flex:1;padding:12px 10px;border-top:1px solid rgba(238,242,252,.35);font:600 11px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;color:#aebee2}
+  .rail span.on{border-top:2px solid #d8f827;color:#eef2fc}
+  .rail i{font-style:normal;opacity:.6;margin-right:6px}
+  .hint{position:absolute;z-index:5;right:40px;top:17%;font:600 12px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;color:#d8f827;text-align:right}
+</style></head><body>
+<div class="top"><b>Samudra Kar</b><span>Index · About · Contact · Sound off</span></div>
+<p class="lede"><strong>Designer and developer</strong>, and a student. Nine projects, each built as its own small world. Turn the system and pick one.</p>
+<p class="hint">Drag to turn ⟷<br>Click a world to land</p>
+<canvas id="back"></canvas>
+<h1>SAMUDRA<br>KAR</h1>
+<canvas id="front"></canvas>
+<div id="bodies"></div>
+<div class="rail" id="rail"></div>
+<script>
+const P=[['Tarang','#d8f827','#ff5226'],['Rinti AI','#1e3ae8','#d8f827'],['AkashaLens','#111215','#d8f827'],['SkyCast','#fdf9f1','#1e3ae8'],['Krama','#ff5226','#fdf9f1'],['Grama Sathi','#ebe5d8','#ff5226'],['Noir Café','#1b1410','#c98a4b'],['PRAHARI','#2b2a24','#f2b632'],['Portfolio','#111215','#d8f827']];
+const W=innerWidth,H=innerHeight,cx=W/2,cy=H*.6,f=900,D=1500,pitch=1.1;
+const back=document.getElementById('back').getContext('2d'),front=document.getElementById('front').getContext('2d');
+[back,front].forEach(c=>{c.canvas.width=W;c.canvas.height=H});
+const proj=(x,z)=>{const y0=0;const yy=y0*Math.cos(pitch)-z*Math.sin(pitch);const zz=y0*Math.sin(pitch)+z*Math.cos(pitch);const s=f/(zz+D);return [cx+x*s,cy-yy*s,s,zz]};
+const yaw=0.4;const els=P.map((p,i)=>{const d=document.createElement('div');d.className='p';d.style.background=`radial-gradient(circle at 65% 30%, ${p[2]} 0 18%, transparent 19%), ${p[1]}`;document.getElementById('bodies').appendChild(d);return d});
+const rail=document.getElementById('rail');P.forEach((p,i)=>{const s=document.createElement('span');s.innerHTML=`<i>0${i+1}</i>${p[0]}`;if(i===2)s.className='on';rail.appendChild(s)});
+function draw(){back.clearRect(0,0,W,H);front.clearRect(0,0,W,H);
+ P.forEach((p,i)=>{const r=240+i*86;[back,front].forEach((c,ci)=>{c.beginPath();for(let k=0;k<=128;k++){const a=k/128*Math.PI*2;const x=r*Math.cos(a+yaw),z=r*Math.sin(a+yaw);const [sx,sy,,zz]=proj(x,z);const isFront=zz<0;if((ci===1)!==isFront){c.moveTo(sx,sy);continue}k?c.lineTo(sx,sy):c.moveTo(sx,sy)}c.strokeStyle=i===2?'rgba(238,242,252,.95)':'rgba(238,242,252,.32)';c.lineWidth=i===2?1.6:1;c.setLineDash(i===2?[]:[2,6]);c.stroke()});
+ const a=i*2.4+yaw;const x=r*Math.cos(a),z=r*Math.sin(a);const [sx,sy,s,zz]=proj(x,z);const R=(i===2?34:22)*s*1.7;const e=els[i];e.style.width=e.style.height=R*2+'px';e.style.transform=`translate(${sx-R}px,${sy-R}px)`;e.style.zIndex=zz<0?4:1;e.style.opacity=zz<0?1:.8;});
+ const [sx,sy,s]=proj(0,0);back.beginPath();back.arc(sx,sy,58*s*1.7,0,7);back.fillStyle='#eef2fc';back.fill();}
+draw();
+</script></body></html>

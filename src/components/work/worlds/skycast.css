@@ -82,9 +82,9 @@
   display: grid;
   gap: 1.1cqw;
 }
-.sw-card-head { display: flex; justify-content: space-between; font-size: clamp(0.5rem, 1.8cqw, 0.66rem); padding-bottom: 1cqw; border-bottom: 2px solid var(--ink); }
+.sw-card-head { display: flex; justify-content: space-between; font-size: clamp(var(--t-2xs), 1.8cqw, var(--t-xs)); padding-bottom: 1cqw; border-bottom: 2px solid var(--ink); }
 .sw-row { display: grid; grid-template-columns: 6.4cqw 1fr; align-items: center; gap: 1.6cqw; }
-.sw-row .mono { font-size: clamp(0.5rem, 1.8cqw, 0.66rem); }
+.sw-row .mono { font-size: clamp(var(--t-2xs), 1.8cqw, var(--t-xs)); }
 .sw-bar i { display: block; height: 1.5cqw; background: var(--cobalt); transform-origin: 0 50%; }
 .sw-hours { display: flex; align-items: flex-end; gap: 0.5cqw; height: 4.4cqw; margin-top: 0.4cqw; }
 .sw-hours i { flex: 1; height: 100%; background: var(--vermilion); transform-origin: 50% 100%; }

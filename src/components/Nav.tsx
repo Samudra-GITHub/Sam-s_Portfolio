@@ -7,13 +7,14 @@ import { usePageTransition } from './core/PageTransition';
 import { useIntroDone } from '../lib/intro';
 import { setSound, useSoundOn } from '../lib/sound';
 import { config } from '../data/config';
+import Monogram from './core/Monogram';
 import './nav.css';
 
 const LINKS = [
-  { id: 'work', label: 'WORK' },
-  { id: 'stack', label: 'STACK' },
-  { id: 'about', label: 'ABOUT' },
-  { id: 'contact', label: 'CONTACT' },
+  { id: 'work', label: 'Work' },
+  { id: 'stack', label: 'Toolbox' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
 ] as const;
 
 export default function Nav() {
@@ -23,6 +24,8 @@ export default function Nav() {
   const [active, setActive] = useState<string>('');
   const [hidden, setHidden] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [atTop, setAtTop] = useState(true);
+  useMotionValueEvent(scrollY, 'change', (v) => setAtTop(v < 40));
   const introDone = useIntroDone();
   const soundOn = useSoundOn();
 
@@ -59,19 +62,20 @@ export default function Nav() {
   const jump = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (onHome) scrollToTarget(`#${id}`, { duration: 1.6 });
-    else go('/', { scrollTo: `#${id}`, label: id, color: '#111215', ink: '#d8f827' });
+    else go('/', { scrollTo: `#${id}`, label: id, color: '#123a8c', ink: '#eef2fc' });
   };
 
   const goHome = (e: React.MouseEvent) => {
     e.preventDefault();
     if (onHome) scrollToTarget(0, { duration: 1.6 });
-    else go('/', { label: config.name.split(' ')[0], color: '#d8f827', ink: '#111215' });
+    else go('/', { label: config.name.split(' ')[0], color: '#123a8c', ink: '#eef2fc' });
   };
 
   return (
     <motion.header
       className="nav"
       data-hidden={hidden && !focused}
+      data-top={onHome && atTop}
       onFocusCapture={() => setFocused(true)}
       onBlurCapture={() => setFocused(false)}
       initial={{ y: -80 }}
@@ -79,8 +83,10 @@ export default function Nav() {
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
     >
       <div className="nav-inner">
-        <Link to="/" className="nav-brand font-display" onClick={goHome} aria-label={`${config.name}, home`}>
-          {config.handle}<span className="nav-brand-kar">.kar</span><span className="nav-brand-paren">()</span>
+        <Link to="/" className="nav-brand" onClick={goHome}>
+          <Monogram size={30} className="nav-mark" />
+          <span className="nav-brand-name">{config.name}</span>
+          <span className="nav-brand-studio mono">{config.studio}</span>
         </Link>
 
         <p className="nav-status mono" aria-label="Availability">
@@ -89,6 +95,7 @@ export default function Nav() {
         </p>
 
         <button type="button" className="nav-sound mono" aria-pressed={soundOn} onClick={() => setSound(!soundOn)} title="Toggle interface sounds">
+          <span className="nav-sound-dot" aria-hidden="true" />
           Sound {soundOn ? 'on' : 'off'}
         </button>
 

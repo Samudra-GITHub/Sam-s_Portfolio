@@ -11,46 +11,49 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  background: var(--paper);
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  background: var(--cy-700);
   /* the fixed nav must never cover a focused element */
   scroll-padding-top: calc(var(--nav-height) + 1rem);
+  scrollbar-color: var(--rule-strong) var(--cy-900);
+  /* the loader locks scrolling; keeping the gutter stops the page jumping sideways when it lifts */
+  scrollbar-gutter: stable;
 }
 
 a, button, [role='button'], summary, label { touch-action: manipulation; }
 
 body {
-  background-color: var(--paper);
-  color: var(--ink);
+  background-color: var(--cy-700);
+  color: var(--line);
   font-family: var(--font-body);
   font-weight: 400;
-  line-height: 1.6;
+  font-size: var(--t-md);
+  line-height: 1.55;
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* blueprint grid, the paper's texture */
-  background-image:
-    linear-gradient(to right, rgba(17, 18, 21, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(17, 18, 21, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
 }
 
-/* Paper grain: one fixed, non-interactive layer */
+/* Paper fibre: the print is on watercolour stock, not on a screen */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: var(--z-grain);
   pointer-events: none;
-  opacity: 0.07;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-stretch: var(--wide);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
@@ -62,14 +65,13 @@ ul, ol { list-style: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 img, svg, canvas { display: block; max-width: 100%; }
 
-::selection { background: var(--lime); color: var(--ink); }
+::selection { background: var(--lime); color: var(--cy-950); }
 
 :focus-visible {
-  outline: 3px solid var(--cobalt);
+  outline: 2px solid var(--lime);
   outline-offset: 3px;
 }
-.on-dark :focus-visible,
-[data-theme='ink'] :focus-visible { outline-color: var(--lime); }
+.on-sheet :focus-visible { outline-color: var(--cy-600); }
 
 .sr-only {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
@@ -78,10 +80,9 @@ img, svg, canvas { display: block; max-width: 100%; }
 
 .skip-link {
   position: fixed; top: 0.75rem; left: 0.75rem; z-index: 500;
-  padding: 0.6rem 1rem; background: var(--lime); color: var(--ink);
-  border: var(--border-width) solid var(--ink); box-shadow: var(--shadow-hard);
-  font-family: var(--font-mono); font-weight: 600; font-size: 0.8rem;
-  transform: translateY(-200%); transition: transform 0.2s var(--ease-snap);
+  padding: 0.7rem 1rem; background: var(--lime); color: var(--cy-950);
+  font-family: var(--font-mono); font-weight: 600; font-size: var(--t-xs); letter-spacing: 0.08em; text-transform: uppercase;
+  transform: translateY(-200%); transition: transform var(--dur-ui) var(--ease-out);
 }
 .skip-link:focus { transform: none; }
 
@@ -91,45 +92,56 @@ img, svg, canvas { display: block; max-width: 100%; }
 html.has-cursor,
 html.has-cursor * { cursor: none !important; }
 
-/* Type scale */
-.text-hero {
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-}
-.text-h1 { font-size: clamp(2.5rem, 6vw, 4rem); }
-.text-h2 { font-size: clamp(2rem, 4vw, 3rem); }
-.text-body-lg { font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.55; max-width: 60ch; }
+/* readouts: mono is for measurement, never for prose */
 .text-label-mono, .mono {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--t-xs);
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
+.text-body-lg { font-size: var(--t-lg); line-height: 1.5; max-width: 60ch; }
 
-/* Structure */
-.brutalist-border { border: var(--border-width) solid var(--ink); }
-.brutalist-shadow { box-shadow: var(--shadow-hard); }
-
-.brutalist-btn,
+/* ---------- controls ----------
+   A plate of white printed on the blue. No shadows: depth is line weight. */
 .btn {
-  display: inline-flex; align-items: center; gap: 0.6rem;
-  background-color: var(--lime); color: var(--ink);
-  border: var(--border-width) solid var(--ink);
-  box-shadow: var(--shadow-hard);
-  font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.04em;
+  --btn-bg: var(--line);
+  --btn-fg: var(--cy-800);
+  position: relative;
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--btn-bg);
+  font-family: var(--font-mono); font-weight: 600; font-size: var(--t-xs); letter-spacing: 0.1em;
   text-transform: uppercase; white-space: nowrap;
-  padding: 0.8rem 1.4rem;
-  transition: transform 0.18s var(--ease-snap), box-shadow 0.18s var(--ease-snap), background-color 0.18s;
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
 }
-.brutalist-btn:hover, .btn:hover { transform: translate(2px, 2px); box-shadow: var(--shadow-hard-sm); }
-.brutalist-btn:active, .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
-.btn--paper { background: var(--paper); }
-.btn--ink { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 4px 4px 0 var(--lime); }
+.btn .btn-arrow { display: inline-block; transition: transform var(--dur-ui) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: transparent; color: var(--btn-bg); }
+  .btn:hover .btn-arrow { transform: translateX(3px); }
+}
+.btn:active { transform: scale(0.97); }
+.btn--line { background: transparent; color: var(--btn-bg); }
+@media (hover: hover) and (pointer: fine) {
+  .btn--line:hover { background: var(--btn-bg); color: var(--btn-fg); }
+}
+
+/* a text link with an engraved underline */
+.tlink {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--font-mono); font-weight: 600; font-size: var(--t-xs); letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.45em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  transition: text-decoration-color var(--dur-hover) ease, color var(--dur-hover) ease;
+}
+.tlink::after { content: ''; position: absolute; inset: -14px -8px; }
+@media (hover: hover) and (pointer: fine) {
+  .tlink:hover { text-decoration-color: currentColor; }
+}
 
 .container {
   width: 100%;
@@ -141,9 +153,22 @@ html.has-cursor * { cursor: none !important; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
 
+/* a list set inline with engraved separators that never start a line */
+.dotlist { display: flex; flex-wrap: wrap; gap: 0.15rem 0; }
+.dotlist > * { white-space: nowrap; }
+.dotlist > :not(:last-child)::after { content: '\00b7'; margin: 0 0.6em; }
+
 /* Text splitting primitives */
 .split-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
 .split-inner { display: inline-block; will-change: transform; }
+
+/* the unexposed sheet: quiet passages print blue on white */
+.on-sheet {
+  background: var(--sheet);
+  color: var(--sheet-ink);
+  color-scheme: light;
+}
+.on-sheet ::selection { background: var(--cy-700); color: var(--sheet); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -154,5 +179,5 @@ html.has-cursor * { cursor: none !important; }
   }
 }
 
-/* phones: no grey tap flash, no rubber-band over the dark/paper seam, stable text size on rotate */
-html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior-y: none; }
+/* the drawn arrow sits on the text baseline like a glyph would */
+.arrow { display: inline-block; flex: none; vertical-align: -0.08em; }

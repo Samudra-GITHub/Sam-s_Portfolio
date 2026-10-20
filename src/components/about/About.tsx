@@ -7,6 +7,7 @@ import { real } from '../../lib/content';
 import { config } from '../../data/config';
 import KageSeed from '../kage/KageSeed';
 import './about.css';
+import Arrow from '../core/Arrow';
 
 /**
  * About is a desk you discover, not a page you read.
@@ -85,10 +86,10 @@ export default function About() {
   const getFacet = (key: string) => facets.find((f) => f.key === key);
 
   return (
-    <section ref={sectionRef} id="about" className="about" data-mode={pin ? 'pin' : 'stack'} aria-labelledby="about-title">
+    <section ref={sectionRef} id="about" className="about on-sheet" data-mode={pin ? 'pin' : 'stack'} aria-labelledby="about-title">
       <div className="about-stage">
         <div className="about-desk">
-          <h2 id="about-title" className="about-title font-display">
+          <h2 id="about-title" className="about-title">
             {['designer', 'developer', 'student'].map((w, i) => (
               <span key={w} className={`about-word about-word-${i}`}>
                 {w}
@@ -148,26 +149,29 @@ export default function About() {
                 {instagram && (
                   <a href={instagram} target="_blank" rel="noreferrer" onPointerDown={(e) => e.stopPropagation()}>
                     {' '}
-                    more &#8599;
+                    Instagram <Arrow dir="out" />
                   </a>
                 )}
               </figcaption>
             </figure>
           </Artifact>
 
-          <Artifact spot={{ x: 9, y: 72, r: -2 }} className="a-tape">
-            <div className="cassette" data-playing={Boolean(track)}>
-              <div className="cassette-label">
-                <span className="mono">Now playing</span>
-                <strong className="font-display">{track ?? 'silence, for now'}</strong>
-                {artist && <span className="mono">{artist}</span>}
+          {/* the cassette only appears once there is a real track to show */}
+          {track && (
+            <Artifact spot={{ x: 9, y: 72, r: -2 }} className="a-tape">
+              <div className="cassette" data-playing={Boolean(track)}>
+                <div className="cassette-label">
+                  <span className="mono">Now playing</span>
+                  <strong className="font-display">{track ?? 'silence, for now'}</strong>
+                  {artist && <span className="mono">{artist}</span>}
+                </div>
+                <div className="cassette-window" aria-hidden="true">
+                  <span className="reel" />
+                  <span className="reel" />
+                </div>
               </div>
-              <div className="cassette-window" aria-hidden="true">
-                <span className="reel" />
-                <span className="reel" />
-              </div>
-            </div>
-          </Artifact>
+            </Artifact>
+          )}
 
           <Artifact spot={{ x: 57, y: 68, r: 2.5 }} className="a-note">
             <aside className="note">

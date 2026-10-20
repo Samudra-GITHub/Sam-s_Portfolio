@@ -1,0 +1,287 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "hero-eyebrow-chip",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-10-19T21:31:41.691Z",
+        "reason": "claude: decision-round sketch (throwaway first-viewport thumbnail for the direction choice), not shipped UI"
+      },
+      {
+        "rule": "oversized-h1",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-10-19T21:31:42.036Z",
+        "reason": "claude: decision-round sketch (throwaway first-viewport thumbnail for the direction choice), not shipped UI"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-10-19T21:31:42.331Z",
+        "reason": "claude: decision-round sketch (throwaway first-viewport thumbnail for the direction choice), not shipped UI"
+      },
+      {
+        "rule": "hero-eyebrow-chip",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-bebop.html"
+        ],
+        "createdAt": "2026-10-19T21:31:42.658Z",
+        "reason": "claude: decision-round sketch (throwaway first-viewport thumbnail for the direction choice), not shipped UI"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "noto serif jp",
+        "files": [
+          "src/components/kage/kage.css"
+        ],
+        "createdAt": "2026-10-19T21:36:37.053Z",
+        "reason": "claude: pre-existing face for the single 影 glyph on the Kage door (Japanese character), not body or display type"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/akasha.css"
+        ],
+        "createdAt": "2026-10-20T05:19:48.530Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/akasha.css"
+        ],
+        "createdAt": "2026-10-20T05:19:48.844Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/akasha.css"
+        ],
+        "createdAt": "2026-10-20T05:19:49.155Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/grama.css"
+        ],
+        "createdAt": "2026-10-20T05:19:49.571Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/grama.css"
+        ],
+        "createdAt": "2026-10-20T05:19:50.044Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/grama.css"
+        ],
+        "createdAt": "2026-10-20T05:19:50.444Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/noir.css"
+        ],
+        "createdAt": "2026-10-20T05:19:50.906Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/noir.css"
+        ],
+        "createdAt": "2026-10-20T05:19:51.373Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/noir.css"
+        ],
+        "createdAt": "2026-10-20T05:19:51.893Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/portfolio.css"
+        ],
+        "createdAt": "2026-10-20T05:19:52.424Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/portfolio.css"
+        ],
+        "createdAt": "2026-10-20T05:19:52.973Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/portfolio.css"
+        ],
+        "createdAt": "2026-10-20T05:19:53.442Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/prahari.css"
+        ],
+        "createdAt": "2026-10-20T05:19:54.000Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/prahari.css"
+        ],
+        "createdAt": "2026-10-20T05:19:54.442Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/prahari.css"
+        ],
+        "createdAt": "2026-10-20T05:19:54.925Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/tarang.css"
+        ],
+        "createdAt": "2026-10-20T05:19:55.458Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/tarang.css"
+        ],
+        "createdAt": "2026-10-20T05:19:55.966Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "src/components/work/worlds/tarang.css"
+        ],
+        "createdAt": "2026-10-20T05:19:56.431Z",
+        "reason": "claude: project world keeps its own visual kit inside its scene frame (DESIGN.md, Exceptions: project worlds)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "27px",
+        "files": [
+          "src/components/hero/hero.css"
+        ],
+        "createdAt": "2026-10-20T05:19:56.817Z",
+        "reason": "claude: SVG text in viewBox user units on the orrery plate, rendered scaled; not CSS pixels (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "20px",
+        "files": [
+          "src/components/hero/hero.css"
+        ],
+        "createdAt": "2026-10-20T05:19:57.237Z",
+        "reason": "claude: SVG text in viewBox user units on the orrery plate, rendered scaled; not CSS pixels (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "files": [
+          "src/components/hero/hero.css"
+        ],
+        "createdAt": "2026-10-20T05:19:57.741Z",
+        "reason": "claude: SVG text in viewBox user units on the orrery plate, rendered scaled; not CSS pixels (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "34px",
+        "files": [
+          "src/components/hero/hero.css"
+        ],
+        "createdAt": "2026-10-20T05:19:58.241Z",
+        "reason": "claude: SVG text in viewBox user units on the orrery plate, rendered scaled; not CSS pixels (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "27px",
+        "files": [
+          "src/components/nav.css"
+        ],
+        "createdAt": "2026-10-20T05:19:58.800Z",
+        "reason": "claude: monogram SVG text in viewBox user units (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/kage/kage.css"
+        ],
+        "createdAt": "2026-10-20T05:19:59.751Z",
+        "reason": "claude: the Kage overlay frames an authored third-party scene and uses its ink and red, not the cyanotype palette (DESIGN.md, Exceptions)"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "src/components/core/DevDataToggle.tsx"
+        ],
+        "createdAt": "2026-10-20T05:20:00.206Z",
+        "reason": "claude: dev-only break-ui toggle, plain neutral chrome by design, stripped from production"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "7rem",
+        "files": [
+          "src/components/work/work.css"
+        ],
+        "createdAt": "2026-10-20T05:20:29.893Z",
+        "reason": "claude: the engraved background word behind each chapter is ornament sized to the viewport (7rem to 20rem), not reading type (DESIGN.md, Exceptions)"
+      }
+    ]
+  }
+}

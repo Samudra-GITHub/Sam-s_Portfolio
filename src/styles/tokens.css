@@ -1,49 +1,100 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Paper & ink */
+  /* ---------- the cyanotype ----------
+     A sun print: Prussian blue where light hit the paper, white where it did
+     not. The site is printed on the blue; quiet passages sit on the white. */
+  --cy-950: #081c4a;
+  --cy-900: #0b2560;
+  --cy-800: #0e2d72;
+  --cy-700: #123a8c; /* the ground */
+  --cy-600: #1a49a6;
+  --cy-500: #2a5cc0;
+
+  /* engraved linework on the blue */
+  --line: #eef2fc;
+  --line-2: #aebee2; /* secondary text on the ground, 5:1 on --cy-700 */
+  --rule: rgb(238 242 252 / 0.22); /* hairlines, orbits at rest */
+  --rule-strong: rgb(238 242 252 / 0.5);
+
+  /* the unexposed sheet, and the blue that prints on it */
+  --sheet: #f3f5f9;
+  --sheet-2: #e4e9f3;
+  --sheet-ink: #0e2d72;
+  --sheet-ink-2: #3d5591; /* secondary on the sheet, 7:1 */
+  --sheet-rule: rgb(14 45 114 / 0.2);
+
+  /* ---------- enamel: each world keeps its own colour ---------- */
   --paper: #fdf9f1;
   --paper-2: #f4f0e8;
   --sand: #ebe5d8;
   --ink: #111215;
   --ink-2: #454933;
-
-  /* Accents (used at full strength, never blended into gradients) */
-  --lime: #d8f827;
+  --lime: #d8f827; /* the one signal colour: conjunction, focus, selection */
   --cobalt: #1e3ae8;
   --vermilion: #ff5226;
 
-  /* Legacy names from the original design system */
+  /* legacy names the worlds still read */
   --bg-primary: var(--paper);
   --bg-secondary: var(--sand);
-  --bg-tertiary: var(--paper-2);
   --text-primary: var(--ink);
   --text-secondary: var(--ink-2);
   --border-primary: var(--ink);
   --accent-primary: var(--lime);
   --accent-secondary: var(--cobalt);
   --accent-tertiary: var(--vermilion);
-
-  /* Borders and hard shadows */
   --border-width: 2px;
   --shadow-hard: 4px 4px 0 var(--ink);
   --shadow-hard-sm: 2px 2px 0 var(--ink);
   --shadow-hard-lg: 8px 8px 0 var(--ink);
 
-  /* Type */
-  --font-display: 'Syne Variable', 'Syne', system-ui, sans-serif;
-  --font-body: 'Epilogue Variable', 'Epilogue', system-ui, sans-serif;
+  /* ---------- type ----------
+     One family across its width axis: expanded caps engrave the display,
+     normal width reads, condensed squeezes. Mono is for readouts only. */
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  --wide: 125%;
+  --semi: 112%;
+  --normal: 100%;
+  --narrow: 75%;
 
-  /* Layout */
-  --nav-height: 64px;
+  /* fluid scale */
+  --t-2xs: 0.6875rem; /* the floor: nothing on the site is set smaller */
+  --t-xs: 0.72rem;
+  --t-sm: 0.875rem;
+  --t-md: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);
+  --t-lg: clamp(1.15rem, 1.02rem + 0.55vw, 1.45rem);
+  --t-xl: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem);
+  --t-2xl: clamp(2.4rem, 1.6rem + 3.4vw, 4.6rem);
+  --t-3xl: clamp(3rem, 1.4rem + 6.6vw, 6rem);
+
+  /* spacing: one rhythm */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+  --s-9: clamp(4.5rem, 3rem + 6vw, 8rem);
+
+  /* layout */
+  --nav-height: 60px;
   --gutter: max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
   --max-width: 1440px;
 
-  /* Easing */
-  --ease-kinetic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-inout: cubic-bezier(0.76, 0, 0.24, 1);
+  /* ---------- motion ----------
+     Orbital: continuous, velocity-coupled, settling. Nothing overshoots. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-snap: var(--ease-out);
+  --ease-inout: var(--ease-in-out);
+  --ease-kinetic: var(--ease-out);
+  --dur-press: 140ms;
+  --dur-hover: 200ms;
+  --dur-ui: 260ms;
 
   /* z-index scale: layers, not a race */
   --z-stage: 2;

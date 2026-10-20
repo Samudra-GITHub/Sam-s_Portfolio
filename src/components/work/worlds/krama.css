@@ -65,7 +65,7 @@
   color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: 50%;
-  font-size: clamp(0.5rem, 1.7cqw, 0.62rem);
+  font-size: clamp(var(--t-2xs), 1.7cqw, var(--t-xs));
   z-index: 7;
 }
 .kw-tag { left: 5cqw; bottom: 4.5cqh; background: var(--ink); color: var(--paper); border-color: var(--ink); transform: rotate(-2deg); }

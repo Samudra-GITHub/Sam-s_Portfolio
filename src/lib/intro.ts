@@ -8,18 +8,9 @@ import { useSyncExternalStore } from 'react';
  */
 const FLAG = 'sk-intro-seen';
 
-function shouldSkip(): boolean {
-  if (typeof window === 'undefined') return true;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
-  if (window.location.pathname !== '/') return true;
-  try {
-    return window.sessionStorage.getItem(FLAG) === '1';
-  } catch {
-    return false;
-  }
-}
-
-let done = shouldSkip();
+// There is no loading screen any more: the gate is open from the start. The
+// homepage plays its own short entrance (Universe.tsx), and any input skips it.
+let done = true;
 const listeners = new Set<() => void>();
 
 export const isIntroDone = () => done;

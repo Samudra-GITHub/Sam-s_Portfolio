@@ -1,19 +1,19 @@
 <div align="center">
 
-<img src="docs/screenshots/hero.jpg" alt="Samudra Kar's portfolio hero: a big SAMUDRA KAR wordmark, a throwable lime dot, and a fanned deck of seven project cards" width="100%" />
+<img src="docs/screenshots/hero.webp" alt="The homepage: SAMUDRA KAR at the centre of nine tilted rings, with project planets passing in front of and behind the name" width="100%" />
 
 <br />
 <br />
 
 # Samudra Kar, portfolio
 
-**A scroll-driven, cursor-aware portfolio where every project is its own small world.**
+**A small universe around a name: nine projects orbit SAMUDRA KAR, and each one is its own world you can land on.**
 
-Seven interactive project scenes · a little companion that roams the page · a hidden door · a social-first contact scene
+Nine interactive project worlds · five more projects drawn as bodies on the same instrument · a toolbox built from the projects themselves · a hidden door
 
 <br />
 
-[**Live site**](https://sam-sportfolio.vercel.app) &nbsp;·&nbsp; [The tour](#the-tour) &nbsp;·&nbsp; [The seven worlds](#the-seven-worlds) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Optional backend](#optional-backend)
+[**Live site**](https://sam-sportfolio.vercel.app) &nbsp;·&nbsp; [The tour](#the-tour) &nbsp;·&nbsp; [The worlds](#the-worlds) &nbsp;·&nbsp; [How it works](#how-it-works) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Design system](#design-system)
 
 <br />
 
@@ -31,89 +31,80 @@ Seven interactive project scenes · a little companion that roams the page · a 
 
 ## What this is
 
-A portfolio built to feel like a **tactile object, not a template**. Warm paper, deep ink, and three loud accents (electric lime, cobalt, vermilion). Hard 2px borders, hard offset shadows, slightly crooked layouts.
+The portfolio is one working instrument: a **cyanotype orrery** with the studio (the SK monogram) at the centre and the projects on its rings. Cyanotype is the old sun-print process: Prussian blue where light hit the paper, white where it did not. The site is printed on the blue; the quiet passages (About, the case-study write-ups) sit on the white.
 
-The idea behind the build: **scrolling is navigation, motion is storytelling, the cursor is a tool, sections are scenes.** Nothing animates just because it can. If you can't say what a movement communicates, it isn't in here.
-
-<div align="center">
-
-<img src="docs/scroll.gif" alt="A scroll through the site: the lime dot drops ink that takes over the screen, then project chapters slide up over each other" width="86%" />
-
-<sub>The signature scroll: the dot drops ink, the ink takes over, and project chapters slide up over each other.</sub>
-
-</div>
+The rules: white hairline linework, dashed for available and solid for committed, every project an enamel disc in its own colour, one typeface (Archivo) across its width axis, and hierarchy carried by type size, not by boxes. Nothing moves just because it can.
 
 ## The tour
 
-### 1. Hero: stillness, then a small thing to play with
+### 1. The homepage: a small universe around the name
 
-Paper, a grid, and one lime dot. The type inflates in letter by letter (Syne's variable weight axis), then thickens and lifts under your cursor. Grab the dot and throw it. Seven project cards are dealt out like a hand; hover one to lift it, click to jump to that world.
+The first screen is the experience, not a header. **SAMUDRA KAR** sits at the centre of a system of nine tilted rings drawn in perspective: the near half of every ring passes *in front of* the name and the far half behind it, so the identity sits inside the scene. Each featured project is a planet whose surface is drawn from what the project is (record grooves for Tarang, stacked sources for Rinti AI, terrain under cloud for AkashaLens, a latte rosetta for Noir Café, the contours of a mine for PRAHARI, and so on).
 
-Scroll and the stage pins. **The dot drops ink from wherever you left it.** The ink fills the screen, the type inverts, and the ink flows straight into the Work section.
+- **It is alive but calm.** The rings turn slowly, inner worlds faster than outer ones (angular speed falls off with ring size). A fast scroll makes them race briefly.
+- **Drag anywhere to turn the system**, with momentum when you let go. A click on empty space returns to the overview.
+- **Pick a world** (click its planet, or use the rail of named buttons along the bottom). The planet flies out of its orbit to the focus slot, the name and the other worlds recede, and a panel opens with its category, an accurate description, the stack and its real links: enter its chapter, the case study, GitHub, and the live demo where one is verified. Previous and Next walk the worlds; Escape or "All worlds" closes.
+- **Keyboard:** the rail is ordinary buttons; arrow keys walk the worlds, Escape closes.
+- **Entrance:** once per session the name prints in and the system forms out of the centre in under a second. Any key, wheel or touch finishes it at once; reduced motion skips it.
+- **Scrolling on** flattens the rings toward edge-on as the hero leaves, and the index of worlds follows. Scrolling is never hijacked.
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/screenshots/hero-deck.jpg" alt="The hero with a project card lifted under the arrow cursor" /><br /><sub>The deck: each card is a link to its chapter.</sub></td>
-    <td width="50%"><img src="docs/screenshots/hero-ink.jpg" alt="Mid-takeover: a circle of ink growing from the lime dot, inverting the type it crosses" /><br /><sub>Mid-takeover: the type inverts as the ink crosses it.</sub></td>
-  </tr>
-</table>
-
-**Little things that add up**
-
-- A first-visit **loader** (an outlined name that fills lime as the fonts and page load) gates the intro, then the hero type inflates in.
-- A **chapter rail** on the right edge (Top / Work / Toolbox / About / Contact) tracks where you are.
-- An optional **UI sound** toggle in the nav (off by default): soft ticks on hover, a thunk on press, a whoosh on page transitions, all synthesised with WebAudio, no audio files.
-
-### 2. Work: seven chapters that cover each other
-
-An index of the seven worlds with a live preview card. Then each project is a pinned, full-height stage. The next chapter **slides up over the previous one** while the old one shrinks back, and each scene opens with its own mask (rise, wipe, iris, wipe from the other side). A giant outlined title drifts sideways behind every chapter, so there's horizontal motion inside the vertical scroll.
+On phones the same universe is recomposed for a thumb: the scene sits on top, the worlds become a swipeable row of named buttons, and the open world's panel follows below, so nothing depends on hitting a small planet.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/work-index.jpg" alt="The Work index: seven project names with a colour preview card for the hovered one" /></td>
-    <td width="50%"><img src="docs/screenshots/case-study.jpg" alt="A case-study page: the AkashaLens world at large with a scrub bar underneath" /></td>
+    <td width="70%"><img src="docs/screenshots/hero-outro.webp" alt="A world in focus: SkyCast's planet in the focus slot with its panel of description, stack and links" /></td>
+    <td width="30%"><img src="docs/screenshots/mobile-hero.webp" alt="The homepage on a phone: the universe on top, a row of world buttons below" /></td>
   </tr>
   <tr>
-    <td><sub>The index. Hovering fills a row and wakes the preview.</sub></td>
-    <td><sub>Case-study page: the same world, large, with a scrub bar you can drive by hand.</sub></td>
+    <td><sub>A world in focus: its planet takes the slot, its panel opens with the real links.</sub></td>
+    <td><sub>On a phone.</sub></td>
   </tr>
 </table>
 
-Opening a case study uses a curtain that **grows out of the scene you clicked**, carries the project's name, swaps the route underneath, then wipes away.
+### 2. Worlds: an index, then nine chapters that cover each other
 
-### 3. Toolbox: a sticker sheet that can't lie
+The index lists the featured worlds; hovering a row floods it with that world's colour and turns the planet plate beside it. Then each project is a pinned, full-height chapter that slides up over the previous one, opening with its own mask. A small engraving of the orrery in the corner shows which ring you are on.
 
-Every tool in every project's `tech` list becomes a sticker. The more worlds use it, the bigger it prints. It is computed from the project data, so it can only ever show what the work actually used. Stickers are draggable.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/work-index.webp" alt="The index of worlds with Tarang's lime planet plate" /></td>
+    <td width="50%"><img src="docs/screenshots/chapter.webp" alt="The Tarang chapter: title, facts and the interactive scene" /></td>
+  </tr>
+</table>
 
-<img src="docs/screenshots/toolbox.jpg" alt="The Toolbox: a sheet of draggable tool stickers, sized by how many projects use each one" width="100%" />
+### 3. More work: everything else on GitHub that earned a place
 
-### 4. About: a desk you discover
+Five more projects (hackathon builds, an interface exploration, a live café site, team coursework) and two earlier sites. They have no interactive world yet, so each is drawn as a body on its own ring: a plate from the same instrument, never a fake screenshot. Team work always names the team and his role. The full repository audit behind this list is in [`docs/github-project-audit.md`](docs/github-project-audit.md).
 
-On desktop the stage pins and objects land on the desk one by one as you scroll: an ID card, index cards for each facet (drag them anywhere), a print, a cassette (Now Playing), a sticky note (Currently Building) and a studio stamp.
+<img src="docs/screenshots/more-work.webp" alt="More work: Niriksh AI and The Waffle House as lead entries with drawn plates" width="100%" />
 
-<img src="docs/screenshots/about.jpg" alt="The About desk covered in cards, an ID card, a polaroid, a cassette and a sticky note" width="100%" />
+### 4. Toolbox: organised, and it can't lie
 
-### 5. Contact: find me online
+Every tool in every project's `tech` list, filed into six groups (Languages, Interface, Motion & 3D, Backend & data, AI & vision, Hardware) and ordered by use. Beside each tool sits one enamel disc per project that uses it, so "how much" is the real list of projects, not a skill bar. It works both ways: point at a tool to light up its projects, or at a project to light up the tools it was built with; click to pin. Anything a project lists that no group names lands in "Other" instead of disappearing. It is computed from the project data, so it can only show what the work actually used.
 
-No form and no email address: three big rows (**Instagram, GitHub, LinkedIn**) over a field of shader light. Hovering a row sweeps it lime, rolls its letters, and **a 3D toon-shaded orb behind it changes colour and shape** to match the link (vermilion and spiky for Instagram, paper for GitHub, cobalt for LinkedIn). Links come from `contact` in [`src/data/config.ts`](src/data/config.ts); a missing one simply isn't shown.
+<img src="docs/screenshots/toolbox.webp" alt="The Toolbox: six groups of tools, each with a row of project discs, and the project legend below" width="100%" />
 
-<img src="docs/screenshots/contact.jpg" alt="The contact scene: three social rows over a shader field with a recoloured 3D orb, and the companion wandering past" width="100%" />
+### 5. About: a desk on the white sheet
 
-### 6. The companion
+On desktop the stage pins and the objects land one by one as you scroll: an ID card printed in cyanotype blue, index cards for each facet (drag them anywhere), a sun print, a cassette (Now Playing), a lime note (Currently Building) and the studio seal. Somewhere on the desk is a door.
 
-A small cartoon buddy lives in the viewport and wanders the whole site on random targets (never a fixed path), trailing the page a little when you scroll fast. It looks at and **points an arm at your cursor**, chats in cloud bubbles that match the section you are in, **chuckles when you hover it** and **gets sad (with a tear) if you click it**, then forgives you. It is drawn as layered SVG (`src/components/buddy`) so every part can animate, and it is the same character as in the Portfolio world. It respects `prefers-reduced-motion` (parked in a corner, no wandering). On touch screens he is click-through, so he never swallows a tap meant for a link; a tap that lands on him is detected separately.
+<img src="docs/screenshots/about.webp" alt="The About desk: designer developer student, the ID card, a cyanotype print and facet cards" width="100%" />
 
-<img src="docs/screenshots/buddy.jpg" alt="The companion in four moods: smiling, talking, chuckling when hovered, sad when clicked" width="100%" />
+### 6. Contact: the deep end of the print
+
+Three big rows (**Instagram, GitHub, LinkedIn**) on night blue. Hovering a row sweeps a white plate across it and rolls its letters, and **an enamel body behind it changes colour and shape** to match the link. Links come from `contact` in [`src/data/config.ts`](src/data/config.ts); a missing one simply isn't shown.
+
+<img src="docs/screenshots/contact.webp" alt="The contact scene: three social rows and a lime enamel body on hairline orbits" width="100%" />
 
 ### 7. Kage: one hidden door
 
-Somewhere on the About desk is a faint ink blot. (Or type `kage` anywhere.) Click it: the site drains of colour, ink irises out from the blot, and you're in **Kage**, a full scroll-storytelling scene. Escape or the Back button retraces the path and puts you exactly where you were.
+Somewhere on the About desk is a faint mark. (Or type `kage` anywhere.) Open it and you're in **Kage**, a full scroll-storytelling scene. Escape or the Back button returns you to exactly where you were.
 
 <img src="docs/screenshots/kage.jpg" alt="The Kage scene: a moonlit temple gate with a Back to Samudra button" width="100%" />
 
-## The seven worlds
+## The worlds
 
-Every project is a small interactive scene with **its own motion personality**, driven by scroll, cursor, hover and scroll velocity. All of them run from the same `SceneContext`, so the scene in a chapter and the large one on the case-study page are the same component.
+Every featured project is a small interactive scene with **its own motion personality and its own visual language**, driven by scroll, cursor, hover and scroll velocity. All of them run from the same `SceneContext`, so the scene in a chapter and the large one on the case-study page are the same component. The instrument frames them; it does not repaint them.
 
 <table>
   <tr>
@@ -137,37 +128,55 @@ Every project is a small interactive scene with **its own motion personality**, 
     <td><b>Grama Sathi</b><br /><sub>Voice. Idle, listening, replying, in Hindi (Devanagari). Scroll plays the loop; press and hold the mic to take over.</sub></td>
   </tr>
   <tr>
-    <td colspan="3"><img src="docs/screenshots/world-portfolio.jpg" alt="Portfolio world: a big squeezed headline with an outlined second line and the site's cartoon character in front" /><br /><b>Portfolio</b><br /><sub>The site introduces itself. A tall squeezed headline whose role words roll over, an outlined second line, and the site's cartoon character standing across both: his head and pupils follow the pointer, he blinks, breathes and waves. The two lines drift against each other with scroll.</sub></td>
+    <td width="50%" colspan="2"><img src="docs/screenshots/world-noir.webp" alt="Noir Café world: a cup seen from above with latte art, a caramel table pass and a euro menu plate" /></td>
+    <td width="50%"><img src="docs/screenshots/world-prahari.webp" alt="PRAHARI world: an open pit drawn as contours with sensors, a risk score of 0.58 with its reasons, and an audit chain" /></td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Noir Café</b><br /><sub>Night service. Seen from above, scroll pours the latte art into the cup and the wallet-style pass for a booked table slides out from under the saucer. A menu plate turns through the four languages and currencies the site ships (EN/USD, JA/JPY, FR/EUR, IT/GBP). Steam leans toward the pointer.</sub></td>
+    <td><b>PRAHARI</b><br /><sub>Inspection. An open pit as contour lines with sensors on its benches. Scroll runs one inspection: a sensor crosses its limit, the deterministic risk score climbs and lists its reasons, and each event is appended to a hash-linked audit chain.</sub></td>
   </tr>
 </table>
 
-| Project | What it is | Source |
-| :-- | :-- | :-- |
-| **Tarang** | A music streaming web app built around motion, glass surfaces and a floating player | [Samudra-GITHUB/Tarang](https://github.com/Samudra-GITHUB/Tarang) |
-| **Rinti AI** | An AI companion with a research engine (planner, extractors, claim checking, synthesis), memory and voice | [Samudra-GITHUB/Rinti-Ai](https://github.com/Samudra-GITHUB/Rinti-Ai) |
-| **AkashaLens** | Satellite cloud removal and image reconstruction; built for the ISRO Hackathon 2026 | [Samudra-GITHUB/AkashaLens](https://github.com/Samudra-GITHUB/AkashaLens) |
-| **SkyCast** | A live weather app: current conditions, hourly and 5-day forecast, UV index and air quality | [Samudra-GitHub/SkyCast-Weather-App](https://github.com/Samudra-GitHub/SkyCast-Weather-App) |
-| **Krama** *(also SoleVerse)* | A luxury sneaker marketplace built around storytelling and motion | [Samudra-GITHUB/Krama](https://github.com/Samudra-GITHUB/Krama) |
-| **Grama Sathi** | A Hindi voice assistant: speak, it transcribes, thinks, and answers aloud | n/a |
-| **Portfolio** | This site | you're here |
+**Portfolio** is the ninth, on the outermost ring: the site introduces itself with a squeezed headline whose role words roll over and a small copy of the orrery standing across it, turned by scroll and tipped by the pointer.
+
+| Project | What it is | Source | Live |
+| :-- | :-- | :-- | :-- |
+| **Tarang** | Music streaming web app: a floating player, queue, synced lyrics, moods and stats | [Tarang](https://github.com/Samudra-GITHub/Tarang) | [tarang-ecru.vercel.app](https://tarang-ecru.vercel.app) |
+| **Rinti AI** | Chat workspace with a cited research pipeline, per-user memory and real accounts | [Rinti-Ai](https://github.com/Samudra-GITHub/Rinti-Ai) | [rinti-ai.vercel.app](https://rinti-ai.vercel.app) |
+| **AkashaLens** | U-Net cloud removal for satellite imagery; a prototype built for the ISRO Hackathon 2026 | [AkashaLens](https://github.com/Samudra-GITHub/AkashaLens) | |
+| **SkyCast** | Flask weather app: conditions, forecast, UV and air quality | [SkyCast-Weather-App](https://github.com/Samudra-GitHub/SkyCast-Weather-App) | |
+| **Krama** *(also SoleVerse)* | Editorial sneaker storefront front end: shop, cart, checkout, admin for drops | [Krama](https://github.com/Samudra-GITHub/Krama) | |
+| **Grama Sathi** | A Hindi voice assistant: speak, it transcribes, thinks, and answers aloud | n/a | |
+| **Noir Café** | A coffee brand that exists only as a website: order ahead, table booking, 3D cup, AI concierge, offline app, four languages | [noir-cafe](https://github.com/Samudra-GITHub/noir-cafe) | |
+| **PRAHARI** | Mine safety and compliance: explainable risk score, a copilot that only narrates retrieved data, tamper-evident audit log | [PRAHARI](https://github.com/Samudra-GITHub/PRAHARI) | |
+| **Portfolio** | This site | [Sam-s_Portfolio](https://github.com/Samudra-GITHub/Sam-s_Portfolio) | you're here |
 
 > The scenes are visual interpretations of each project, not screenshots. The AkashaLens shader, for example, is a metaphor for cloud removal, not output from the model.
 
-## On small screens
+## Case studies
 
-Mobile isn't a scaled desktop. Below 1000px (or with `prefers-reduced-motion`) the pins and chapter overlaps are dropped: scenes stack, scroll still drives each scene, and the hero deck re-fans across the width of the screen. It was audited at 390, 360 and 320px wide and in landscape.
-
-- **No horizontal scroll** at any phone width (the nav folds its surname away on the smallest screens so all four links fit).
-- **Touch targets** of at least 44px, including small text links (their hit areas extend past the visible underline).
-- **Cheaper shaders:** the canvases render at about 1x on phones, and every per-frame loop pauses offscreen.
-- The Contact orb moves below the links instead of sitting behind them; the companion is click-through on touch.
+Every featured world and every "More work" project has a page at `/work/:slug`: the world (or the drawn plate) at large with a scrub bar, then what it is, what exists, its honest status and what it was built with, printed on the white sheet.
 
 <table>
   <tr>
-    <td width="25%"><img src="docs/screenshots/mobile-hero.jpg" alt="Mobile hero" /></td>
-    <td width="25%"><img src="docs/screenshots/mobile-work.jpg" alt="Mobile work chapter" /></td>
-    <td width="25%"><img src="docs/screenshots/mobile-toolbox.jpg" alt="Mobile toolbox" /></td>
-    <td width="25%"><img src="docs/screenshots/mobile-about.jpg" alt="Mobile about" /></td>
+    <td width="50%"><img src="docs/screenshots/case-study.webp" alt="The Rinti AI case study" /></td>
+    <td width="50%"><img src="docs/screenshots/case-study-plate.webp" alt="The PRAHARI case study with its drawn plate" /></td>
+  </tr>
+</table>
+
+## On small screens
+
+Mobile isn't a scaled desktop. Below 1000px (or with `prefers-reduced-motion`) the pins and chapter overlaps are dropped: scenes stack, scroll still drives each scene. Below 600px the orrery becomes a numbered diagram and its names move to the readout and the index.
+
+- **No horizontal scroll** at any phone width; checked at 390px and 320px.
+- **Touch targets** of at least 44px, including small text links; on phones the worlds are a row of full-size buttons.
+- **Cheaper shaders:** the canvases render at about 1x on phones, and every per-frame loop pauses offscreen.
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/mobile-hero.webp" alt="Mobile hero" /></td>
+    <td width="33%"><img src="docs/screenshots/mobile-more.webp" alt="Mobile More work" /></td>
+    <td width="33%"><img src="docs/screenshots/mobile-contact.webp" alt="Mobile contact" /></td>
   </tr>
 </table>
 
@@ -181,58 +190,36 @@ Motion is split on purpose. **GSAP owns page-level choreography and Framer Motio
 | :-- | :-- |
 | Smooth scroll and scroll velocity | **Lenis**, driven by GSAP's ticker |
 | Pinned scenes, scrubbed timelines, masks, reveals | **GSAP + ScrollTrigger** |
-| Cursor, hover and drag physics, per-scene parallax values | **Framer Motion** motion values |
-| Shader worlds (AkashaLens, Portfolio) | **Raw WebGL** (`ShaderCanvas`), no Three.js |
+| Cursor, hover and drag values, per-scene parallax | **Framer Motion** motion values |
+| The homepage universe | Two canvases (far and near halves of the rings) around the name, planets as real buttons moved by transform only; one ticker callback that stops drawing when nothing moves or the hero is offscreen |
+| Shader worlds and the Contact field | **Raw WebGL** (`ShaderCanvas`), no Three.js |
 | Every per-frame effect | **One shared `gsap.ticker`**: a single `requestAnimationFrame` for the whole site |
 
-```mermaid
-flowchart LR
-  Input["Wheel / touch"] --> Lenis
-  Ticker["gsap.ticker<br/>(the only rAF)"] --> Lenis
-  Lenis -->|scroll| ST["ScrollTrigger"]
-  ST --> Choreo["Pins, masks,<br/>scrubbed timelines"]
-  ST --> Progress["Scene progress<br/>(motion values)"]
-  Pointer["One pointer listener"] --> MV["Pointer motion values"]
-  Progress --> Worlds["Project worlds"]
-  MV --> Worlds
-  MV --> Cursor["Cursor"]
-  Ticker --> Frame["Per-frame effects<br/>(gated by visibility)"]
-```
+Easing is two curves from `src/styles/tokens.css`: a strong ease-out (`cubic-bezier(0.23, 1, 0.32, 1)`) for anything arriving or answering a press, and a strong ease-in-out for things moving on screen. UI transitions stay between 140ms and 260ms; presses scale to 0.97; hover motion is gated to fine pointers.
 
 ### The scroll system (desktop)
 
-- The hero is a sticky 100dvh stage inside a taller section. A scrubbed timeline fades the copy while the ink circle grows from the dot's *current* position.
+- The homepage is a single 100svh scene and scrolling is never hijacked. As it leaves, the rings flatten toward edge-on and the copy fades.
 - Each project chapter is a sticky stage inside a taller box. The **next chapter has a negative top margin**, so it slides up over the pinned one. The covered chapter scales back and is marked `inert` so keyboard focus can't land on something you can't see.
 - Each chapter hands its world a `progress` value (0 to 1 across its whole scroll range). Worlds never read scroll or the pointer directly.
 
 ### The cursor
 
-One lime arrow that looks like one of the site's buttons: lime fill, 2px ink outline, hard offset shadow, tip exactly on the pointer. It only runs on `(hover: hover) and (pointer: fine)` devices. State comes from attributes on whatever it's over:
+A white arrow with a blue hairline that reads on both the blue and the white sheet. It turns lime and tips toward anything you can use, and shows a small readout chip (ENTER, OPEN, TURN, VISIT) set by `data-cursor` and `data-cursor-label` attributes. It only runs on `(hover: hover) and (pointer: fine)` devices.
 
-```html
-<a data-cursor="project" data-cursor-label="ENTER">…</a>
-```
+### Typography
 
-| `data-cursor` | Used for |
-| :-- | :-- |
-| *(default)* | the plain arrow |
-| `link` *(any `a` or `button`)* | the arrow tilts and its shadow grows, like a button lifting |
-| `project` · `play` · `drag` · `image` · `scroll` · `cta` | a small mono label chip appears beside the arrow |
-
-Pressing nudges the arrow down and right and collapses the shadow, matching `.btn:active`.
-
-### Typography as a material
-
-Syne is a variable font whose width changes a lot with weight (an "S" is about half as wide at 400 as at 800). `ProximityText` gives every letter its own slot sized for the *resting* weight; letters swell past their slot symmetrically under the cursor, so the line never reflows.
+Archivo is a variable font with a width axis (62% to 125%) as well as weight. Display type is set expanded, reading text at normal width, and the Portfolio world squeezes it. `ProximityText` gives every letter of the name its own slot sized for the resting weight; letters thicken under the cursor and swell past their slot, so the line never reflows.
 
 ### Performance and accessibility
 
 - **Nothing runs offscreen.** Per-frame work is gated by `IntersectionObserver`, tab visibility and whether Kage is open.
-- **WebGL is disciplined:** DPR is capped (lower on compact screens), context loss is handled, the context is released on unmount, and a fresh canvas is created per mount.
-- **Code splitting:** each world, the case-study page and Kage are separate lazy chunks. The main bundle is about **603 kB (201 kB gzipped)**.
+- **WebGL is disciplined:** DPR is capped (lower on compact screens), context loss is handled, and the context is released on unmount.
+- **Code splitting:** each world, the case-study page and Kage are separate lazy chunks.
 - **Fonts are self-hosted** variable fonts (Fontsource); the Devanagari face loads only when the Grama Sathi world mounts.
-- **Reduced motion** disables Lenis, pins, scrubs, animated shaders and the page-transition curtain.
-- Semantic landmarks, a skip link, visible `:focus-visible` rings, and keyboard-operable controls where an interaction has a real purpose (the mic, the scene scrub bar, the Kage door, the social links). The companion is decorative and hidden from assistive tech.
+- **Reduced motion** disables Lenis, pins, scrubs, the universe's drift and entrance, animated shaders and the page-transition curtain; chapters keep their two-column layout.
+- Semantic landmarks, one `h1`, a skip link, visible lime focus rings, keyboard-operable controls, and accessible names that start with the visible text.
+- Lighthouse 12 on the production build (`npm run build` + `vite preview`, home page, first visit with the entrance, 2026-10-20, two runs each): desktop 93 to 97 performance, 100 accessibility, 100 best practices, 100 SEO, CLS 0; mobile (simulated 4x CPU throttling) 63 to 69 performance, 100 / 100 / 100, CLS 0.
 
 ## Run it locally
 
@@ -315,10 +302,20 @@ All content lives in `src/data/`, and **placeholders are hidden automatically**:
 
 | File | What to edit |
 | :-- | :-- |
-| `config.ts` | Name, studio, roles, About facets, *Currently building*, *Now playing* (set `track` and `artist` and the cassette starts spinning), and contact links (empty ones are hidden) |
-| `projects.ts` | The seven projects: copy, tech, highlights, palette, links. The Toolbox is generated from each project's `tech`. Add a `live` URL or a `longDescription` and the case-study page picks it up |
+| `config.ts` | Name, studio, roles, About facets, *Currently building*, *Now playing* (set `track` and `artist` and the cassette appears on the desk and starts spinning; it stays hidden until then), and contact links (empty ones are hidden) |
+| `projects.ts` | Every project: copy, tech, highlights, status, palette, links, and its `tier`. The Toolbox is generated from each project's `tech`. |
 
-Adding a project world means a new file in `src/components/work/worlds/` and one line in its `index.ts`.
+Each project has a `tier`:
+
+| Tier | Where it appears |
+| :-- | :-- |
+| `featured` | A planet in the homepage universe, the index of worlds, a full chapter and a case study. Needs a `world` (a scene in `src/components/work/worlds/`, registered in its `index.ts`). |
+| `more` | "More work", with a drawn plate and a case study. Set `lead: true` to give it more room. |
+| `earlier` | A short line under "More work". |
+
+Only add a `live` URL you have checked opens the right page. For team work, set `team` and `role` so the credit is never implied to be solo.
+
+**Stress-testing the layouts (dev only):** on the dev server, add `?data=worst`, `?data=empty`, `?data=one` or `?data=many` to the URL, or use the toggle at the bottom of the page. It swaps in realistic worst-case project data (long titles, missing links, one tech, twelve techs, forty projects) from `src/data/stress.ts`. Production builds never read the parameter, and the toggle and fixtures are stripped from the bundle.
 
 ## Kage
 
@@ -331,21 +328,20 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 ```
 .
 ├── backend/                 optional Express contact API (Resend, Zod, helmet, rate limit); not used by the UI right now
-├── docs/                    README screenshots and the scroll GIF
-├── public/                  favicon, plus Kage's assets (synced + verified)
+├── docs/                    github-project-audit.md, README screenshots
+├── public/                  favicon (the SK mark), robots.txt, Kage's assets (synced + verified)
 ├── scripts/                 sync-kage.mjs (copy + sha256-verify Kage assets) and kage-landing-page.json (its manifest)
 ├── src/
 │   ├── lib/                 runtime (media queries, pause), pointer, scroll, ticker hooks, gsap setup
-│   ├── data/                config.ts, projects.ts   ← content lives here
+│   ├── data/                config.ts, projects.ts (content), stress.ts (dev-only worst-case data)
 │   ├── components/
-│   │   ├── core/            SmoothScroll, Cursor, Magnetic, PageTransition, ProximityText, Split, ShaderCanvas
-│   │   ├── hero/            the dot, the deck, the ink takeover
-│   │   ├── work/            index, chapters, SceneFrame, worlds/ (one file per project)
+│   │   ├── core/            SmoothScroll, Cursor, Monogram, Magnetic, PageTransition, ProximityText, Split, ShaderCanvas, Loader
+│   │   ├── home/            the homepage universe and the planet surfaces
+│   │   ├── work/            index, chapters, RingLocator, SceneFrame, worlds/ (one file per project)
+│   │   ├── more/            More work and the drawn project plates
 │   │   ├── stack/           the Toolbox
 │   │   ├── about/           the desk
-│   │   ├── contact/         the social-first final scene (shader field + orb)
-│   │   ├── buddy/           the cartoon character (shared SVG head, palette)
-│   │   ├── companion/       the roaming buddy: wander, point, laugh, sad, bubbles
+│   │   ├── contact/         the final scene (shader field + enamel body)
 │   │   └── kage/            the hidden door (lazy) and its trigger
 │   ├── pages/               Home, ProjectDetail, NotFound
 │   └── styles/              design tokens and base styles
@@ -356,23 +352,26 @@ The scene is a lazy chunk, so visitors who never open it never download it.
 
 | Token | Value | Role |
 | :-- | :-- | :-- |
-| Paper | `#fdf9f1` | main canvas |
-| Sand | `#ebe5d8` | secondary surfaces |
-| Ink | `#111215` | text, borders, hard shadows |
-| Electric lime | `#d8f827` | primary accent, CTAs, the cursor |
-| Cobalt | `#1e3ae8` | secondary accent (white text on it) |
-| Vermilion | `#ff5226` | tertiary accent |
+| `--cy-700` | `#123a8c` | the cyanotype ground |
+| `--cy-950` … `--cy-500` | `#081c4a` … `#2a5cc0` | deeper and lighter blues: nav, Contact, light on the plate |
+| `--line` | `#eef2fc` | text and engraved linework on the blue |
+| `--line-2` | `#aebee2` | secondary text on the blue (5:1 on the ground) |
+| `--sheet` / `--sheet-ink` | `#f3f5f9` / `#0e2d72` | the white sheet and the blue that prints on it |
+| `--lime` | `#d8f827` | the one signal colour: conjunction, focus, selection |
+| World enamels | lime, cobalt, ink, paper, vermilion, sand, plus each "More work" project's own | project discs and chapter grounds |
 
-**Type:** [Syne](https://fonts.google.com/specimen/Syne) for display, [Epilogue](https://fonts.google.com/specimen/Epilogue) for body, [JetBrains Mono](https://www.jetbrains.com/lp/mono/) for labels, and Noto Sans Devanagari for the Grama Sathi scene.
+**Type:** [Archivo](https://fonts.google.com/specimen/Archivo) across its width axis (expanded for display, normal for reading), [JetBrains Mono](https://www.jetbrains.com/lp/mono/) for readouts only, and Noto Sans Devanagari for the Grama Sathi scene.
 
-**Rules:** 2px borders, hard offset shadows (never blurred), asymmetry on purpose, lime stays under ink text and cobalt stays under white. The system evolves, but it should always read as the same person with better craft.
+**Rules:** hairlines, not boxes; dashed for available, solid for committed; no shadows on the sheet; hierarchy by type size; one signal colour. The full record is in `DESIGN.md`.
 
 ## Known limitations
 
+- **JavaScript and set-up cost.** The main bundle is about 600 kB (200 kB gzipped) because it carries React, Router, GSAP, Framer Motion and Lenis, and the nine pinned chapters create their ScrollTriggers at load. On a throttled phone profile that is one to two seconds of main-thread time before the page is interactive. Worlds, case studies and Kage are already split out; deferring each chapter's triggers until it is near would be the next step.
+- The five projects in "More work" have no interactive world yet; they are drawn plates.
+- Grama Sathi has no repository on the account, so it is listed without a source link.
 - The sneaker in the Krama world is hand-drawn SVG; real photography or renders would beat it.
-- The About ID card uses an "SK" monogram because there's no portrait.
-- Frame rates haven't been profiled on real GPUs or a range of phones, and the touch experience has had less testing than the mouse one.
-- The main JS bundle is large for a portfolio (573 kB, 190 kB gzipped) because it carries React, Router, GSAP, Framer Motion and Lenis. Worlds, case studies and Kage are split out.
+- The About ID card uses the SK monogram because there's no portrait.
+- Frame rates haven't been profiled on real GPUs or a range of phones.
 
 ## Credits and licenses
 

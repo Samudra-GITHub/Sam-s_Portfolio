@@ -80,7 +80,7 @@
   border: 2px solid var(--ink);
   border-radius: 999px;
   box-shadow: 0.9cqw 0.9cqw 0 var(--ink);
-  font-size: clamp(0.55rem, 1.9cqw, 0.7rem);
+  font-size: clamp(var(--t-2xs), 1.9cqw, var(--t-xs));
 }
 .tg-pill-btn { width: 4.6cqw; height: 4.6cqw; background: var(--paper); border: 2px solid var(--ink); border-radius: 50%; position: relative; }
 .tg-pill-btn::after { content: ''; position: absolute; left: 38%; top: 27%; border-left: 1.1cqw solid var(--ink); border-top: 0.85cqw solid transparent; border-bottom: 0.85cqw solid transparent; }

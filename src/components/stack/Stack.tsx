@@ -1,115 +1,166 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from '../../lib/gsap';
-import { useReducedMotion } from '../../lib/runtime';
-import { projects } from '../../data/projects';
-import Split from '../core/Split';
+import { useMemo, useState, type CSSProperties } from 'react';
+import { paged, type Project } from '../../data/projects';
 import './stack.css';
 
 /**
- * The Toolbox is a sticker sheet built from the seven projects themselves:
- * every tool listed in any project's `tech` becomes a sticker, and the more
- * worlds use it the bigger it prints. Nothing here is typed in by hand, so it
- * can only ever say what the work actually used. Stickers can be dragged.
+ * The Toolbox, organised: every tool in any project's `tech` list, filed
+ * into a few honest groups and ordered by how many projects use it. Next to
+ * each tool sits one enamel disc per project that uses it, so the "how much"
+ * is the real list of projects, not a skill bar.
+ *
+ * It works both ways: point at a tool and its projects light up in the
+ * legend; point at a project and the tools it was built with light up in the
+ * groups. Nothing is typed in by hand, so it only ever shows what the work used.
  */
+const GROUPS: { id: string; title: string; note: string; tools: string[] }[] = [
+  { id: 'lang', title: 'Languages', note: 'what the code is written in', tools: ['TypeScript', 'Python', 'C++', 'HTML', 'CSS', 'LaTeX'] },
+  { id: 'ui', title: 'Interface', note: 'frameworks and state', tools: ['React', 'Next.js', 'Tailwind CSS', 'Vite', 'Zustand', 'Recharts'] },
+  { id: 'motion', title: 'Motion & 3D', note: 'how things move', tools: ['Framer Motion', 'GSAP', 'Lenis', 'Three.js', 'React Three Fiber', 'WebGL'] },
+  { id: 'back', title: 'Backend & data', note: 'servers, storage, services', tools: ['FastAPI', 'Flask', 'Prisma', 'PostgreSQL', 'Supabase', 'Stripe', 'Docker', 'OpenWeatherMap API'] },
+  { id: 'ai', title: 'AI & vision', note: 'models and the maths around them', tools: ['PyTorch', 'NumPy', 'scikit-image', 'Matplotlib', 'faster-whisper', 'Llama 3.3 (Groq)', 'Groq', 'edge-tts'] },
+  { id: 'hw', title: 'Hardware', note: 'boards and firmware', tools: ['ESP32', 'Arduino'] },
+];
+
 interface Tool {
   name: string;
-  count: number;
-  by: string[];
+  by: Project[];
 }
 
-const SHAPES = ['pill', 'rect', 'ticket', 'round'] as const;
-const FILLS = ['lime', 'vermilion', 'cobalt', 'paper', 'ink', 'sand'] as const;
-
-function useTools(): Tool[] {
+function useGroups() {
   return useMemo(() => {
     const tally = new Map<string, Tool>();
-    for (const p of projects) {
-      for (const name of p.tech) {
-        const t = tally.get(name) ?? { name, count: 0, by: [] };
-        t.count += 1;
-        t.by.push(p.title);
-        tally.set(name, t);
-      }
+    for (const p of paged) for (const name of p.tech) {
+      const t = tally.get(name) ?? { name, by: [] };
+      t.by.push(p);
+      tally.set(name, t);
     }
-    const list = [...tally.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-    // deterministic shuffle so big and small stickers are mixed, not sorted into rows
-    const n = list.length;
-    const step = [7, 5, 3, 11, 13].find((s) => n % s !== 0) ?? 1;
-    return list.map((_, i) => list[(i * step) % n]);
+    const filed = new Set<string>();
+    const sort = (a: Tool, b: Tool) => b.by.length - a.by.length || a.name.localeCompare(b.name);
+    const groups = GROUPS.map((g) => {
+      const tools = g.tools.map((n) => tally.get(n)).filter((t): t is Tool => Boolean(t)).sort(sort);
+      tools.forEach((t) => filed.add(t.name));
+      return { ...g, tools };
+    });
+    // anything a project lists that no group names still shows up, never silently dropped
+    const rest = [...tally.values()].filter((t) => !filed.has(t.name)).sort(sort);
+    if (rest.length) groups.push({ id: 'other', title: 'Other', note: 'everything else', tools: rest });
+    return { groups: groups.filter((g) => g.tools.length > 0), total: tally.size };
   }, []);
 }
 
-export default function Stack() {
-  const rootRef = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  const tools = useTools();
+/** three type sizes, from how widely a tool is used */
+const tier = (n: number) => (n >= 5 ? 1 : n >= 2 ? 2 : 3);
 
-  useEffect(() => {
-    if (reduce) return;
-    const ctx = gsap.context(() => {
-      gsap.from('.stack-title .split-inner', {
-        yPercent: 118,
-        duration: 1,
-        ease: 'expo.out',
-        stagger: 0.05,
-        scrollTrigger: { trigger: '.stack-head', start: 'top 80%', toggleActions: 'play none none reverse' },
-      });
-      gsap.from('.sticker', {
-        y: -90,
-        opacity: 0,
-        rotation: (i: number) => (i % 2 ? 14 : -14),
-        duration: 0.8,
-        ease: 'back.out(1.5)',
-        stagger: { each: 0.035, from: 'random' },
-        scrollTrigger: { trigger: '.sticker-sheet', start: 'top 82%', toggleActions: 'play none none reverse' },
-      });
-    }, rootRef);
-    return () => ctx.revert();
-  }, [reduce]);
+export default function Stack() {
+  const { groups, total } = useGroups();
+  const [tool, setTool] = useState<string | null>(null);
+  const [project, setProject] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<{ kind: 'tool' | 'project'; id: string } | null>(null);
+
+  const activeTool = tool ?? (pinned?.kind === 'tool' ? pinned.id : null);
+  const activeProject = project ?? (pinned?.kind === 'project' ? pinned.id : null);
+  const toolObj = activeTool ? groups.flatMap((g) => g.tools).find((t) => t.name === activeTool) : null;
+  const projObj = activeProject ? paged.find((p) => p.id === activeProject) : null;
+
+  const toolOn = (t: Tool) => (projObj ? projObj.tech.includes(t.name) : activeTool ? t.name === activeTool : true);
+  const projOn = (p: Project) => (toolObj ? toolObj.by.some((q) => q.id === p.id) : activeProject ? p.id === activeProject : true);
+  const filtering = Boolean(toolObj || projObj);
+  const pin = (kind: 'tool' | 'project', id: string) => setPinned((cur) => (cur?.kind === kind && cur.id === id ? null : { kind, id }));
+
+  const readout = toolObj
+    ? `${toolObj.name} · used in ${toolObj.by.length} ${toolObj.by.length === 1 ? 'project' : 'projects'}`
+    : projObj
+      ? `${projObj.title} · built with ${projObj.tech.length} ${projObj.tech.length === 1 ? 'tool' : 'tools'}`
+      : 'Point at a tool to see its projects, or at a project to see its tools.';
+
+  if (total === 0) {
+    return (
+      <section id="stack" className="stack" aria-labelledby="stack-title">
+        <div className="stack-inner">
+          <h2 id="stack-title" className="stack-title">Toolbox</h2>
+          <p className="stack-empty">No tools listed yet.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section ref={rootRef} id="stack" className="stack" aria-labelledby="stack-title">
-      <div className="stack-tape" aria-hidden="true" />
+    <section id="stack" className="stack" aria-labelledby="stack-title" data-filtering={filtering || undefined}>
       <div className="stack-inner">
         <header className="stack-head">
-          <h2 id="stack-title" className="stack-title font-display">
-            <Split text="TOOLBOX" by="chars" />
-          </h2>
+          <h2 id="stack-title" className="stack-title">Toolbox</h2>
           <p className="stack-sub">
-            {String(projects.length).padStart(2, '0')} projects, {tools.length} tools. The bigger the sticker, the more worlds it shows up in.
+            {total} tools across {paged.length} projects, filed by what they do. Each disc is a project that uses the tool.
           </p>
         </header>
 
-        <ul className="sticker-sheet">
-          {tools.map((t, i) => {
-            const size = t.count >= 4 ? 'xl' : t.count === 3 ? 'l' : t.count === 2 ? 'm' : 's';
-            const rot = (((i * 37) % 13) - 6) * 0.9;
-            return (
-              <li key={t.name} className="sticker-slot" style={{ '--rot': `${rot}deg` } as CSSProperties}>
-                <motion.span
-                  className="sticker"
-                  data-size={size}
-                  data-shape={SHAPES[i % SHAPES.length]}
-                  data-fill={FILLS[(i * 5 + 1) % FILLS.length]}
-                  drag
-                  dragMomentum={false}
-                  dragElastic={0.14}
-                  whileHover={{ scale: 1.08, rotate: rot * -0.6 }}
-                  whileDrag={{ scale: 1.12, zIndex: 40 }}
-                  data-cursor="drag"
-                  title={`Used in: ${t.by.join(', ')}`}
+        <div className="stack-groups">
+          {groups.map((g) => (
+            <section key={g.id} className="stack-group" aria-labelledby={`sg-${g.id}`}>
+              <header className="stack-group-head">
+                <h3 id={`sg-${g.id}`} className="stack-group-title">{g.title}</h3>
+                <span className="mono stack-group-n">{String(g.tools.length).padStart(2, '0')}</span>
+              </header>
+              <p className="stack-group-note">{g.note}</p>
+              <ul className="stack-tools">
+                {g.tools.map((t) => (
+                  <li key={t.name}>
+                    <button
+                      type="button"
+                      className="stack-tool"
+                      data-tier={tier(t.by.length)}
+                      data-on={toolOn(t)}
+                      aria-pressed={pinned?.kind === 'tool' && pinned.id === t.name}
+                      onClick={() => pin('tool', t.name)}
+                      onPointerEnter={(e) => e.pointerType === 'mouse' && setTool(t.name)}
+                      onPointerLeave={() => setTool(null)}
+                      onFocus={() => setTool(t.name)}
+                      onBlur={() => setTool(null)}
+                    >
+                      <span className="stack-tool-name">{t.name}</span>
+                      <span className="stack-tool-discs" aria-hidden="true">
+                        {t.by.map((p) => (
+                          <i key={p.id} style={{ '--d': p.palette.bg } as CSSProperties} data-on={!projObj || projObj.id === p.id} />
+                        ))}
+                      </span>
+                      <span className="sr-only">, used in {t.by.map((p) => p.title).join(', ')}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+
+        <footer className="stack-legend">
+          <p className="mono stack-readout" aria-live="polite">{readout}</p>
+          <ul className="stack-projects" aria-label="Projects">
+            {paged.map((p) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  className="stack-project"
+                  data-on={projOn(p)}
+                  aria-pressed={pinned?.kind === 'project' && pinned.id === p.id}
+                  onClick={() => pin('project', p.id)}
+                  onPointerEnter={(e) => e.pointerType === 'mouse' && setProject(p.id)}
+                  onPointerLeave={() => setProject(null)}
+                  onFocus={() => setProject(p.id)}
+                  onBlur={() => setProject(null)}
+                  style={{ '--d': p.palette.bg } as CSSProperties}
                 >
-                  <span className="sticker-name font-display">{t.name}</span>
-                  <span className="sticker-count mono" aria-label={`used in ${t.count} ${t.count === 1 ? 'project' : 'projects'}`}>
-                    x{t.count}
-                  </span>
-                </motion.span>
+                  <span className="stack-project-disc" aria-hidden="true" />
+                  {p.title}
+                </button>
               </li>
-            );
-          })}
-        </ul>
-        <p className="stack-hint">Drag them around. Hover a sticker to see which worlds use it.</p>
+            ))}
+          </ul>
+          {pinned && (
+            <button type="button" className="tlink stack-clear" onClick={() => setPinned(null)}>
+              Clear selection
+            </button>
+          )}
+        </footer>
       </div>
     </section>
   );

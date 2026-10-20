@@ -22,7 +22,7 @@ interface Props {
  * The compact viewport each project lives in. It owns the pointer and idle
  * motion for the world inside and exposes them through SceneContext.
  */
-export default function SceneFrame({ project, index, total, progress, onOpen, interactive = true, className = '', children }: Props) {
+export default function SceneFrame({ project, index, progress, onOpen, interactive = true, className = '', children }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const visible = useVisibleRef(ref, '25% 0px');
   const compact = useMedia(MQ.compact);
@@ -70,9 +70,6 @@ export default function SceneFrame({ project, index, total, progress, onOpen, in
         }}
         onPointerLeave={() => hoverRaw.set(0)}
       >
-        <div className="scene-tab mono">
-          World {String(index + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}
-        </div>
         <motion.div className="scene-canvas" style={{ rotateX: tiltX, rotateY: tiltY, scale: reduce ? 1 : 1.035 }}>
           {children}
         </motion.div>

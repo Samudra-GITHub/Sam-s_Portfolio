@@ -1,9 +1,8 @@
 .pw {
   --u: min(1cqw, 1.25cqh);
-  background: var(--paper);
-  color: var(--ink);
-  background-image: radial-gradient(rgb(17 18 21 / 0.12) 1px, transparent 1.2px);
-  background-size: 18px 18px;
+  /* the site paints itself: the cyanotype sheet and its instrument */
+  background: radial-gradient(90% 80% at 60% 45%, var(--cy-600), var(--cy-700) 55%, var(--cy-900));
+  color: var(--line);
   overflow: hidden;
 }
 
@@ -26,9 +25,7 @@
   height: 40cqw;
   margin: -20cqw 0 0 -20cqw;
   border-radius: 50%;
-  background: var(--lime);
-  border: 2px solid var(--ink);
-  box-shadow: 1cqw 1cqw 0 var(--ink);
+  border: 1px dashed var(--rule-strong);
 }
 
 .pw-hi {
@@ -37,7 +34,7 @@
   left: 0;
   right: 0;
   text-align: center;
-  font-size: clamp(0.64rem, 3.1cqw, 0.95rem);
+  font-size: clamp(var(--t-2xs), 3.1cqw, 0.95rem);
   font-weight: 600;
 }
 .pw-wave { display: inline-block; transform-origin: 70% 80%; animation: pw-wave-hand 2.6s ease-in-out infinite; }
@@ -52,7 +49,8 @@
   font-family: var(--font-body);
   font-weight: 900;
   font-size: 24px;
-  fill: var(--ink);
+  font-stretch: 75%;
+  fill: var(--line);
 }
 /* outline = the solid glyph minus an eroded copy, so only the outer edge survives */
 .pw-line--outline text { filter: url(#pw-outline); }
@@ -67,36 +65,30 @@
 }
 .pw-char svg { display: block; width: 100%; overflow: visible; }
 
-.pw-breathe { transform-origin: 150px 340px; animation: pw-breathe 4.2s ease-in-out infinite; }
-.pw-head { transform-origin: 150px 200px; transition: transform 0.05s linear; }
-.pw-arm { transform-origin: 250px 300px; }
-.pw-hand { transform-origin: 258px 200px; animation: pw-wave-arm 1.5s ease-in-out infinite; }
+/* the instrument */
+.pw-plate { transform-origin: 0 0; transform-box: view-box; }
+.pw-orbit { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 2 5; }
+.pw-orbit:nth-child(2) { stroke: var(--line); stroke-dasharray: none; }
+.pw-sun { fill: var(--line); }
+.pw-sun-text { fill: var(--cy-800); font-family: var(--font-display); font-stretch: 125%; font-weight: 800; font-size: 17px; }
+.pw-body { stroke: var(--line); stroke-width: 1.5; }
+.pw-body--0 { fill: var(--lime); }
+.pw-body--1 { fill: var(--vermilion); }
+.pw-body--2 { fill: var(--ink); }
 
 .pw-here {
   left: 5cqw;
   top: 56cqw;
-  background: var(--lime);
-  color: var(--ink);
-  border-color: var(--ink);
-  transform: rotate(-6deg);
+  color: var(--lime);
+  border-color: var(--lime);
 }
 
 .pw-foot {
   position: absolute;
   bottom: 4cqw;
-  font-size: clamp(0.56rem, 2.5cqw, 0.66rem);
+  font-size: clamp(var(--t-2xs), 2.5cqw, var(--t-xs));
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .pw-foot--l { left: 5cqw; }
 
-@keyframes pw-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.02); } }
-@keyframes pw-wave-arm { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(14deg); } }
-@keyframes pw-wave-hand { 0%, 60%, 100% { transform: rotate(0); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-10deg); } 45% { transform: rotate(14deg); } }
-
-.pw[data-reduce] .pw-breathe,
-.pw[data-reduce] .pw-hand,
-.pw[data-reduce] .pw-wave { animation: none; }
-@media (prefers-reduced-motion: reduce) {
-  .pw-breathe, .pw-hand, .pw-wave { animation: none; }
-}
