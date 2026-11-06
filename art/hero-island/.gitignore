@@ -1,0 +1,4 @@
+# large intermediates from the sculpt pipeline
+*.ply
+*.blend
+*.blend1

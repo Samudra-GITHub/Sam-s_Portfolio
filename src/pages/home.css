@@ -124,3 +124,43 @@
 @media (max-width: 999px) and (max-height: 700px) {
   .pg-sec { padding-top: 38svh; }
 }
+
+/* ---------- the archipelago: one chapter per project island ---------- */
+.pg-sec--intro { min-height: 90svh; }
+.pg-jump { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
+.pg-jump a { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; padding: 0 0.85rem; border: 1px solid var(--rule); border-radius: 999px; background: rgb(251 250 245 / 0.8); font-size: var(--t-sm); transition: border-color var(--dur-hover) ease, color var(--dur-hover) ease; }
+.pg-jump .mono { font-size: var(--t-2xs); color: var(--line-2); }
+@media (hover: hover) and (pointer: fine) {
+  .pg-jump a:hover { border-color: var(--lime); color: var(--lime); }
+}
+
+/* each chapter is tall: the island is framed while its panel scrolls past */
+.pg-chapter { min-height: 135svh; align-content: center; }
+.pg-panel {
+  display: grid;
+  gap: var(--s-4);
+  max-width: 31rem;
+  padding: var(--s-6);
+  background: rgb(251 250 245 / 0.94);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -40px rgb(25 63 53 / 0.45);
+}
+@media (prefers-reduced-transparency: reduce) { .pg-panel { background: var(--sheet); } }
+.pg-ptitle { font-size: clamp(2.4rem, 1.4rem + 3vw, 4rem); font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
+.pg-ptag { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 500; letter-spacing: -0.01em; }
+.pg-pdesc { color: var(--line-2); }
+.pg-phigh { display: grid; gap: var(--s-2); }
+.pg-phigh li { position: relative; padding-left: 1.1rem; font-size: var(--t-sm); }
+.pg-phigh li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 0.45rem; height: 1px; background: var(--lime); }
+.pg-pmeta { display: grid; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--rule); }
+.pg-pmeta div { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s-3); font-size: var(--t-sm); }
+.pg-pmeta dt { color: var(--line-2); font-size: var(--t-2xs); padding-top: 0.2rem; }
+.pg-plinks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+
+@media (max-width: 999px) {
+  .pg-chapter { min-height: 120svh; padding-top: max(52svh, 20rem); }
+  .pg-panel { padding: var(--s-5); }
+  .pg-sec--intro .pg-col { background: rgb(251 250 245 / 0.92); }
+  .pg-pmeta div { grid-template-columns: 1fr; gap: 0.15rem; }
+}

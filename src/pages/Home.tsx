@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import WorldStage from '../components/world/WorldStage';
+import FlyingIntro from '../components/world/FlyingIntro';
 import { config } from '../data/config';
 import { featured, moreWork, projects } from '../data/projects';
 import { real } from '../lib/content';
@@ -63,67 +64,90 @@ export default function Home() {
     <>
       <WorldStage />
       <main id="main" className="pg">
-        {/* 00 / 01: the landing island */}
-        <section id="top" className="pg-sec pg-hero" aria-labelledby="hero-title">
-          <div className="pg-col">
-            <p className="pg-kicker mono">Designer &amp; Developer</p>
-            <h1 id="hero-title" className="pg-name">
-              {config.name}
-            </h1>
-            <p className="pg-lede">I design and build interfaces, AI tools and small worlds like this one. Scroll to travel through it, or jump straight to the work.</p>
-            <div className="pg-actions">
-              <a href="#work" className="btn" onClick={jump('work')}>
-                Explore selected work <span className="btn-arrow" aria-hidden="true">→</span>
-              </a>
-              <a href="#about" className="btn btn--line" onClick={jump('about')}>
-                About me
-              </a>
+        {/* 01: the arrival, and the introduction that takes flight */}
+        <FlyingIntro onJump={jump} />
+
+        {/* 02: the project archipelago, one island per project */}
+        <section id="work" aria-labelledby="work-title">
+          <div className="pg-sec pg-sec--intro">
+            <div className="pg-col">
+              <p className="pg-kicker mono">01 · The archipelago</p>
+              <h2 id="work-title" className="pg-title">
+                Selected work
+              </h2>
+              <p className="pg-sub">
+                {featured.length} projects, each on its own island. Scroll to visit them in turn, or{' '}
+                <Link to="/projects" className="pg-inline">
+                  open the plain index
+                </Link>
+                .
+              </p>
+              <ol className="pg-jump" aria-label="Jump to a project">
+                {featured.map((p, i) => (
+                  <li key={p.slug}>
+                    <a href={`#p-${p.slug}`} onClick={jump(`p-${p.slug}`)}>
+                      <span className="mono">{pad(i + 1)}</span> {p.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
-          <p className="pg-cue mono" aria-hidden="true">
-            Scroll to travel
-          </p>
-        </section>
-
-        {/* 02: the project district */}
-        <section id="work" className="pg-sec" aria-labelledby="work-title">
-          <div className="pg-col pg-col--wide">
-            <p className="pg-kicker mono">01 · Over the archipelago</p>
-            <h2 id="work-title" className="pg-title">
-              Selected work
-            </h2>
-            <p className="pg-sub">
-              {featured.length} projects, each with its honest current status. Open one for the full case study, or{' '}
-              <Link to="/projects" className="pg-inline">
-                see everything in the index
-              </Link>
-              .
-            </p>
-            <ol className="pg-cards">
-              {featured.map((p, i) => (
-                <li key={p.slug}>
-                  <Link to={`/work/${p.slug}`} className="pg-card" style={{ '--acc': ['#28785d', '#d29a54', '#318e91', '#77618e', '#58a987'][i % 5] } as React.CSSProperties}>
-                    <span className="pg-card-n mono">{pad(i + 1)}</span>
-                    <span className="pg-card-body">
-                      <span className="pg-card-cat mono">{p.category}</span>
-                      <span className="pg-card-title">
-                        {p.title}
-                        {p.alias && <span className="pg-card-alias"> (formerly {p.alias})</span>}
-                      </span>
-                      <span className="pg-card-tag">{p.tagline}</span>
-                      <span className="pg-card-meta">
-                        {[p.role, p.team, p.tech.slice(0, 3).join(', ')].filter(Boolean).join(' · ')}
-                      </span>
-                      {p.status && <span className="pg-card-status">{p.status}</span>}
-                    </span>
-                    <span className="pg-card-go" aria-hidden="true">
-                      →
-                    </span>
+          {featured.map((p, i) => (
+            <article key={p.slug} id={`p-${p.slug}`} className="pg-sec pg-chapter" aria-labelledby={`t-${p.slug}`}>
+              <div className="pg-panel">
+                <p className="pg-kicker mono">
+                  {pad(i + 1)} / {pad(featured.length)} · {p.category}
+                </p>
+                <h3 id={`t-${p.slug}`} className="pg-ptitle">
+                  {p.title}
+                  {p.alias && <span className="pg-card-alias"> formerly {p.alias}</span>}
+                </h3>
+                <p className="pg-ptag">{p.tagline}</p>
+                <p className="pg-pdesc">{p.description}</p>
+                {p.highlights.length > 0 && (
+                  <ul className="pg-phigh">
+                    {p.highlights.slice(0, 2).map((h) => (
+                      <li key={h}>{h}</li>
+                    ))}
+                  </ul>
+                )}
+                <dl className="pg-pmeta">
+                  {(p.role || p.team) && (
+                    <div>
+                      <dt className="mono">Credit</dt>
+                      <dd>{[p.role, p.team].filter(Boolean).join(' · ')}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt className="mono">Stack</dt>
+                    <dd>{p.tech.join(', ')}</dd>
+                  </div>
+                  {p.status && (
+                    <div>
+                      <dt className="mono">Status</dt>
+                      <dd>{p.status}</dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="pg-plinks">
+                  <Link to={`/work/${p.slug}`} className="btn">
+                    Case study <span className="btn-arrow" aria-hidden="true">→</span>
                   </Link>
-                </li>
-              ))}
-            </ol>
-          </div>
+                  {p.live && (
+                    <a href={p.live} target="_blank" rel="noreferrer" className="btn btn--line">
+                      Live site ↗
+                    </a>
+                  )}
+                  {p.github && (
+                    <a href={p.github} target="_blank" rel="noreferrer" className="tlink">
+                      Source
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
         </section>
 
         {/* 05: the garden */}
