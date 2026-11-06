@@ -113,7 +113,7 @@ export default function AboutPage() {
   const to = (path: string, label: string) => (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    go(path, { from: e.currentTarget.getBoundingClientRect(), color: '#081c4a', ink: '#eef2fc', label });
+    go(path, { from: e.currentTarget.getBoundingClientRect(), color: '#f7f6f2', ink: '#20212a', label });
   };
 
   const bench = [

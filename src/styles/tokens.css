@@ -1,28 +1,38 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* ---------- the cyanotype ----------
-     A sun print: Prussian blue where light hit the paper, white where it did
-     not. The site is printed on the blue; quiet passages sit on the white. */
-  --cy-950: #081c4a;
-  --cy-900: #0b2560;
-  --cy-800: #0e2d72;
-  --cy-700: #123a8c; /* the ground */
-  --cy-600: #1a49a6;
-  --cy-500: #2a5cc0;
+  /* ---------- the playground ----------
+     A warm studio: near-white canvas, clay-white surfaces, graphite ink.
+     The old cyanotype token names are kept so every page reads the new
+     palette; --cy-* is now the light ground scale (950 = brightest surface). */
+  --cy-950: #ffffff;
+  --cy-900: #fbfaf7;
+  --cy-800: #f2f0ea;
+  --cy-700: #f7f6f2; /* the canvas */
+  --cy-600: #e6e3f6; /* lavender wash: images tint with it before they develop */
+  --cy-500: #e5e2da;
 
-  /* engraved linework on the blue */
-  --line: #eef2fc;
-  --line-2: #aebee2; /* secondary text on the ground, 5:1 on --cy-700 */
-  --rule: rgb(238 242 252 / 0.22); /* hairlines, orbits at rest */
-  --rule-strong: rgb(238 242 252 / 0.5);
+  /* ink on the canvas */
+  --line: #20212a;
+  --line-2: #5f6370; /* muted ink, 5.6:1 on the canvas */
+  --rule: rgb(32 33 42 / 0.12); /* hairlines */
+  --rule-strong: rgb(32 33 42 / 0.32);
 
-  /* the unexposed sheet, and the blue that prints on it */
-  --sheet: #f3f5f9;
-  --sheet-2: #e4e9f3;
-  --sheet-ink: #0e2d72;
-  --sheet-ink-2: #3d5591; /* secondary on the sheet, 7:1 */
-  --sheet-rule: rgb(14 45 114 / 0.2);
+  /* surfaces */
+  --sheet: #ffffff;
+  --sheet-2: #f2f0ea;
+  --sheet-ink: #20212a;
+  --sheet-ink-2: #5f6370;
+  --sheet-rule: rgb(32 33 42 / 0.12);
+
+  /* scene accents: mostly for the 3D world, sparingly in the UI */
+  --cobalt-ui: #4258ea; /* the UI signal, 5:1 with white */
+  --lavender: #b9a9f4;
+  --sky: #9fd9e8;
+  --coral: #f49a7b;
+  --soft-lime: #d5e978;
+  --radius: 16px;
+  --radius-sm: 10px;
 
   /* ---------- enamel: each world keeps its own colour ---------- */
   --paper: #fdf9f1;
@@ -30,7 +40,7 @@
   --sand: #ebe5d8;
   --ink: #111215;
   --ink-2: #454933;
-  --lime: #d8f827; /* the one signal colour: conjunction, focus, selection */
+  --lime: var(--cobalt-ui); /* the one UI signal: focus, selection, active (name kept) */
   --cobalt: #1e3ae8;
   --vermilion: #ff5226;
 
@@ -49,10 +59,10 @@
   --shadow-hard-lg: 8px 8px 0 var(--ink);
 
   /* ---------- type ----------
-     One family across its width axis: expanded caps engrave the display,
-     normal width reads, condensed squeezes. Mono is for readouts only. */
-  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
-  --font-body: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+     Three roles: Space Grotesk displays, Inter reads, mono labels.
+     (The width tokens remain for older rules; these faces ignore them.) */
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
   --wide: 125%;
   --semi: 112%;

@@ -12,7 +12,9 @@ interface SplitProps {
  * Renders text as masked pieces (.split-inner) that a GSAP timeline can lift
  * into place. The full string stays on the wrapper as its accessible name.
  */
-export default function Split({ text, as: Tag = 'span', className = '', by = 'words' }: SplitProps) {
+export default function Split({ text, as = 'span', className = '', by = 'words' }: SplitProps) {
+  // narrowed for JSX: the three.js element types otherwise widen ElementType's children to never
+  const Tag = as as 'span';
   const words = text.split(' ');
   return (
     <Tag className={className}>

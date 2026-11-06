@@ -1,4 +1,4 @@
-/* The instrument strip: one blue rule across the top of every page. */
+/* Compact top navigation on a frosted canvas strip. */
 .nav {
   position: fixed;
   top: 0;
@@ -6,14 +6,17 @@
   width: 100%;
   height: var(--nav-height);
   z-index: var(--z-nav);
-  background: var(--cy-800);
   color: var(--line);
+  background: rgb(247 246 242 / 0.78);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-bottom: 1px solid var(--rule);
-  transition: transform var(--dur-ui) var(--ease-out), background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
+  transition: background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
 }
-/* over the homepage universe the strip dissolves into the scene */
-.nav[data-top='true'] { background: transparent; border-bottom-color: transparent; }
-.nav[data-hidden='true'] { transform: translateY(-101%) !important; }
+.nav[data-top='true'] { background: transparent; border-bottom-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .nav { background: var(--cy-700); backdrop-filter: none; }
+}
 
 .nav-inner {
   height: 100%;
@@ -22,155 +25,100 @@
   padding: 0 var(--gutter);
   display: flex;
   align-items: center;
-  gap: var(--s-6);
+  gap: var(--s-5);
 }
+.nav-brand { display: inline-flex; align-items: center; gap: 0.55rem; margin-right: auto; font-family: var(--font-display); font-weight: 650; font-size: var(--t-md); letter-spacing: -0.02em; white-space: nowrap; min-height: 44px; }
+.nav-dot { width: 0.7rem; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a9b6ff, #536bfa 60%, #3445c4); }
 
-.nav-brand { position: relative; display: flex; align-items: baseline; gap: var(--s-3); white-space: nowrap; margin-right: auto; }
-.nav-brand::after { content: ''; position: absolute; inset: -14px -6px; }
-.nav-brand-name {
-  font-family: var(--font-display);
-  font-stretch: var(--wide);
-  font-weight: 700;
-  font-size: var(--t-md);
-  letter-spacing: -0.01em;
-}
-.nav-brand-studio { color: var(--line-2); }
-
-.nav-status {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  color: var(--line-2);
-  white-space: nowrap;
-}
-.nav-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
-
-.nav-links { display: flex; gap: clamp(1rem, 2.2vw, 2rem); align-items: center; }
+.nav-links { display: flex; gap: var(--s-1); }
 .nav-link {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  font-family: var(--font-mono);
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--line-2);
-  transition: color var(--dur-hover) ease;
-}
-/* the active section gets a solid line, like a committed ring */
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 9px;
-  height: 1px;
-  background: var(--lime);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform var(--dur-ui) var(--ease-out);
-}
-.nav-link[data-active='true'] { color: var(--line); }
-.nav-link[data-active='true']::after { transform: none; height: 2px; }
-.nav-link:active { transform: translateY(1px); }
-.nav-link:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; color: var(--line); }
-@media (hover: hover) and (pointer: fine) {
-  /* hover hints the line the page would commit to */
-  .nav-link:hover { color: var(--line); }
-  .nav-link:not([data-active='true']):hover::after { transform: scaleX(0.35); }
-}
-
-/* the sound control: four bars, flat when off, breathing when on */
-.nav-sound {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  min-width: 44px;
-  min-height: 44px;
-  margin-left: var(--s-2);
-  padding: 0 var(--s-3);
-  border: 1px solid var(--rule);
+  min-height: 40px;
+  padding: 0 0.8rem;
   border-radius: 999px;
+  font-size: var(--t-sm);
+  font-weight: 500;
   color: var(--line-2);
-  transition: color var(--dur-hover) ease, border-color var(--dur-hover) ease, background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+  transition: color var(--dur-hover) ease, background-color var(--dur-hover) ease;
 }
-.nav-sound:active { transform: scale(0.94); }
-.nav-sound:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
-.nav-sound-bars { position: relative; display: inline-flex; align-items: center; gap: 2px; height: 14px; }
-.nav-sound-bars i { width: 2px; height: 5px; border-radius: 1px; background: currentColor; opacity: 0.6; transition: height var(--dur-ui) var(--ease-out), opacity var(--dur-ui) ease; }
-.nav-sound-bars i:nth-child(2) { height: 8px; }
-.nav-sound-bars i:nth-child(3) { height: 6px; }
-/* off: the bars are struck through, so the state reads without the label */
-.nav-sound-bars::after { content: ''; position: absolute; left: -3px; right: -3px; top: 50%; height: 1.5px; background: currentColor; border-radius: 1px; transform: rotate(-40deg); transition: opacity var(--dur-ui) ease, transform var(--dur-ui) var(--ease-out); }
-.nav-sound[aria-pressed='true'] .nav-sound-bars i { opacity: 1; }
-.nav-sound[aria-pressed='true'] .nav-sound-bars::after { opacity: 0; transform: rotate(-40deg) scaleX(0); }
-.nav-sound-label { font-size: var(--t-2xs); letter-spacing: 0.12em; text-transform: uppercase; }
-.nav-sound[aria-pressed='true'] { color: var(--cy-950); background: var(--lime); border-color: var(--lime); }
-.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(1) { height: 7px; }
-.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(2) { height: 13px; }
-.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(3) { height: 9px; }
-.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(4) { height: 5px; }
-@media (prefers-reduced-motion: no-preference) {
-  .nav-sound[aria-pressed='true'] .nav-sound-bars i { animation: nav-eq 1.6s ease-in-out infinite alternate; transform-origin: 50% 50%; }
-  .nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(2) { animation-delay: -0.4s; }
-  .nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(3) { animation-delay: -0.9s; }
-  .nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(4) { animation-delay: -1.3s; }
-}
-@keyframes nav-eq { from { transform: scaleY(0.45); } to { transform: scaleY(1); } }
+.nav-link[aria-current] { color: var(--line); background: var(--sheet); box-shadow: inset 0 0 0 1px var(--rule); }
 @media (hover: hover) and (pointer: fine) {
-  .nav-sound:not([aria-pressed='true']):hover { color: var(--line); border-color: var(--rule-strong); }
+  .nav-link:hover { color: var(--line); }
 }
 
-.nav-progress {
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 100%;
-  height: 1px;
-  background: var(--lime);
-  transform-origin: 0 50%;
+.nav-tools { display: flex; align-items: center; gap: var(--s-2); }
+.nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  background: var(--sheet);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
 }
-
-@media (max-width: 1100px) {
-  .nav-status { display: none; }
-}
-@media (max-width: 720px) {
-  .nav-brand-studio { display: none; }
-  .nav-sound-label { display: none; }
-  .nav-sound { margin-left: var(--s-1); padding: 0; justify-content: center; }
-  .nav-inner { gap: var(--s-4); }
-}
-@media (max-width: 560px) {
-  .nav-links { gap: 0; }
-  .nav-link { padding-inline: 0.45rem; font-size: var(--t-2xs); letter-spacing: 0.06em; }
-  .nav-link::after { left: 0.45rem; right: 0.45rem; }
-  .nav-brand-name { font-size: var(--t-sm); font-stretch: var(--semi); }
-}
-@media (max-width: 370px) {
-  .nav-link { padding-inline: 0.3rem; font-size: var(--t-2xs); letter-spacing: 0.03em; }
-}
-@media (max-width: 430px) {
-  /* phones: the monogram carries the brand; the name stays in the link's accessible name */
-  .nav-brand-name {
-    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-  }
-}
-
-/* the studio mark */
-.monogram { flex: none; overflow: visible; }
-.monogram-ring { fill: none; stroke: currentColor; stroke-width: 2; opacity: 0.45; }
-.monogram-disc { fill: var(--line); }
-.monogram-type { fill: var(--cy-800); font-family: var(--font-display); font-stretch: 125%; font-weight: 800; font-size: 27px; letter-spacing: -0.02em; }
-.monogram-body { fill: var(--lime); }
-.nav-brand { align-items: center; }
-.nav-mark { transition: transform var(--dur-ui) var(--ease-out); }
+.nav-chip:active, .nav-sound:active { transform: scale(0.96); }
+.nav-chip[aria-current] { background: var(--line); color: var(--sheet); border-color: var(--line); }
 @media (hover: hover) and (pointer: fine) {
-  .nav-brand:hover .nav-mark { transform: rotate(-24deg); }
+  .nav-chip:hover { border-color: var(--line); }
 }
 
-/* the homepage is one screen: the bar stays out of the way */
-.nav[data-home] { border-bottom-color: transparent; background: transparent; }
-.nav[data-home] .nav-progress { display: none; }
+.nav-sound { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--rule-strong); background: var(--sheet); transition: background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out); }
+.nav-sound-bars { display: flex; align-items: center; gap: 2px; height: 14px; position: relative; }
+.nav-sound-bars i { width: 2px; height: 30%; background: currentColor; border-radius: 1px; }
+.nav-sound-bars i:nth-child(2) { height: 60%; }
+.nav-sound-bars i:nth-child(3) { height: 45%; }
+.nav-sound[aria-pressed='false'] .nav-sound-bars::after { content: ''; position: absolute; left: -3px; right: -3px; top: 50%; height: 1.5px; background: currentColor; transform: rotate(-35deg); }
+.nav-sound[aria-pressed='true'] { background: var(--lime); color: #fff; border-color: var(--lime); }
+.nav-sound[aria-pressed='true'] .nav-sound-bars i { animation: nav-eq 0.9s ease-in-out infinite alternate; }
+.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(2) { animation-delay: -0.3s; }
+.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(3) { animation-delay: -0.6s; }
+.nav-sound[aria-pressed='true'] .nav-sound-bars i:nth-child(4) { animation-delay: -0.15s; }
+@keyframes nav-eq { from { height: 25%; } to { height: 100%; } }
+
+/* compact: places move into the map panel */
+@media (max-width: 999px) {
+  .nav-main, .nav-index { display: none; }
+}
+
+/* the map: a plain 2D list of the islands */
+.map {
+  margin: auto;
+  width: min(30rem, calc(100% - 2 * var(--gutter)));
+  max-height: calc(100dvh - 2rem);
+  border: 1px solid var(--rule);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--sheet);
+  color: var(--line);
+  padding: 0;
+  box-shadow: 0 30px 80px -30px rgb(32 33 42 / 0.4);
+}
+.map::backdrop { background: rgb(32 33 42 / 0.28); backdrop-filter: blur(4px); }
+.map[open] { animation: map-in 320ms var(--ease-out); }
+@keyframes map-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+.map-inner { display: grid; gap: var(--s-5); padding: var(--s-5); }
+.map-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s-4); }
+.map-head h2 { font-size: var(--t-lg); font-weight: 600; }
+.map-list { display: grid; gap: var(--s-1); }
+.map-list a {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 52px;
+  padding: 0 var(--s-3);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--dur-hover) ease;
+}
+.map-list a[aria-current] { background: var(--sheet-2); }
+@media (hover: hover) and (pointer: fine) {
+  .map-list a:hover { background: var(--sheet-2); }
+}
+.map-dot { width: 0.8rem; aspect-ratio: 1; border-radius: 50%; }
+.map-n { color: var(--line-2); font-size: var(--t-2xs); }
+.map-label { font-family: var(--font-display); font-weight: 600; font-size: var(--t-lg); letter-spacing: -0.02em; }
+.map-island { color: var(--line-2); font-size: var(--t-sm); }

@@ -1,0 +1,66 @@
+/* The fixed world behind the homepage. See WorldStage.tsx. */
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(60% 50% at 70% 40%, #ffffff 0%, transparent 70%),
+    radial-gradient(40% 40% at 20% 90%, rgb(185 169 244 / 0.18), transparent 70%),
+    var(--cy-700);
+  pointer-events: none;
+}
+.world-canvas {
+  position: absolute !important;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+.world[data-ready='true'] .world-canvas { opacity: 1; }
+.world[data-ready='true'] .world-fallback { opacity: 0; }
+
+/* Drawn islands: what shows before the 3D loads and if WebGL is unavailable */
+.world-fallback { position: absolute; inset: 0; transition: opacity 900ms ease; }
+.wf-island {
+  position: absolute;
+  width: clamp(12rem, 30vw, 26rem);
+  aspect-ratio: 2.4;
+  border-radius: 50%;
+  background: linear-gradient(#fffdf9, #efe8dd);
+  box-shadow: 0 2.4rem 3rem -1.6rem rgb(120 104 80 / 0.28);
+}
+.wf-island::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 55%;
+  height: 120%;
+  background: linear-gradient(#e7dfd2, transparent);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  z-index: -1;
+}
+.wf-a { right: 10%; top: 42%; }
+.wf-b { right: 38%; top: 72%; width: clamp(6rem, 12vw, 10rem); opacity: 0.7; }
+.wf-orb {
+  position: absolute;
+  right: calc(10% + clamp(12rem, 30vw, 26rem) / 2 - 2rem);
+  top: calc(42% - 4.6rem);
+  width: 4rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #a9b6ff, #536bfa 60%, #3445c4);
+}
+
+/* Desktop: a soft wash on the left keeps the text on a calm, near-solid ground */
+.world-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(247 246 242 / 0.94) 0%, rgb(247 246 242 / 0.82) 34%, rgb(247 246 242 / 0) 58%);
+}
+@media (max-width: 999px) {
+  .wf-a { right: 50%; transform: translateX(50%); top: 16%; }
+  .wf-b { display: none; }
+  .wf-orb { right: 50%; transform: translateX(50%); top: calc(16% - 4.4rem); }
+  /* compact: the island sits at the top; text flows below on a canvas wash */
+  .world-veil { background: linear-gradient(180deg, rgb(247 246 242 / 0) 0%, rgb(247 246 242 / 0) 34%, rgb(247 246 242 / 0.9) 56%); }
+}
