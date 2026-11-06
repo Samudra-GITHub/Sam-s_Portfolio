@@ -31,3 +31,19 @@ export const HERO: MountainSpec = {
     [[0.25, -0.62], [0.2, -0.95], [0.18, -1.6]],
   ],
 };
+
+/**
+ * The far formations around the hero. Each featured project is shown on one of
+ * them (World.tsx assigns them in flight order). at = centre, s = scale.
+ */
+export const FAR: { at: [number, number, number]; s: number; seed: number }[] = [
+  { at: [-170, 22, -230], s: 36, seed: 101 },
+  { at: [-60, -8, -340], s: 54, seed: 102 },
+  { at: [-340, 34, -120], s: 46, seed: 103 },
+  { at: [52, 14, -205], s: 20, seed: 104 },
+  { at: [-280, -24, -400], s: 80, seed: 105 },
+  { at: [130, 30, -440], s: 70, seed: 106 },
+  { at: [-440, 8, 120], s: 44, seed: 107 },
+  { at: [215, -12, -150], s: 17, seed: 108 },
+  { at: [430, 20, -260], s: 60, seed: 109 },
+];

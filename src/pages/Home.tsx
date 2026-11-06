@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import WorldStage from '../components/world/WorldStage';
 import FlyingIntro from '../components/world/FlyingIntro';
@@ -34,6 +34,30 @@ export default function Home() {
     const id = window.setTimeout(() => scrollToTarget(hash, { immediate: true }), 60);
     return () => window.clearTimeout(id);
   }, [hash]);
+
+  // which project chapter crosses the middle of the screen: its caption shows beside its island
+  const [active, setActive] = useState<string | null>(null);
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const slug = e.target.id.slice(2);
+          setActive((cur) => (e.isIntersecting ? slug : cur === slug ? null : cur));
+        }
+      },
+      { rootMargin: '-50% 0px -50% 0px' },
+    );
+    document.querySelectorAll('.pg-chapter').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    const root = document.documentElement;
+    if (active) root.dataset.isle = active;
+    else delete root.dataset.isle;
+    return () => {
+      delete root.dataset.isle;
+    };
+  }, [active]);
 
   const toolkit = useMemo(
     () =>
@@ -76,60 +100,27 @@ export default function Home() {
                 Selected work
               </h2>
               <p className="pg-sub">
-                {featured.length} projects, each on its own island. Scroll to visit them in turn, or{' '}
+                {featured.length} projects, each on its own island out in the sky. Scroll to fly to them in turn, or{' '}
                 <Link to="/projects" className="pg-inline">
                   open the plain index
                 </Link>
                 .
               </p>
-              <ol className="pg-jump" aria-label="Jump to a project">
-                {featured.map((p, i) => (
-                  <li key={p.slug}>
-                    <a href={`#p-${p.slug}`} onClick={jump(`p-${p.slug}`)}>
-                      <span className="mono">{pad(i + 1)}</span> {p.title}
-                    </a>
-                  </li>
-                ))}
-              </ol>
             </div>
           </div>
           {featured.map((p, i) => (
-            <article key={p.slug} id={`p-${p.slug}`} className="pg-sec pg-chapter" aria-labelledby={`t-${p.slug}`}>
-              <div className="pg-panel">
+            <article key={p.slug} id={`p-${p.slug}`} className="pg-chapter" aria-labelledby={`t-${p.slug}`} data-active={active === p.slug || undefined}>
+              {/* pinned beside the project's island while its chapter is in view (World.tsx writes --isle-x/y/r) */}
+              <div className="isle-cap">
                 <p className="pg-kicker mono">
                   {pad(i + 1)} / {pad(featured.length)} · {p.category}
                 </p>
-                <h3 id={`t-${p.slug}`} className="pg-ptitle">
+                <h3 id={`t-${p.slug}`} className="isle-title">
                   {p.title}
                   {p.alias && <span className="pg-card-alias"> formerly {p.alias}</span>}
                 </h3>
                 <p className="pg-ptag">{p.tagline}</p>
                 <p className="pg-pdesc">{p.description}</p>
-                {p.highlights.length > 0 && (
-                  <ul className="pg-phigh">
-                    {p.highlights.slice(0, 2).map((h) => (
-                      <li key={h}>{h}</li>
-                    ))}
-                  </ul>
-                )}
-                <dl className="pg-pmeta">
-                  {(p.role || p.team) && (
-                    <div>
-                      <dt className="mono">Credit</dt>
-                      <dd>{[p.role, p.team].filter(Boolean).join(' · ')}</dd>
-                    </div>
-                  )}
-                  <div>
-                    <dt className="mono">Stack</dt>
-                    <dd>{p.tech.join(', ')}</dd>
-                  </div>
-                  {p.status && (
-                    <div>
-                      <dt className="mono">Status</dt>
-                      <dd>{p.status}</dd>
-                    </div>
-                  )}
-                </dl>
                 <div className="pg-plinks">
                   <Link to={`/work/${p.slug}`} className="btn">
                     Case study <span className="btn-arrow" aria-hidden="true">→</span>

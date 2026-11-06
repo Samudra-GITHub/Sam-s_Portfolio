@@ -1,15 +1,15 @@
 /* The fixed world behind the homepage. See WorldStage.tsx.
-   The sky is CSS (the canvas is transparent): bright haze, a warm sun glow
-   high on the left where the key light comes from, cooler toward the top. */
+   The 3D scene paints its own clear blue sky; this CSS sky only shows before
+   it loads, and stays if WebGL is missing. */
 .world {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(55% 45% at 22% 18%, rgb(255 236 200 / 0.9), transparent 70%),
+    radial-gradient(55% 45% at 22% 18%, rgb(255 246 226 / 0.7), transparent 70%),
     radial-gradient(70% 40% at 60% 100%, rgb(255 255 255 / 0.85), transparent 75%),
-    linear-gradient(180deg, #bcd9d6 0%, #d6e6e0 34%, #e9eee8 62%, #f1efe6 100%);
+    linear-gradient(180deg, #3f7fcf 0%, #79aee6 34%, #b6d5f1 66%, #e6f0f7 100%);
 }
 .world-canvas {
   position: absolute !important;
@@ -51,13 +51,16 @@
 .world-veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgb(244 242 235 / 0.95) 0%, rgb(244 242 235 / 0.84) 32%, rgb(244 242 235 / 0) 56%);
+  background: linear-gradient(90deg, rgb(242 246 249 / 0.94) 0%, rgb(242 246 249 / 0.8) 32%, rgb(242 246 249 / 0) 56%);
+  transition: opacity 700ms ease;
 }
+/* over a project island the caption carries its own backing: let the sky through */
+:root[data-isle] .world-veil { opacity: 0; }
 @media (max-width: 999px) {
   .wf-island { right: 50%; transform: translateX(50%); top: 9%; width: min(72vw, 20rem); }
   .wf-b { display: none; }
-  .world-veil { background: linear-gradient(180deg, rgb(244 242 235 / 0) 0%, rgb(244 242 235 / 0) 38%, rgb(244 242 235 / 0.9) 58%); }
+  .world-veil { background: linear-gradient(180deg, rgb(242 246 249 / 0) 0%, rgb(242 246 249 / 0) 38%, rgb(242 246 249 / 0.9) 58%); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .world-veil { background: linear-gradient(90deg, #f4f2eb 0 46%, transparent 60%); }
+  .world-veil { background: linear-gradient(90deg, #f2f6f9 0 46%, transparent 60%); }
 }

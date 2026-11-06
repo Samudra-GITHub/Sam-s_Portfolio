@@ -4,7 +4,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { rng } from '../noise';
 import { buildGrid, meshGrid, mountainDensity, type MountainSpec } from './terrain';
-import { HERO, HERO_BOUNDS, HERO_SCALE } from './spec';
+import { FAR, HERO, HERO_BOUNDS, HERO_SCALE } from './spec';
 import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMaterial, leafMaterial, rockMaterial, solidDepthMaterial } from './shaders';
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
 
@@ -314,17 +314,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   // ---------------- distant formations ----------------
   say('Raising the far mountains…');
   await frame();
-  const far: { at: [number, number, number]; s: number; seed: number }[] = [
-    { at: [-170, 22, -230], s: 36, seed: 101 },
-    { at: [-60, -8, -340], s: 54, seed: 102 },
-    { at: [-340, 34, -120], s: 46, seed: 103 },
-    { at: [52, 14, -205], s: 20, seed: 104 },
-    { at: [-280, -24, -400], s: 80, seed: 105 },
-    { at: [130, 30, -440], s: 70, seed: 106 },
-    { at: [-440, 8, 120], s: 44, seed: 107 },
-    { at: [215, -12, -150], s: 17, seed: 108 },
-    { at: [430, 20, -260], s: 60, seed: 109 },
-  ];
+  const far = FAR;
   const farPalettes = [
     { strata: ['#a98a6b', '#c5b495', '#8a6048', '#6f7779', '#7c6550'] },
     { strata: ['#9c8270', '#b9ab92', '#7d5a4a', '#66707a', '#6f5b4c'], under: '#3f3b45' },
@@ -341,7 +331,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
       caves: [],
       rivers: [],
     };
-    const g = meshGrid(buildGrid(mountainDensity(spec), [-1.6, -2.4, -1.6], [1.6, 1.1, 1.6], low ? 0.08 : 0.055), f.s, 8);
+    const g = meshGrid(buildGrid(mountainDensity(spec), [-1.6, -2.4, -1.6], [1.6, 1.1, 1.6], low ? 0.07 : 0.04), f.s, 8);
     const grp = new THREE.Group();
     grp.position.set(...f.at);
     grp.add(new THREE.Mesh(g, rockMaterial(c, f.s, farPalettes[f.seed % 2])));
@@ -489,14 +479,14 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         varying vec3 vDir;
         void main(){
           vec3 d = normalize(vDir);
-          vec3 zen = vec3(0.07, 0.25, 0.42), hor = vec3(0.76, 0.82, 0.8), low = vec3(0.62, 0.74, 0.78);
+          vec3 zen = vec3(0.1, 0.36, 0.78), hor = vec3(0.64, 0.81, 0.96), low = vec3(0.6, 0.76, 0.92);
           vec3 col = mix(hor, zen, pow(smoothstep(-0.02, 0.7, d.y), 0.7));
           col = mix(col, low, 1.0 - smoothstep(-0.25, 0.0, d.y));
           col = mix(uFogCol, col, smoothstep(-0.02, 0.1, d.y)); // the horizon melts into the same haze as the cloud floor
           float sd = max(dot(d, uSun), 0.0);
           col += uSunCol * (0.18 * pow(sd, 6.0) + 0.5 * pow(sd, 90.0));
           float cl = snoise(vec3(d.x * 2.6, d.y * 10.0, d.z * 2.6)) * 0.55 + snoise(d * 8.0) * 0.25;
-          col = mix(col, hor * 1.08, smoothstep(0.3, 0.85, cl) * smoothstep(0.04, 0.3, d.y) * 0.4);
+          col = mix(col, vec3(0.97, 0.98, 1.0), smoothstep(0.45, 0.9, cl) * smoothstep(0.04, 0.3, d.y) * 0.3); // a few clean cirrus streaks
           gl_FragColor = vec4(col, 1.0);
         }`,
       uniforms: { ...c },

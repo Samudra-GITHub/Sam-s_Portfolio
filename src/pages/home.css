@@ -127,40 +127,64 @@
 
 /* ---------- the archipelago: one chapter per project island ---------- */
 .pg-sec--intro { min-height: 90svh; }
-.pg-jump { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
-.pg-jump a { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; padding: 0 0.85rem; border: 1px solid var(--rule); border-radius: 999px; background: rgb(251 250 245 / 0.8); font-size: var(--t-sm); transition: border-color var(--dur-hover) ease, color var(--dur-hover) ease; }
-.pg-jump .mono { font-size: var(--t-2xs); color: var(--line-2); }
-@media (hover: hover) and (pointer: fine) {
-  .pg-jump a:hover { border-color: var(--lime); color: var(--lime); }
-}
-
-/* each chapter is tall: the island is framed while its panel scrolls past */
-.pg-chapter { min-height: 135svh; align-content: center; }
-.pg-panel {
+/* each chapter is tall: the camera rests on the island while its caption stays pinned beside it */
+.pg-chapter { min-height: 135svh; }
+.isle-cap {
+  --cap-w: min(25rem, 34vw);
+  position: fixed;
+  z-index: 2;
+  /* right edge sits just left of the island; clamped so the caption stays on screen */
+  left: max(calc(var(--cap-w) + var(--gutter)), calc(var(--isle-x, 68vw) - var(--isle-r, 16vw) - 2.5rem));
+  top: clamp(14rem, var(--isle-y, 50svh), calc(100svh - 14rem));
+  width: var(--cap-w);
+  transform: translate(-100%, -50%) translateY(0.75rem);
   display: grid;
-  gap: var(--s-4);
-  max-width: 31rem;
-  padding: var(--s-6);
-  background: rgb(251 250 245 / 0.94);
-  border: 1px solid var(--rule);
+  gap: var(--s-3);
+  padding: var(--s-5);
+  background: rgb(250 252 253 / 0.88);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgb(255 255 255 / 0.7);
   border-radius: var(--radius);
-  box-shadow: 0 30px 60px -40px rgb(25 63 53 / 0.45);
+  box-shadow: 0 30px 60px -36px rgb(22 54 92 / 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-out), transform 520ms var(--ease-out);
 }
-@media (prefers-reduced-transparency: reduce) { .pg-panel { background: var(--sheet); } }
-.pg-ptitle { font-size: clamp(2.4rem, 1.4rem + 3vw, 4rem); font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
+/* a thin leader from the caption to its island */
+.isle-cap::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 2.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0));
+}
+.pg-chapter[data-active] .isle-cap,
+.isle-cap:focus-within { opacity: 1; pointer-events: auto; transform: translate(-100%, -50%); }
+@media (prefers-reduced-motion: reduce) { .isle-cap { transition: opacity 200ms ease; transform: translate(-100%, -50%); } }
+@media (prefers-reduced-transparency: reduce) { .isle-cap { background: var(--sheet); backdrop-filter: none; } }
+.isle-title { font-size: clamp(2rem, 1.2rem + 2.2vw, 3.1rem); font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
 .pg-ptag { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 500; letter-spacing: -0.01em; }
 .pg-pdesc { color: var(--line-2); }
-.pg-phigh { display: grid; gap: var(--s-2); }
-.pg-phigh li { position: relative; padding-left: 1.1rem; font-size: var(--t-sm); }
-.pg-phigh li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 0.45rem; height: 1px; background: var(--lime); }
-.pg-pmeta { display: grid; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--rule); }
-.pg-pmeta div { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s-3); font-size: var(--t-sm); }
-.pg-pmeta dt { color: var(--line-2); font-size: var(--t-2xs); padding-top: 0.2rem; }
 .pg-plinks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
 
 @media (max-width: 999px) {
-  .pg-chapter { min-height: 120svh; padding-top: max(52svh, 20rem); }
-  .pg-panel { padding: var(--s-5); }
+  .pg-chapter { min-height: 120svh; }
+  .isle-cap {
+    left: var(--gutter);
+    right: var(--gutter);
+    top: auto;
+    bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 52svh;
+    overflow: auto;
+    padding: var(--s-4);
+    transform: translateY(0.75rem);
+  }
+  .pg-chapter[data-active] .isle-cap,
+  .isle-cap:focus-within { transform: none; }
+  .isle-cap::after { display: none; }
+  .isle-cap .pg-pdesc { font-size: var(--t-sm); }
   .pg-sec--intro .pg-col { background: rgb(251 250 245 / 0.92); }
-  .pg-pmeta div { grid-template-columns: 1fr; gap: 0.15rem; }
 }

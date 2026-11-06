@@ -6,6 +6,7 @@ import { createTrack } from './progress';
 import { pointer, STILL } from './input';
 import { buildEnvironment, type Environment } from './veil/environment';
 import { createPainter } from './veil/paint';
+import { FAR } from './veil/spec';
 import { featured } from '../../data/projects';
 import { follow } from '../../lib/motion';
 import { matches, MQ } from '../../lib/runtime';
@@ -13,9 +14,10 @@ import { matches, MQ } from '../../lib/runtime';
 /**
  * The Veil Archipelago: the sculpted hero mountain over a cloud sea, with its
  * forest, rivers and falls, and far formations in the haze (built by
- * veil/environment.ts, see docs/HERO_ISLAND_PIPELINE.md). The camera moves
- * between framed shots as the page scrolls. Decorative only: everything here
- * also exists as HTML on the page.
+ * veil/environment.ts, see docs/HERO_ISLAND_PIPELINE.md). Each featured
+ * project sits on one of the far formations. The camera moves between framed
+ * shots as the page scrolls. Decorative only: everything here also exists as
+ * HTML on the page.
  */
 
 /* ----------------------------------------------------------------- camera */
@@ -32,19 +34,20 @@ const HOME_SHOTS: Record<string, [THREE.Vector3, THREE.Vector3]> = {
 };
 
 /**
- * One viewpoint per featured project, orbiting the hero. The project islands
- * themselves wait for the new pipeline (docs/HERO_ISLAND_PIPELINE.md, step 5);
- * until then each chapter frames a different face of the hero.
+ * Each featured project lives on one of the far formations, visited in a sweep
+ * around the hero. The camera stands off the island toward the hero, a little
+ * above it; the chapter's caption is pinned beside the island on screen.
  */
+const FLIGHT = [8, 7, 5, 3, 1, 4, 0, 2, 6]; // indices into FAR, in angular order around the hero
 const PROJECT_STOPS = featured.map((p, i) => {
-  const a = THREE.MathUtils.degToRad(45 + i * 40);
-  const r = 155 + ((i * 7) % 4) * 10;
-  const h = [14, -22, 26, -38, 6, -52, 20, -12, 32][i % 9];
-  const look = v(0, -8 - ((i * 5) % 4) * 7, 0);
-  return { id: `p-${p.slug}`, cam: v(Math.cos(a) * r, h, Math.sin(a) * r), look };
+  const f = FAR[FLIGHT[i % FLIGHT.length]];
+  const at = v(...f.at);
+  const toward = v(-at.x, 0, -at.z).normalize().applyAxisAngle(v(0, 1, 0), THREE.MathUtils.degToRad(i % 2 ? -32 : 32));
+  const cam = at.clone().addScaledVector(toward, f.s * 6.2).add(v(0, f.s * 0.9, 0));
+  return { id: `p-${p.slug}`, cam, look: at.clone().add(v(0, -f.s * 0.35, 0)), isle: { at, s: f.s } };
 });
 
-const STOPS: { id: string; cam: THREE.Vector3; look: THREE.Vector3 }[] = [
+const STOPS: { id: string; cam: THREE.Vector3; look: THREE.Vector3; isle?: { at: THREE.Vector3; s: number } }[] = [
   { id: 'top', cam: HOME_SHOTS.top[0], look: HOME_SHOTS.top[1] },
   ...PROJECT_STOPS,
   ...(['experiments', 'about', 'toolkit', 'contact'] as const).map((id) => ({ id, cam: HOME_SHOTS[id][0], look: HOME_SHOTS[id][1] })),
@@ -65,6 +68,8 @@ function Rig() {
   const dir = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
   const up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+  const ndc = useMemo(() => new THREE.Vector3(), []);
+  const edge = useMemo(() => new THREE.Vector3(), []);
 
   useEffect(() => {
     track.measure();
@@ -106,7 +111,23 @@ function Rig() {
     look.current.set(follow(look.current.x, tl.x, dt, r), follow(look.current.y, tl.y, dt, r), follow(look.current.z, tl.z, dt, r));
     camera.position.copy(pos.current);
     camera.lookAt(look.current);
+    camera.updateMatrixWorld();
     ready.current = true;
+
+    // pin the active project's caption beside its island: screen centre and radius in px
+    const isle = STOPS[Math.min(STOPS.length - 1, Math.round(f))].isle;
+    if (isle) {
+      right.setFromMatrixColumn(camera.matrixWorld, 0);
+      ndc.copy(isle.at).project(camera);
+      edge.copy(isle.at).addScaledVector(right, isle.s * 1.45).project(camera);
+      const x = (ndc.x * 0.5 + 0.5) * size.width;
+      const y = (-ndc.y * 0.5 + 0.5) * size.height;
+      const r = Math.abs(edge.x - ndc.x) * 0.5 * size.width;
+      const root = document.documentElement.style;
+      root.setProperty('--isle-x', `${x.toFixed(1)}px`);
+      root.setProperty('--isle-y', `${y.toFixed(1)}px`);
+      root.setProperty('--isle-r', `${r.toFixed(1)}px`);
+    }
   });
   return null;
 }
