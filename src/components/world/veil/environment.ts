@@ -4,6 +4,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { rng } from '../noise';
 import { buildGrid, meshGrid, mountainDensity, type MountainSpec } from './terrain';
+import type { TerrainJob, TerrainResult } from './terrain.worker';
 import { FAR, HERO, HERO_BOUNDS, HERO_SCALE } from './spec';
 import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMaterial, leafMaterial, rockMaterial, solidDepthMaterial } from './shaders';
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
@@ -57,6 +58,51 @@ async function loadBakedRock(lod: 0 | 1, base: string, say: (s: string) => void)
   g.setAttribute('aAO', new THREE.BufferAttribute(ao, 1));
   g.computeBoundingSphere();
   return { geo: g, normal };
+}
+
+/** Mesh terrain jobs in two module workers; falls back to the main thread if workers are unavailable. */
+async function meshInWorkers(jobs: TerrainJob[]): Promise<THREE.BufferGeometry[]> {
+  const toGeo = (r: TerrainResult) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(r.position, 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(r.normal, 3));
+    g.setAttribute('aAO', new THREE.BufferAttribute(r.ao, 1));
+    g.setIndex(new THREE.BufferAttribute(r.index, 1));
+    g.computeBoundingSphere();
+    return g;
+  };
+  const out: THREE.BufferGeometry[] = [];
+  let workers: Worker[] = [];
+  try {
+    workers = [0, 1].map(() => new Worker(new URL('./terrain.worker.ts', import.meta.url), { type: 'module' }));
+  } catch {
+    for (const j of jobs) {
+      out[j.id] = meshGrid(buildGrid(mountainDensity(j.spec), j.min, j.max, j.cell), j.scale, j.aoRays);
+      await frame();
+    }
+    return out;
+  }
+  const queue = [...jobs];
+  await Promise.all(
+    workers.map(
+      (w) =>
+        new Promise<void>((resolve, reject) => {
+          const next = () => {
+            const j = queue.shift();
+            if (!j) return resolve();
+            w.postMessage(j);
+          };
+          w.onmessage = (e: MessageEvent<TerrainResult>) => {
+            out[e.data.id] = toGeo(e.data);
+            next();
+          };
+          w.onerror = (e) => reject(e);
+          next();
+        }),
+    ),
+  );
+  workers.forEach((w) => w.terminate());
+  return out;
 }
 
 async function frame() {
@@ -230,7 +276,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   });
   const leafTex = leafTexture();
   const frondTex = frondTexture();
-  const clusterGeo = clusterGeometry(24, 3);
+  const clusterGeo = clusterGeometry(15, 3).scale(1.12, 1.12, 1.12); // fewer, larger cards: alpha-cut overdraw is the foliage cost
   const blossomGeo = clusterGeometry(8, 5);
   const fGeo = frondGeometry();
   const leafMat = leafMaterial(c, leafTex);
@@ -319,7 +365,8 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     { strata: ['#a98a6b', '#c5b495', '#8a6048', '#6f7779', '#7c6550'] },
     { strata: ['#9c8270', '#b9ab92', '#7d5a4a', '#66707a', '#6f5b4c'], under: '#3f3b45' },
   ];
-  for (const f of far) {
+  // mesh all nine off the main thread (two workers), then dress them here one per frame
+  const specs = far.map((f) => {
     const r = rng(f.seed);
     const spec: MountainSpec = {
       seed: f.seed,
@@ -331,19 +378,40 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
       caves: [],
       rivers: [],
     };
-    const g = meshGrid(buildGrid(mountainDensity(spec), [-1.6, -2.4, -1.6], [1.6, 1.1, 1.6], low ? 0.07 : 0.04), f.s, 8);
-    const grp = new THREE.Group();
-    grp.position.set(...f.at);
-    grp.add(new THREE.Mesh(g, rockMaterial(c, f.s, farPalettes[f.seed % 2])));
-    const { flora: ff } = scatterForest(g, {
+    return spec;
+  });
+  // two levels each: full detail only when the camera visits that island (a project stop), coarse otherwise
+  const meshes = await meshInWorkers(
+    specs.flatMap((spec, i) => [
+      { id: i * 2, spec, min: [-1.6, -2.4, -1.6], max: [1.6, 1.1, 1.6], cell: low ? 0.07 : 0.04, scale: far[i].s, aoRays: 8 },
+      { id: i * 2 + 1, spec, min: [-1.6, -2.4, -1.6], max: [1.6, 1.1, 1.6], cell: 0.09, scale: far[i].s, aoRays: 6 },
+    ] as TerrainJob[]),
+  );
+  const clusterLo = clusterGeometry(7, 5).scale(1.3, 1.3, 1.3);
+  for (const [i, f] of far.entries()) {
+    await frame();
+    const hiGeo = meshes[i * 2], loGeo = meshes[i * 2 + 1];
+    const rock = rockMaterial(c, f.s, farPalettes[f.seed % 2], undefined, true);
+    const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
       scale: Math.max(1.2, f.s / 26),
       highY: f.s * 0.4,
       counts: { giant: 8, spire: 16, weeper: 0, bloom: 0, shrub: low ? 40 : 110, fern: 0 },
     });
-    addFoliage(clusterGeo, leafMat, leafDepth, ff.leaves, grp);
-    grp.add(new THREE.Mesh(mergeGeometries(ff.trunks)!, bark));
-    scene.add(grp);
+    const trunks = new THREE.Mesh(mergeGeometries(ff.trunks)!, bark);
+    const hi = new THREE.Group();
+    hi.add(new THREE.Mesh(hiGeo, rock));
+    addFoliage(clusterGeo, leafMat, leafDepth, ff.leaves, hi);
+    hi.add(trunks);
+    const lo = new THREE.Group();
+    lo.add(new THREE.Mesh(loGeo, rock));
+    addFoliage(clusterLo, leafMat, leafDepth, ff.leaves, lo);
+    lo.add(trunks.clone());
+    const lod = new THREE.LOD();
+    lod.position.set(...f.at);
+    lod.addLevel(hi, 0);
+    lod.addLevel(lo, f.s * 9);
+    scene.add(lod);
   }
 
   // ---------------- clouds and mist ----------------
@@ -534,6 +602,9 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   const shadowRT = new THREE.WebGLRenderTarget(SH, SH);
   shadowRT.depthTexture = new THREE.DepthTexture(SH, SH);
   shadowRT.depthTexture.type = THREE.UnsignedIntType;
+  // hardware depth compare: each shadow tap is a filtered 2x2 PCF
+  shadowRT.depthTexture.compareFunction = THREE.LessEqualCompare;
+  shadowRT.depthTexture.minFilter = shadowRT.depthTexture.magFilter = THREE.LinearFilter;
   const sunCam = new THREE.OrthographicCamera(-72, 72, 72, -72, 1, 520);
   sunCam.position.copy(sun).multiplyScalar(240).add(new THREE.Vector3(0, -12, 0));
   sunCam.lookAt(0, -12, 0);
@@ -544,6 +615,33 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   renderer.setRenderTarget(shadowRT);
   renderer.render(shadowScene, sunCam);
   renderer.setRenderTarget(null);
+
+  // warm-up: draw every object and every LOD level once into a tiny target, so geometry and
+  // textures are on the GPU before the page scrolls (otherwise each first sight stalls a frame)
+  {
+    const rt = new THREE.WebGLRenderTarget(4, 4);
+    const cam = new THREE.PerspectiveCamera(60, 1, 0.5, 3000);
+    const culled: THREE.Object3D[] = [];
+    const lods: THREE.LOD[] = [];
+    scene.traverse((o) => {
+      if (o.frustumCulled) culled.push(o);
+      o.frustumCulled = false;
+      if ((o as THREE.LOD).isLOD) lods.push(o as THREE.LOD);
+    });
+    lods.forEach((l) => {
+      l.autoUpdate = false;
+      l.levels.forEach((lv) => (lv.object.visible = true));
+    });
+    renderer.setRenderTarget(rt);
+    renderer.render(scene, cam);
+    renderer.setRenderTarget(null);
+    culled.forEach((o) => (o.frustumCulled = true));
+    lods.forEach((l) => {
+      l.autoUpdate = true;
+      l.update(cam);
+    });
+    rt.dispose();
+  }
 
   say('');
   return {

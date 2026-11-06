@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
+import { Component, lazy, memo, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import './world.css';
 
 const World = lazy(() => import('./World'));
@@ -30,10 +30,11 @@ class Guard extends Component<{ children: ReactNode; onFail: () => void }, { fai
  * 3D world loads once the browser is idle and fades in over a soft drawn
  * fallback, which is also what stays if WebGL is missing or fails.
  */
-export default function WorldStage() {
+function WorldStage() {
   const [mount, setMount] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const onReady = useCallback(() => requestAnimationFrame(() => setReady(true)), []);
 
   useEffect(() => {
     if (!webglOK()) return;
@@ -56,7 +57,7 @@ export default function WorldStage() {
       {mount && !failed && (
         <Guard onFail={() => setFailed(true)}>
           <Suspense fallback={null}>
-            <World onReady={() => requestAnimationFrame(() => setReady(true))} />
+            <World onReady={onReady} />
           </Suspense>
         </Guard>
       )}
@@ -64,3 +65,6 @@ export default function WorldStage() {
     </div>
   );
 }
+
+// memo: page state (the active chapter, the nav) must not re-render the 3D world
+export default memo(WorldStage);

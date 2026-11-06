@@ -34,21 +34,78 @@ float snoise(vec3 v){
 float hash1(float n){return fract(sin(n)*43758.5453123);}
 `;
 
+/**
+ * Tileable 3D gradient noise baked into a 64^3 texture (period 16 units, so
+ * 4 texels per lattice cell). One trilinear fetch replaces a procedural
+ * simplex evaluation (about 60 ALU ops) in the per-pixel shaders, which is
+ * where this scene spends its GPU time on integrated graphics.
+ */
+let noiseTex: THREE.Data3DTexture | null = null;
+export function noiseTexture() {
+  if (noiseTex) return noiseTex;
+  const N = 64, P = 16;
+  const r = (() => {
+    let a = 0x9e3779b9;
+    return () => ((a = (a + 0x6d2b79f5) | 0), (((a ^ (a >>> 15)) * (1 | a)) >>> 0) / 4294967296);
+  })();
+  const grads = new Float32Array(P * P * P * 3);
+  for (let i = 0; i < P * P * P; i++) {
+    const z = r() * 2 - 1, t = r() * Math.PI * 2, q = Math.sqrt(1 - z * z);
+    grads.set([q * Math.cos(t), q * Math.sin(t), z], i * 3);
+  }
+  const g = (x: number, y: number, z: number, dx: number, dy: number, dz: number) => {
+    const k = (((x % P) * P + (y % P)) * P + (z % P)) * 3;
+    return grads[k] * dx + grads[k + 1] * dy + grads[k + 2] * dz;
+  };
+  const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+  const data = new Uint8Array(N * N * N);
+  const scale = P / N;
+  for (let z = 0; z < N; z++)
+    for (let y = 0; y < N; y++)
+      for (let x = 0; x < N; x++) {
+        const px = x * scale, py = y * scale, pz = z * scale;
+        const ix = Math.floor(px), iy = Math.floor(py), iz = Math.floor(pz);
+        const fx = px - ix, fy = py - iy, fz = pz - iz;
+        const u = fade(fx), v = fade(fy), w = fade(fz);
+        const l = (a: number, b: number, t: number) => a + (b - a) * t;
+        const n = l(
+          l(l(g(ix, iy, iz, fx, fy, fz), g(ix + 1, iy, iz, fx - 1, fy, fz), u), l(g(ix, iy + 1, iz, fx, fy - 1, fz), g(ix + 1, iy + 1, iz, fx - 1, fy - 1, fz), u), v),
+          l(l(g(ix, iy, iz + 1, fx, fy, fz - 1), g(ix + 1, iy, iz + 1, fx - 1, fy, fz - 1), u), l(g(ix, iy + 1, iz + 1, fx, fy - 1, fz - 1), g(ix + 1, iy + 1, iz + 1, fx - 1, fy - 1, fz - 1), u), v),
+          w,
+        );
+        // gradient noise peaks near +-0.9; stretch to roughly the range of simplex
+        data[(z * N + y) * N + x] = Math.max(0, Math.min(255, Math.round((n * 1.15 * 0.5 + 0.5) * 255)));
+      }
+  const t = new THREE.Data3DTexture(data, N, N, N);
+  t.format = THREE.RedFormat;
+  t.type = THREE.UnsignedByteType;
+  t.minFilter = t.magFilter = THREE.LinearFilter;
+  t.wrapS = t.wrapT = t.wrapR = THREE.RepeatWrapping;
+  t.unpackAlignment = 1;
+  t.needsUpdate = true;
+  noiseTex = t;
+  return t;
+}
+
 export const COMMON = /* glsl */ `
 uniform vec3 uSun; uniform vec3 uSunCol; uniform vec3 uSkyCol; uniform vec3 uShadeCol; uniform vec3 uBounceCol;
 uniform vec3 uFogCol; uniform vec3 uFogSunCol; uniform float uFogDist; uniform vec3 uCam; uniform float uTime;
-uniform sampler2D uShadowMap; uniform mat4 uShadowMatrix; uniform float uShadowTexel;
+uniform sampler2DShadow uShadowMap; uniform mat4 uShadowMatrix; uniform float uShadowTexel;
+uniform mediump sampler3D uNoise;
 ${SNOISE}
+// texture noise in place of procedural simplex (see noiseTexture)
+float tn(vec3 p){ return texture(uNoise, p * 0.0625).r * 2.0 - 1.0; }
+#define snoise tn
+// 4 hardware-filtered compare taps (each a bilinear 2x2 PCF) = soft 4x4 footprint
 float shadowAt(vec3 wp, float bias){
   vec4 sc = uShadowMatrix * vec4(wp, 1.0);
   vec3 s = sc.xyz / sc.w * 0.5 + 0.5;
-  if (s.x < 0.0 || s.x > 1.0 || s.y < 0.0 || s.y > 1.0 || s.z > 1.0) return 1.0;
-  float sum = 0.0;
-  for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) {
-    float d = textureLod(uShadowMap, s.xy + vec2(float(x), float(y)) * uShadowTexel * 1.25, 0.0).r;
-    sum += step(s.z - bias, d);
-  }
-  return sum / 9.0;
+  float o = uShadowTexel * 0.9;
+  float z = s.z - bias;
+  float sum = texture(uShadowMap, vec3(s.xy + vec2(-o, -o), z)) + texture(uShadowMap, vec3(s.xy + vec2(o, -o), z))
+            + texture(uShadowMap, vec3(s.xy + vec2(-o, o), z)) + texture(uShadowMap, vec3(s.xy + vec2(o, o), z));
+  float inside = step(0.0, s.x) * step(s.x, 1.0) * step(0.0, s.y) * step(s.y, 1.0) * step(s.z, 1.0);
+  return mix(1.0, sum * 0.25, inside);
 }
 vec3 fogApply(vec3 col, vec3 wp){
   vec3 v = wp - uCam; float d = length(v); vec3 dir = v / max(d, 1e-3);
@@ -87,6 +144,7 @@ export function commonUniforms() {
     uShadowMap: { value: null as THREE.Texture | null },
     uShadowMatrix: { value: new THREE.Matrix4() },
     uShadowTexel: { value: 1 / 2048 },
+    uNoise: { value: noiseTexture() },
   };
 }
 export type Common = ReturnType<typeof commonUniforms>;
@@ -118,7 +176,8 @@ void main(){
   vec3 nb = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;
   n = normalize(vec3(nb.x, nb.z, -nb.y)); // the baked rock is placed unrotated, so object space = world space
   #endif
-  // carved relief: strata grain, stretched horizontally, plus chips
+  #if !defined(BAKED) && !defined(FAR)
+  // carved relief: strata grain, stretched horizontally, plus chips (the sculpted bake carries its own)
   vec3 bp = p * vec3(5.0, 15.0, 5.0);
   float e = 0.02;
   float b0 = snoise(bp) + 0.45 * snoise(p * 31.0);
@@ -126,6 +185,7 @@ void main(){
                    snoise(bp + vec3(0,e,0)) + 0.45 * snoise((p + vec3(0,e/15.0,0)) * 31.0) - b0,
                    snoise(bp + vec3(0,0,e)) + 0.45 * snoise((p + vec3(0,0,e/5.0)) * 31.0) - b0) / e;
   n = normalize(n - 0.009 * (grad - dot(grad, n) * n));
+  #endif
 
   // strata colour
   // tilted, unevenly thick beds
@@ -148,27 +208,35 @@ void main(){
 
   // moss: on tops and ledges, and dripping down from the rim
   float mossTop = smoothstep(0.55, 0.9, n.y + snoise(p * 9.0) * 0.3) * (0.55 + 0.45 * smoothstep(-0.3, 0.4, snoise(p * 3.0)));
+  #ifdef FAR
+  float drip = 0.0;
+  #else
   float drip = smoothstep(0.35, 0.8, snoise(vec3(p.x * 28.0, p.y * 2.2, p.z * 28.0))) * smoothstep(-0.45, 0.05, p.y) * (1.0 - abs(n.y));
+  #endif
   vec3 moss = mix(uMossA, uMossB, smoothstep(-0.4, 0.6, snoise(p * 14.0)));
   alb = mix(alb, moss, clamp(mossTop + drip * 0.85, 0.0, 1.0));
 
   // mineral seams on the cliffs
   float vn = abs(snoise(p * 4.2 + vec3(3.1, 0.0, 1.7)));
-  float vein = (1.0 - smoothstep(0.0, 0.03, vn)) * (1.0 - smoothstep(0.35, 0.7, n.y)) * smoothstep(0.1, 0.5, snoise(p * 1.7 + 9.0) + 0.5);
+  // texture noise has gentler slopes than simplex: a tighter band keeps the seams hairline
+  float vein = (1.0 - smoothstep(0.0, 0.012, vn)) * (1.0 - smoothstep(0.35, 0.7, n.y)) * smoothstep(0.1, 0.5, snoise(p * 1.7 + 9.0) + 0.5);
 
   float brush = snoise(p * vec3(8.0, 24.0, 8.0)) * 0.6 + snoise(p * 47.0) * 0.25;
   float sh = shadowAt(vWP, 0.0012);
   vec3 col = paint(alb, n, vWP, vAO, brush, sh);
+  #ifdef FAR
+  vein *= 0.45;
+  #endif
   col += uVein * vein * (0.5 + 0.6 * sh);
   gl_FragColor = vec4(fogApply(col, vWP), 1.0);
 }`;
 
-export function rockMaterial(c: Common, scale: number, palette?: Partial<Record<'under' | 'mossA' | 'mossB', string>> & { strata?: string[] }, normalMap?: THREE.Texture) {
+export function rockMaterial(c: Common, scale: number, palette?: Partial<Record<'under' | 'mossA' | 'mossB', string>> & { strata?: string[] }, normalMap?: THREE.Texture, far = false) {
   const strata = (palette?.strata ?? ['#b4855a', '#cdb894', '#8f5439', '#6a7172', '#7a5a41']).map((h) => new THREE.Color(h));
   return new THREE.ShaderMaterial({
     vertexShader: ROCK_VS,
     fragmentShader: ROCK_FS,
-    defines: normalMap ? { BAKED: '' } : {},
+    defines: { ...(normalMap ? { BAKED: '' } : {}), ...(far ? { FAR: '' } : {}) },
     uniforms: {
       ...c,
       uNormalMap: { value: normalMap ?? null },

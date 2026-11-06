@@ -35,7 +35,7 @@
   /* nearest layer */
   transform: translateZ(60px);
 }
-.fi-word, .fi-w { display: inline-block; will-change: transform, filter, opacity; text-shadow: 0 0 28px rgb(244 242 235 / 0.9); }
+.fi-word, .fi-w { display: inline-block; will-change: transform, opacity; text-shadow: 0 0 28px rgb(244 242 235 / 0.9); }
 .fi-role { color: var(--lime); letter-spacing: 0.2em; font-size: var(--t-sm); display: inline-block; text-shadow: 0 0 18px rgb(244 242 235 / 0.95); }
 .fi-line {
   display: flex;
@@ -67,5 +67,4 @@
   .fi-line { font-size: var(--t-md); }
 }
 
-/* the left-hand veil of later sections is held back while the title floats */
-.world-veil { opacity: var(--veil, 1); }
+/* the left-hand veil of later sections is held back while the title floats (FlyingIntro sets its opacity) */

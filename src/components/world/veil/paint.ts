@@ -2,7 +2,21 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+
+const kuwahara = new WeakMap<EffectComposer, { enabled: boolean }>();
+/** Turn the brushwork pass on or off (the adaptive quality tiers use this). */
+export const setBrushwork = (composer: EffectComposer, on: boolean) => {
+  const p = kuwahara.get(composer);
+  if (p) p.enabled = on;
+};
+/** Change the scene's multisampling (0 or 4); the targets reallocate on their next use. */
+export const setMultisample = (composer: EffectComposer, samples: number) => {
+  for (const rt of [composer.renderTarget1, composer.renderTarget2]) {
+    if (rt.samples === samples) continue;
+    rt.samples = samples;
+    rt.dispose();
+  }
+};
 
 /** The painted finish: Kuwahara brushwork (optional), output transform, colour grade with vignette and grain. */
 export function createPainter(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, opts: { paint: boolean; low: boolean }) {
@@ -11,7 +25,7 @@ export function createPainter(renderer: THREE.WebGLRenderer, scene: THREE.Scene,
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: opts.low ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
   const VS = /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-  if (opts.paint) {
+  {
     // Kuwahara: each pixel takes the calmest of four neighbouring quadrants, which turns detail into brush strokes
     composer.addPass(
       new ShaderPass({
@@ -42,8 +56,10 @@ export function createPainter(renderer: THREE.WebGLRenderer, scene: THREE.Scene,
           }`,
       }),
     );
+    kuwahara.set(composer, composer.passes[composer.passes.length - 1]);
+    composer.passes[composer.passes.length - 1].enabled = opts.paint;
   }
-  composer.addPass(new OutputPass());
+  // one final pass: linear to sRGB (what OutputPass did, NoToneMapping) plus the grade, vignette and grain
   composer.addPass(
     new ShaderPass({
       uniforms: { tDiffuse: { value: null }, uRes: { value: size.clone() } },
@@ -53,6 +69,7 @@ export function createPainter(renderer: THREE.WebGLRenderer, scene: THREE.Scene,
         float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
         void main(){
           vec3 c = texture2D(tDiffuse, vUv).rgb;
+          c = mix(c * 12.92, 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); // linear -> sRGB
           c = mix(c, c * c * (3.0 - 2.0 * c), 0.22);
           float l = dot(c, vec3(0.299, 0.587, 0.114));
           c += mix(vec3(-0.012, 0.01, 0.03), vec3(0.03, 0.012, -0.025), smoothstep(0.15, 0.85, l));

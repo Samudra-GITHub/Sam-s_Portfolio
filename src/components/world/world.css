@@ -55,7 +55,7 @@
   transition: opacity 700ms ease;
 }
 /* over a project island the caption carries its own backing: let the sky through */
-:root[data-isle] .world-veil { opacity: 0; }
+:root[data-isle] .world-veil { opacity: 0 !important; }
 @media (max-width: 999px) {
   .wf-island { right: 50%; transform: translateX(50%); top: 9%; width: min(72vw, 20rem); }
   .wf-b { display: none; }

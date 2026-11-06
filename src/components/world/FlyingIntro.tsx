@@ -52,7 +52,10 @@ export default function FlyingIntro({ onJump }: { onJump: (id: string) => (e: Re
       trigger: el,
       start: 'top top',
       end: 'bottom center',
-      onUpdate: (st) => document.documentElement.style.setProperty('--veil', String(Math.min(1, st.progress * 1.4))),
+      onUpdate: (st) => {
+        const v = document.querySelector<HTMLElement>('.world-veil');
+        if (v) v.style.opacity = String(Math.min(1, st.progress * 1.4));
+      },
     });
 
     mm.add(
@@ -80,14 +83,14 @@ export default function FlyingIntro({ onJump }: { onJump: (id: string) => (e: Re
             target,
             {
               keyframes: {
-                '0%': { x: 0, y: 0, z: 0, rotationZ: 0, rotationY: 0, scale: 1, filter: 'blur(0px)', opacity: 1 },
+                '0%': { x: 0, y: 0, z: 0, rotationZ: 0, rotationY: 0, scale: 1, opacity: 1 },
                 // detach: a small drop and a lean, like a wingbeat before the climb
                 '18%': { x: dx * 0.06, y: dip, z: -60 * depth, rotationZ: p.bank * 0.5, rotationY: p.yaw * 0.2 },
                 // the turn: bank hard, sweep outward and up
-                '52%': { x: dx * 0.45, y: dy * 0.35, z: p.z * 0.4 * depth, rotationZ: p.bank, rotationY: p.yaw * 0.6, scale: 0.7, filter: compact ? 'blur(0px)' : 'blur(1px)' },
+                '52%': { x: dx * 0.45, y: dy * 0.35, z: p.z * 0.4 * depth, rotationZ: p.bank, rotationY: p.yaw * 0.6, scale: 0.7 },
                 // the glide: roll out and recede into the haze
-                '86%': { x: dx * 0.9, y: dy * 0.85, z: p.z * 0.85 * depth, rotationZ: -p.bank * 0.25, rotationY: p.yaw, scale: 0.36, filter: compact ? 'blur(0px)' : 'blur(3px)', opacity: 0.85 },
-                '100%': { x: dx, y: dy, z: p.z * depth, rotationZ: -p.bank * 0.35, rotationY: p.yaw * 1.1, scale: 0.26, filter: compact ? 'blur(1px)' : 'blur(5px)', opacity: 0 },
+                '86%': { x: dx * 0.9, y: dy * 0.85, z: p.z * 0.85 * depth, rotationZ: -p.bank * 0.25, rotationY: p.yaw, scale: 0.36, opacity: 0.85 },
+                '100%': { x: dx, y: dy, z: p.z * depth, rotationZ: -p.bank * 0.35, rotationY: p.yaw * 1.1, scale: 0.26, opacity: 0 },
                 easeEach: 'sine.inOut',
               },
               ease: 'power1.in',
@@ -128,7 +131,7 @@ export default function FlyingIntro({ onJump }: { onJump: (id: string) => (e: Re
       ctx.revert();
       veil.kill();
       mm.revert();
-      document.documentElement.style.removeProperty('--veil');
+      document.querySelector<HTMLElement>('.world-veil')?.style.removeProperty('opacity');
     };
   }, []);
 

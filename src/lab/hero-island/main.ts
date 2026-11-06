@@ -51,6 +51,65 @@ async function main() {
     composer.setSize(innerWidth, innerHeight);
   });
 
+  // ?prof: GPU cost of each scene layer. Times synced frames (a 1px readPixels waits for the GPU)
+  // with everything on, then with one layer hidden at a time; the difference is that layer's cost.
+  if (qs.has('prof')) {
+    env.update(camera, 12);
+    const gl = renderer.getContext();
+    const px = new Uint8Array(4);
+    const time = (n = 8) => {
+      composer.render();
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      const t = performance.now();
+      for (let i = 0; i < n; i++) {
+        composer.render();
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      }
+      return (performance.now() - t) / n;
+    };
+    const kids = env.scene.children;
+    const only = (pick: (i: number) => boolean) => kids.forEach((o, i) => (o.visible = pick(i)));
+    // layer groups by build order (see environment.ts)
+    const n = kids.length;
+    const groups: [string, (i: number) => boolean][] = [
+      ['hero rock', (i) => i === 0],
+      ['water: rivers, falls (15)', (i) => i >= 1 && i <= 15],
+      ['hero foliage (leaf cards)', (i) => i >= 16 && i <= 18],
+      ['trunks, vines, roots, moss, crystals', (i) => i >= 19 && i <= 24],
+      ['far formations (9)', (i) => kids[i].type === 'LOD'],
+      ['cloud puffs', (i) => i === n - 4],
+      ['cloud floor', (i) => i === n - 3],
+      ['sky dome', (i) => i === n - 2],
+      ['spores', (i) => i === n - 1],
+    ];
+    only(() => true);
+    const full = time(12);
+    only(() => false);
+    const empty = time(12);
+    const rows: [string, number][] = [['FULL FRAME', full], ['post only (empty scene)', empty]];
+    for (const [name, pick] of groups) {
+      only(pick);
+      rows.push([name, time(12) - empty]);
+    }
+    only(() => true);
+    const tris = (o: THREE.Object3D) => {
+      let t = 0;
+      o.traverse((m) => {
+        const g = (m as THREE.Mesh).geometry;
+        if (!g || !(m as THREE.Mesh).isMesh) return;
+        const n = g.index ? g.index.count / 3 : g.attributes.position.count / 3;
+        t += n * ((m as THREE.InstancedMesh).count ?? 1);
+      });
+      return t;
+    };
+    for (const [name, pick] of groups) rows.push([`  tris: ${name} ${Math.round(kids.filter((_, i) => pick(i)).reduce((a, o) => a + tris(o), 0) / 1000)}k`, 0]);
+    const out = rows.map(([k, v]) => `${v.toFixed(1).padStart(7)} ms  ${k}`).join('\n');
+    console.info(out);
+    (window as unknown as { __prof: string }).__prof = out;
+    document.body.dataset.ready = '1';
+    return;
+  }
+
   const clock = new THREE.Clock();
   let frames = 0;
   const tick = () => {
