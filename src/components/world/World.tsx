@@ -3,300 +3,280 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PLACES } from './places';
 import { measure, worldProgress } from './progress';
-import { featured } from '../../data/projects';
+import { buildIsland, crownGeometry, PALETTE, rampTexture, softSprite, type IslandOptions } from './island';
 import { follow } from '../../lib/motion';
 import { matches, MQ } from '../../lib/runtime';
 
 /**
- * The world: six floating islands of matte clay, one per section of the
- * homepage. It is a presentation layer only. It never takes input away from
- * the page: the canvas ignores the pointer except for a gentle parallax, and
- * everything it shows also exists as HTML.
+ * The Veil Archipelago: a chain of floating landmasses over a cloud sea.
+ * One monumental hero island with waterfalls, distant islands softened by
+ * haze, drifting cloud cards and a few spores. The camera moves between
+ * framed shots as the page scrolls. Decorative only: everything here also
+ * exists as HTML on the page.
  */
 
-const CLAY = '#f3eee6';
-const CLAY_TOP = '#fdfbf7';
-const CLAY_UNDER = '#ddd4c6';
-const ACCENTS = ['#f49a7b', '#b9a9f4', '#9fd9e8', '#536bfa', '#d5e978'];
-
 const pointer = { x: 0, y: 0 };
+const STILL = typeof window !== 'undefined' && matches(MQ.reducedMotion);
 
-function clay(color: string, roughness = 0.88) {
-  return <meshStandardMaterial color={color} roughness={roughness} metalness={0} />;
-}
+/* ---------------------------------------------------------------- islands */
 
-/** A floating island: a soft top slab over a tapering rock. */
-function Rock({ r = 3, h = 0.9 }: { r?: number; h?: number }) {
-  return (
-    <group>
-      <mesh position={[0, 0.06, 0]}>
-        <cylinderGeometry args={[r, r * 0.98, 0.12, 48]} />
-        {clay(CLAY_TOP)}
-      </mesh>
-      <mesh position={[0, -h / 2, 0]}>
-        <cylinderGeometry args={[r * 0.98, r * 0.78, h, 48]} />
-        {clay(CLAY)}
-      </mesh>
-      <mesh position={[0, -h - r * 0.45, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[r * 0.78, r * 0.9, 40]} />
-        {clay(CLAY_UNDER)}
-      </mesh>
-    </group>
-  );
-}
+const ISLANDS: { opts: IslandOptions; at: [number, number, number] }[] = [
+  { opts: { seed: 3, radius: 8, depth: 14, falls: [Math.PI * 0.42, Math.PI * 0.66, Math.PI * 0.2] }, at: [0, 0, 0] },
+  { opts: { seed: 11, radius: 6, depth: 11, falls: [Math.PI * 0.5], detail: 'low' }, at: [-38, 6, -62] },
+  { opts: { seed: 19, radius: 5, depth: 9, detail: 'low' }, at: [42, -5, -56] },
+  { opts: { seed: 27, radius: 9, depth: 16, falls: [Math.PI * 0.45], detail: 'low' }, at: [8, 12, -128] },
+  { opts: { seed: 33, radius: 2.2, depth: 4.5, density: 0.8 }, at: [17, -7, -12] },
+  { opts: { seed: 41, radius: 1.5, depth: 3.2, density: 0.6, detail: 'low' }, at: [-27, 8, -22] },
+];
 
-/** Landing island: the signature sculpture, an arch holding an orb, that turns toward the pointer. */
-function Landing({ accent }: { accent: string }) {
-  const sculpt = useRef<THREE.Group>(null);
-  const orb = useRef<THREE.Mesh>(null);
-  useFrame((state, dt) => {
-    const g = sculpt.current;
-    if (!g) return;
-    g.rotation.y = follow(g.rotation.y, pointer.x * 0.5 + Math.sin(state.clock.elapsedTime * 0.25) * 0.15, dt, 0.5);
-    g.rotation.x = follow(g.rotation.x, -pointer.y * 0.12, dt, 0.5);
-    if (orb.current) orb.current.position.y = 2.15 + Math.sin(state.clock.elapsedTime * 1.1) * 0.12;
+function Waterfall({ top, out, length, width }: { top: THREE.Vector3; out: THREE.Vector3; length: number; width: number }) {
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const mist = useMemo(() => softSprite('dot', 4), []);
+  const geo = useMemo(() => {
+    const g = new THREE.PlaneGeometry(width, length, 1, 36);
+    g.translate(0, -length / 2, 0);
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const t = -p.getY(i) / length;
+      p.setZ(i, 0.55 + t * t * length * 0.12);
+      p.setX(i, p.getX(i) * (1 + t * 0.6));
+    }
+    return g;
+  }, [length, width]);
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uA: { value: PALETTE.glint.clone() }, uB: { value: new THREE.Color('#ffffff') } }), []);
+  useFrame((_, dt) => {
+    if (mat.current && !STILL) mat.current.uniforms.uTime.value += dt;
   });
-  return (
-    <group>
-      <Rock r={3.4} h={1.1} />
-      {/* stepped plinth */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[1.6, 1.7, 0.36, 48]} />
-        {clay(CLAY_TOP)}
-      </mesh>
-      <mesh position={[0, 0.62, 0]}>
-        <cylinderGeometry args={[1.15, 1.2, 0.28, 48]} />
-        {clay(CLAY)}
-      </mesh>
-      <group ref={sculpt} position={[0, 0.76, 0]}>
-        <mesh position={[0, 1.35, 0]}>
-          <torusGeometry args={[1.25, 0.2, 24, 64, Math.PI]} />
-          {clay('#ffffff', 0.7)}
-        </mesh>
-        <mesh position={[-1.25, 0.68, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 1.36, 24]} />
-          {clay('#ffffff', 0.7)}
-        </mesh>
-        <mesh position={[1.25, 0.68, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 1.36, 24]} />
-          {clay('#ffffff', 0.7)}
-        </mesh>
-        <mesh ref={orb} position={[0, 2.15, 0]}>
-          <sphereGeometry args={[0.55, 48, 48]} />
-          <meshPhysicalMaterial color={accent} roughness={0.15} metalness={0.05} clearcoat={1} clearcoatRoughness={0.1} />
-        </mesh>
-        <mesh position={[0, 0.5, 0.05]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.55, 0.55, 0.55]} />
-          {clay('#f49a7b')}
-        </mesh>
-      </group>
-      {/* a small companion stone */}
-      <mesh position={[2.3, 0.35, 1]}>
-        <sphereGeometry args={[0.32, 32, 32]} />
-        {clay('#b9a9f4')}
-      </mesh>
-    </group>
-  );
-}
-
-/** Project district: one small display per featured project, on plinths in an arc. */
-function District() {
-  const n = featured.length;
-  return (
-    <group>
-      <Rock r={4} h={1} />
-      {Array.from({ length: n }, (_, i) => {
-        const a = -Math.PI * 0.85 + (i / Math.max(1, n - 1)) * Math.PI * 1.7;
-        const x = Math.cos(a) * 2.7;
-        const z = Math.sin(a) * 2.2;
-        const h = 0.35 + (i % 3) * 0.22;
-        const c = ACCENTS[i % ACCENTS.length];
-        return (
-          <group key={i} position={[x, 0, z]}>
-            <mesh position={[0, h / 2 + 0.1, 0]}>
-              <boxGeometry args={[0.7, h, 0.7]} />
-              {clay(CLAY_TOP)}
-            </mesh>
-            <mesh position={[0, h + 0.42, 0]} rotation={[0, a, 0]}>
-              {i % 3 === 0 ? <sphereGeometry args={[0.3, 32, 32]} /> : i % 3 === 1 ? <boxGeometry args={[0.46, 0.46, 0.46]} /> : <cylinderGeometry args={[0.24, 0.24, 0.55, 32]} />}
-              {clay(c, 0.6)}
-            </mesh>
-          </group>
-        );
-      })}
-      {/* a pavilion at the centre */}
-      <mesh position={[0, 0.9, 0]}>
-        <cylinderGeometry args={[0.9, 0.9, 1.6, 6]} />
-        {clay('#ffffff', 0.75)}
-      </mesh>
-      <mesh position={[0, 1.95, 0]}>
-        <coneGeometry args={[1.15, 0.6, 6]} />
-        {clay('#f49a7b')}
-      </mesh>
-    </group>
-  );
-}
-
-/** The garden: small round trees and pebbles, less formal than the district. */
-function Garden() {
-  const trees = useMemo(
-    () =>
-      Array.from({ length: 11 }, (_, i) => {
-        const a = i * 2.39996;
-        const d = 0.6 + Math.sqrt(i / 11) * 2.4;
-        return { x: Math.cos(a) * d, z: Math.sin(a) * d, s: 0.25 + ((i * 37) % 10) / 30, c: ['#9fd9e8', '#d5e978', '#b9a9f4'][i % 3], stem: 0.4 + ((i * 13) % 7) / 10 };
-      }),
-    [],
-  );
-  return (
-    <group>
-      <Rock r={3.3} h={0.9} />
-      {trees.map((t, i) => (
-        <group key={i} position={[t.x, 0, t.z]}>
-          <mesh position={[0, t.stem / 2 + 0.1, 0]}>
-            <cylinderGeometry args={[0.04, 0.05, t.stem, 8]} />
-            {clay('#cfc6b8')}
-          </mesh>
-          <mesh position={[0, t.stem + 0.1 + t.s * 0.6, 0]}>
-            {i % 4 === 3 ? <coneGeometry args={[t.s, t.s * 2, 24]} /> : <sphereGeometry args={[t.s, 32, 32]} />}
-            {clay(t.c, 0.7)}
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
-/** The observatory: a tower, a dome and a telescope pointed up. */
-function Observatory() {
-  return (
-    <group>
-      <Rock r={3} h={1} />
-      <mesh position={[0, 0.9, 0]}>
-        <cylinderGeometry args={[1, 1.1, 1.7, 40]} />
-        {clay('#ffffff', 0.75)}
-      </mesh>
-      <mesh position={[0, 1.75, 0]}>
-        <sphereGeometry args={[1.02, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        {clay('#b9a9f4', 0.55)}
-      </mesh>
-      <mesh position={[0.45, 2.35, 0.2]} rotation={[0.2, 0, -0.75]}>
-        <cylinderGeometry args={[0.13, 0.18, 1.5, 24]} />
-        <meshStandardMaterial color="#c9ccd6" roughness={0.35} metalness={0.6} />
-      </mesh>
-      <mesh position={[-1.9, 0.3, 1]}>
-        <boxGeometry args={[0.9, 0.4, 0.9]} />
-        {clay(CLAY_TOP)}
-      </mesh>
-    </group>
-  );
-}
-
-/** The workshop: shelves of blocks, one shelf per group of tools. */
-function Workshop() {
-  return (
-    <group>
-      <Rock r={3.2} h={0.9} />
-      {[0, 1, 2].map((row) => (
-        <group key={row} position={[0, 0, -0.9 + row * 0.9]}>
-          <mesh position={[0, 0.5 + row * 0.28, 0]}>
-            <boxGeometry args={[3, 0.1, 0.5]} />
-            <meshStandardMaterial color="#c9ccd6" roughness={0.4} metalness={0.5} />
-          </mesh>
-          {Array.from({ length: 5 }, (_, i) => (
-            <mesh key={i} position={[-1.2 + i * 0.6, 0.75 + row * 0.28, 0]}>
-              <boxGeometry args={[0.36, 0.36 + ((i + row) % 3) * 0.12, 0.36]} />
-              {clay(ACCENTS[(i + row * 2) % ACCENTS.length], 0.65)}
-            </mesh>
-          ))}
-        </group>
-      ))}
-    </group>
-  );
-}
-
-/** The gate: an arch with a soft glowing pane, the way out. */
-function Gate({ accent }: { accent: string }) {
-  return (
-    <group>
-      <Rock r={3} h={1} />
-      <group position={[0, 0.1, 0]}>
-        <mesh position={[-1.2, 1.2, 0]}>
-          <boxGeometry args={[0.45, 2.4, 0.45]} />
-          {clay('#ffffff', 0.75)}
-        </mesh>
-        <mesh position={[1.2, 1.2, 0]}>
-          <boxGeometry args={[0.45, 2.4, 0.45]} />
-          {clay('#ffffff', 0.75)}
-        </mesh>
-        <mesh position={[0, 2.4, 0]}>
-          <torusGeometry args={[1.2, 0.22, 24, 64, Math.PI]} />
-          {clay('#ffffff', 0.75)}
-        </mesh>
-        <mesh position={[0, 1.55, 0]}>
-          <planeGeometry args={[1.95, 3.1]} />
-          <meshBasicMaterial color={accent} transparent opacity={0.22} side={THREE.DoubleSide} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-const ISLANDS = [Landing, District, Garden, Observatory, Workshop, Gate];
-
-function Islands() {
-  const refs = useRef<(THREE.Group | null)[]>([]);
-  const still = matches(MQ.reducedMotion);
-  useFrame((state) => {
-    if (still) return;
-    const t = state.clock.elapsedTime;
-    refs.current.forEach((g, i) => {
-      if (g) g.position.y = PLACES[i].at[1] + Math.sin(t * 0.55 + i * 1.3) * 0.14;
-    });
-  });
+  const rotY = Math.atan2(out.x, out.z);
+  const bottom = top.clone().add(out.clone().multiplyScalar(0.55 + length * 0.12)).add(new THREE.Vector3(0, -length, 0));
   return (
     <>
-      {PLACES.map((p, i) => {
-        const Island = ISLANDS[i];
-        return (
-          <group key={p.id} ref={(g) => { refs.current[i] = g; }} position={p.at}>
-            <Island accent={p.accent} />
-          </group>
-        );
-      })}
-      {/* drifting pebbles between the islands give the space depth */}
-      <Pebbles />
+      <mesh geometry={geo} position={top} rotation={[0, rotY, 0]} renderOrder={2}>
+        <shaderMaterial
+          ref={mat}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          uniforms={uniforms}
+          vertexShader={`varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`}
+          fragmentShader={`
+            varying vec2 vUv; uniform float uTime; uniform vec3 uA; uniform vec3 uB;
+            float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+            float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+              return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
+            void main(){
+              vec2 p = vec2(vUv.x * 9.0, vUv.y * 2.2 + uTime * 1.25);
+              float s = n(p) * 0.6 + n(p * 2.3 + 4.0) * 0.4;
+              float streak = smoothstep(0.38, 0.85, s);
+              float edge = smoothstep(0.0, 0.18, vUv.x) * smoothstep(1.0, 0.82, vUv.x);
+              float fall = smoothstep(0.0, 0.3, vUv.y) * smoothstep(1.0, 0.94, vUv.y);
+              float a = (0.28 + streak * 0.62) * edge * fall;
+              gl_FragColor = vec4(mix(uA, uB, streak * 0.85), a);
+            }`}
+        />
+      </mesh>
+      {[0, 1, 2].map((i) => (
+        <sprite key={i} position={[bottom.x + (i - 1) * width * 0.6, bottom.y + i * 0.4, bottom.z]} scale={[width * 3 + i, width * 2.2 + i, 1]}>
+          <spriteMaterial map={mist} transparent opacity={0.55} depthWrite={false} />
+        </sprite>
+      ))}
     </>
   );
 }
 
-function Pebbles() {
-  const list = useMemo(
-    () =>
-      Array.from({ length: 26 }, (_, i) => ({
-        p: [((i * 61) % 70) - 4, ((i * 17) % 9) - 5, -((i * 29) % 26) - 2] as [number, number, number],
-        s: 0.12 + ((i * 7) % 5) * 0.07,
-      })),
-    [],
+function IslandMesh({ opts, at, ramp, crown }: { opts: IslandOptions; at: [number, number, number]; ramp: THREE.Texture; crown: THREE.BufferGeometry }) {
+  const data = useMemo(() => buildIsland(opts), [opts]);
+  const toon = useMemo(() => new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: ramp }), [ramp]);
+  const leaf = useMemo(() => new THREE.MeshToonMaterial({ gradientMap: ramp }), [ramp]);
+  const barkMat = useMemo(() => new THREE.MeshToonMaterial({ color: PALETTE.bark, gradientMap: ramp }), [ramp]);
+  const canopy = useRef<THREE.InstancedMesh>(null);
+  const trunks = useRef<THREE.InstancedMesh>(null);
+  const group = useRef<THREE.Group>(null);
+  const trunkGeo = useMemo(() => new THREE.CylinderGeometry(0.5, 0.8, 1, 6), []);
+
+  useEffect(() => {
+    const c = canopy.current;
+    if (c) {
+      data.canopy.matrices.forEach((m, i) => {
+        c.setMatrixAt(i, m);
+        c.setColorAt(i, data.canopy.colors[i]);
+      });
+      c.instanceMatrix.needsUpdate = true;
+      if (c.instanceColor) c.instanceColor.needsUpdate = true;
+    }
+    const t = trunks.current;
+    if (t) {
+      data.trunks.forEach((m, i) => t.setMatrixAt(i, m));
+      t.instanceMatrix.needsUpdate = true;
+    }
+  }, [data]);
+
+  useEffect(
+    () => () => {
+      data.rock.dispose();
+      data.hang.dispose();
+    },
+    [data],
   );
+
+  // a slow, heavy bob: these are geological masses, so barely any
+  useFrame((state) => {
+    if (!group.current || STILL) return;
+    group.current.position.y = at[1] + Math.sin(state.clock.elapsedTime * 0.18 + opts.seed) * 0.25;
+  });
+
   return (
-    <group>
-      {list.map((b, i) => (
-        <mesh key={i} position={b.p}>
-          <icosahedronGeometry args={[b.s, 1]} />
-          {clay(i % 5 === 0 ? '#b9a9f4' : CLAY_UNDER)}
-        </mesh>
+    <group ref={group} position={at}>
+      <mesh geometry={data.rock} material={toon} />
+      <mesh geometry={data.hang} material={toon} />
+      <instancedMesh ref={canopy} args={[crown, leaf, data.canopy.matrices.length]} frustumCulled={false} />
+      <instancedMesh ref={trunks} args={[trunkGeo, barkMat, data.trunks.length]} frustumCulled={false} />
+      {data.falls.map((f, i) => (
+        <Waterfall key={i} {...f} />
       ))}
     </group>
   );
 }
 
-/** The camera travels from island to island with the scroll. */
+/* ------------------------------------------------------------- atmosphere */
+
+function CloudSea() {
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uColor: { value: new THREE.Color('#ffffff') }, uShade: { value: new THREE.Color('#cdd9d6') } }), []);
+  useFrame((_, dt) => {
+    if (mat.current && !STILL) mat.current.uniforms.uTime.value += dt * 0.6;
+  });
+  return (
+    <mesh position={[0, -24, -40]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[520, 520, 1, 1]} />
+      <shaderMaterial
+        ref={mat}
+        transparent
+        depthWrite={false}
+        uniforms={uniforms}
+        vertexShader={`varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`}
+        fragmentShader={`
+          varying vec2 vUv; uniform float uTime; uniform vec3 uColor; uniform vec3 uShade;
+          float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+          float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+            return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
+          float fbm(vec2 p){ float s=0.0, a=0.5; for(int i=0;i<5;i++){ s+=n(p)*a; p*=2.02; a*=0.5; } return s; }
+          void main(){
+            vec2 p = vUv * 22.0 + vec2(uTime * 0.05, uTime * 0.02);
+            float c = fbm(p + fbm(p * 0.5));
+            float body = smoothstep(0.32, 0.72, c);
+            float edge = smoothstep(0.0, 0.25, vUv.x) * smoothstep(1.0, 0.75, vUv.x) * smoothstep(0.0, 0.25, vUv.y) * smoothstep(1.0, 0.75, vUv.y);
+            vec3 col = mix(uShade, uColor, smoothstep(0.45, 0.85, c));
+            gl_FragColor = vec4(col, body * edge * 0.95);
+          }`}
+      />
+    </mesh>
+  );
+}
+
+function CloudCards() {
+  const tex = useMemo(() => [softSprite('cloud', 2), softSprite('cloud', 5), softSprite('cloud', 9)], []);
+  const cards = useMemo(
+    () =>
+      Array.from({ length: 16 }, (_, i) => ({
+        p: new THREE.Vector3(((i * 53) % 160) - 80, -14 + ((i * 7) % 18), -((i * 37) % 140) + 10),
+        s: 18 + ((i * 11) % 16),
+        t: i % 3,
+        speed: 0.3 + ((i * 13) % 5) * 0.08,
+      })),
+    [],
+  );
+  const refs = useRef<(THREE.Sprite | null)[]>([]);
+  useFrame((_, dt) => {
+    if (STILL) return;
+    refs.current.forEach((s, i) => {
+      if (!s) return;
+      s.position.x += cards[i].speed * dt;
+      if (s.position.x > 90) s.position.x = -90;
+    });
+  });
+  return (
+    <>
+      {cards.map((c, i) => (
+        <sprite key={i} ref={(s) => { refs.current[i] = s; }} position={c.p} scale={[c.s, c.s * 0.45, 1]}>
+          <spriteMaterial map={tex[c.t]} transparent opacity={0.8} depthWrite={false} fog />
+        </sprite>
+      ))}
+    </>
+  );
+}
+
+function Spores() {
+  const count = matches(MQ.compact) ? 40 : 90;
+  const tex = useMemo(() => softSprite('dot', 3), []);
+  const geo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = ((i * 97) % 60) - 30;
+      arr[i * 3 + 1] = ((i * 31) % 30) - 12;
+      arr[i * 3 + 2] = ((i * 53) % 40) - 14;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    return g;
+  }, [count]);
+  const ref = useRef<THREE.Points>(null);
+  useFrame((state, dt) => {
+    if (STILL || !ref.current) return;
+    const p = ref.current.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < count; i++) {
+      let y = p.getY(i) + dt * (0.25 + (i % 5) * 0.06);
+      if (y > 18) y = -12;
+      p.setY(i, y);
+      p.setX(i, p.getX(i) + Math.sin(state.clock.elapsedTime * 0.4 + i) * dt * 0.15);
+    }
+    p.needsUpdate = true;
+  });
+  return (
+    <points ref={ref} geometry={geo}>
+      <pointsMaterial map={tex} size={0.22} color="#f3dcae" transparent opacity={0.85} depthWrite={false} sizeAttenuation />
+    </points>
+  );
+}
+
+function Archipelago() {
+  const ramp = useMemo(() => rampTexture(), []);
+  const crown = useMemo(() => crownGeometry(), []);
+  const list = useMemo(() => (matches(MQ.compact) ? ISLANDS.filter((_, i) => i !== 5) : ISLANDS), []);
+  return (
+    <>
+      {list.map((isl, i) => (
+        <IslandMesh key={i} opts={isl.opts} at={isl.at} ramp={ramp} crown={crown} />
+      ))}
+      <CloudSea />
+      <CloudCards />
+      <Spores />
+    </>
+  );
+}
+
+/* ----------------------------------------------------------------- camera */
+
+/** Framed shots, one per section: [camera position, look target]. */
+const SHOTS: [THREE.Vector3, THREE.Vector3][] = [
+  [new THREE.Vector3(-2, 8, 54), new THREE.Vector3(0, -3, 0)], // arrival: the establishing view
+  [new THREE.Vector3(6, 19, 34), new THREE.Vector3(4, -1, -60)], // work: rise over the clouds, the archipelago appears
+  [new THREE.Vector3(20, -3, 34), new THREE.Vector3(2, -7, 6)], // experiments: down by the falls
+  [new THREE.Vector3(-13, 9, 8), new THREE.Vector3(-38, 3, -62)], // about: an overlook across the cloud sea
+  [new THREE.Vector3(14, -19, 30), new THREE.Vector3(0, -11, 0)], // toolkit: under the roots and mineral seams
+  [new THREE.Vector3(0, 11, 74), new THREE.Vector3(0, 1, -40)], // contact: pull back to the horizon
+];
+
 function Rig() {
   const { camera, size } = useThree();
+  const pos = useRef(new THREE.Vector3());
   const look = useRef(new THREE.Vector3());
   const ready = useRef(false);
-  const still = matches(MQ.reducedMotion);
+  const tp = useMemo(() => new THREE.Vector3(), []);
+  const tl = useMemo(() => new THREE.Vector3(), []);
+  const dir = useMemo(() => new THREE.Vector3(), []);
+  const right = useMemo(() => new THREE.Vector3(), []);
+  const up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
 
   useEffect(() => {
     measure();
@@ -308,27 +288,29 @@ function Rig() {
   useFrame((_, dt) => {
     const compact = size.width < 1000;
     let f = worldProgress();
-    if (still) f = Math.round(f);
-    const i = Math.min(PLACES.length - 2, Math.floor(f));
-    const k = f - i;
-    const a = PLACES[i].at;
-    const b = PLACES[Math.min(PLACES.length - 1, i + 1)].at;
-    // desktop: islands sit right of centre beside the text; compact: above the text
-    const off = compact ? [0, -2.6, 0] : [-5.2, 0.2, 0];
-    const tx = a[0] + (b[0] - a[0]) * k + off[0];
-    const ty = a[1] + (b[1] - a[1]) * k + off[1];
-    const tz = a[2] + (b[2] - a[2]) * k + off[2];
-    // narrow portrait screens need the camera further back to fit an island's width
-    const aspect = size.width / size.height;
-    const dist = compact ? Math.min(34, 14.5 / Math.min(1, aspect)) : 20;
-    // a gentle arc: the camera swings wide mid-journey, so it glides around each island
-    const swing = Math.sin(k * Math.PI) * 3;
-    const px = tx + pointer.x * 0.6 + swing * 0.5;
-    const py = ty + 4.6 + pointer.y * 0.3 + swing * 0.3;
-    const pz = tz + dist + swing;
-    const r = still || !ready.current ? 0.0001 : 0.35;
-    camera.position.set(follow(camera.position.x, px, dt, r), follow(camera.position.y, py, dt, r), follow(camera.position.z, pz, dt, r));
-    look.current.set(follow(look.current.x, tx, dt, r), follow(look.current.y, ty + 0.6, dt, r), follow(look.current.z, tz, dt, r));
+    if (STILL) f = Math.round(f);
+    const i = Math.min(SHOTS.length - 2, Math.floor(f));
+    const k = Math.min(1, f - i);
+    tp.lerpVectors(SHOTS[i][0], SHOTS[i + 1][0], k);
+    tl.lerpVectors(SHOTS[i][1], SHOTS[i + 1][1], k);
+    // keep the subject out of the text: right of centre on desktop, high on phones
+    dir.subVectors(tl, tp);
+    const dist = dir.length();
+    dir.normalize();
+    right.crossVectors(dir, up).normalize();
+    if (compact) {
+      tl.addScaledVector(up, -dist * 0.16);
+      // portrait screens: step back so the island's width still fits
+      const aspect = size.width / size.height;
+      tp.addScaledVector(dir, -Math.min(30, dist * (0.85 / Math.min(1, aspect) - 0.85) * 0.45));
+    } else tl.addScaledVector(right, -dist * 0.2);
+    // small cursor parallax, never steering
+    tp.addScaledVector(right, pointer.x * 0.8).addScaledVector(up, -pointer.y * 0.4);
+
+    const r = STILL || !ready.current ? 0.0001 : 0.45;
+    pos.current.set(follow(pos.current.x, tp.x, dt, r), follow(pos.current.y, tp.y, dt, r), follow(pos.current.z, tp.z, dt, r));
+    look.current.set(follow(look.current.x, tl.x, dt, r), follow(look.current.y, tl.y, dt, r), follow(look.current.z, tl.z, dt, r));
+    camera.position.copy(pos.current);
     camera.lookAt(look.current);
     ready.current = true;
   });
@@ -337,7 +319,7 @@ function Rig() {
 
 export default function World({ onReady }: { onReady?: () => void }) {
   const compact = matches(MQ.compact);
-  const dpr: [number, number] = compact ? [1, 1.25] : [1, 1.75];
+  const dpr: [number, number] = compact ? [1, 1.25] : [1, 1.6];
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -352,20 +334,23 @@ export default function World({ onReady }: { onReady?: () => void }) {
     <Canvas
       className="world-canvas"
       dpr={dpr}
-      camera={{ fov: compact ? 42 : 34, near: 0.1, far: 120, position: [0, 4, 14] }}
-      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
+      camera={{ fov: compact ? 50 : 38, near: 0.5, far: 400, position: SHOTS[0][0].toArray() }}
+      gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
       onCreated={({ gl }) => {
-        gl.setClearColor('#f7f6f2');
+        gl.setClearColor(0x000000, 0);
         onReady?.();
       }}
       aria-hidden="true"
     >
-      <fog attach="fog" args={['#f7f6f2', 28, 64]} />
-      <hemisphereLight args={['#ffffff', '#e6dccd', 1.15]} />
-      <directionalLight position={[8, 14, 8]} intensity={1.7} color="#fff3e4" />
-      <directionalLight position={[-10, 4, -6]} intensity={0.45} color="#c9d4ff" />
-      <Islands />
+      <fog attach="fog" args={['#dfe8e2', 45, 200]} />
+      <hemisphereLight args={['#e4f2ec', '#7a6650', 1.25]} />
+      <directionalLight position={[-24, 30, 18]} intensity={2.4} color="#fff0d2" />
+      <directionalLight position={[20, -6, -10]} intensity={0.5} color="#9fd6d0" />
+      <Archipelago />
       <Rig />
     </Canvas>
   );
 }
+
+// keep places and shots in step
+if (import.meta.env.DEV && PLACES.length !== SHOTS.length) console.warn('World: PLACES and SHOTS differ in length');

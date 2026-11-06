@@ -70,7 +70,7 @@ export default function Home() {
             <h1 id="hero-title" className="pg-name">
               {config.name}
             </h1>
-            <p className="pg-lede">A small world of ideas, design and experimentation. Explore the islands to find the work and meet the person who made it.</p>
+            <p className="pg-lede">I design and build interfaces, AI tools and small worlds like this one. Scroll to travel through it, or jump straight to the work.</p>
             <div className="pg-actions">
               <a href="#work" className="btn" onClick={jump('work')}>
                 Explore selected work <span className="btn-arrow" aria-hidden="true">→</span>
@@ -88,7 +88,7 @@ export default function Home() {
         {/* 02: the project district */}
         <section id="work" className="pg-sec" aria-labelledby="work-title">
           <div className="pg-col pg-col--wide">
-            <p className="pg-kicker mono">01 · Project district</p>
+            <p className="pg-kicker mono">01 · Over the archipelago</p>
             <h2 id="work-title" className="pg-title">
               Selected work
             </h2>
@@ -102,7 +102,7 @@ export default function Home() {
             <ol className="pg-cards">
               {featured.map((p, i) => (
                 <li key={p.slug}>
-                  <Link to={`/work/${p.slug}`} className="pg-card" style={{ '--acc': ['#f49a7b', '#b9a9f4', '#9fd9e8', '#536bfa', '#d5e978'][i % 5] } as React.CSSProperties}>
+                  <Link to={`/work/${p.slug}`} className="pg-card" style={{ '--acc': ['#28785d', '#d29a54', '#318e91', '#77618e', '#58a987'][i % 5] } as React.CSSProperties}>
                     <span className="pg-card-n mono">{pad(i + 1)}</span>
                     <span className="pg-card-body">
                       <span className="pg-card-cat mono">{p.category}</span>
@@ -129,7 +129,7 @@ export default function Home() {
         {/* 05: the garden */}
         <section id="experiments" className="pg-sec" aria-labelledby="exp-title">
           <div className="pg-col">
-            <p className="pg-kicker mono">02 · The garden</p>
+            <p className="pg-kicker mono">02 · Down by the falls</p>
             <h2 id="exp-title" className="pg-title">
               Experiments &amp; smaller builds
             </h2>
@@ -154,7 +154,7 @@ export default function Home() {
         {/* 02: the observatory */}
         <section id="about" className="pg-sec" aria-labelledby="about-title">
           <div className="pg-col">
-            <p className="pg-kicker mono">03 · Observatory</p>
+            <p className="pg-kicker mono">03 · The overlook</p>
             <h2 id="about-title" className="pg-title">
               About me
             </h2>
@@ -182,7 +182,7 @@ export default function Home() {
         {/* 06: the workshop */}
         <section id="toolkit" className="pg-sec" aria-labelledby="tools-title">
           <div className="pg-col pg-col--wide">
-            <p className="pg-kicker mono">04 · Workshop</p>
+            <p className="pg-kicker mono">04 · Under the roots</p>
             <h2 id="tools-title" className="pg-title">
               Toolkit
             </h2>
@@ -211,7 +211,7 @@ export default function Home() {
         {/* 07: the gate */}
         <section id="contact" className="pg-sec pg-end" aria-labelledby="contact-title">
           <div className="pg-col">
-            <p className="pg-kicker mono">05 · The gate</p>
+            <p className="pg-kicker mono">05 · The horizon</p>
             <h2 id="contact-title" className="pg-title pg-title--big">
               Let’s make something together.
             </h2>
@@ -234,7 +234,7 @@ export default function Home() {
           <footer className="pg-foot mono">
             <span>© {YEAR} {config.name}</span>
             <a href="#top" onClick={jump('top')}>
-              Back to the landing island ↑
+              Back to the arrival ↑
             </a>
           </footer>
         </section>

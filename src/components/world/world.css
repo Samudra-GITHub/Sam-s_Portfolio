@@ -1,66 +1,63 @@
-/* The fixed world behind the homepage. See WorldStage.tsx. */
+/* The fixed world behind the homepage. See WorldStage.tsx.
+   The sky is CSS (the canvas is transparent): bright haze, a warm sun glow
+   high on the left where the key light comes from, cooler toward the top. */
 .world {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(60% 50% at 70% 40%, #ffffff 0%, transparent 70%),
-    radial-gradient(40% 40% at 20% 90%, rgb(185 169 244 / 0.18), transparent 70%),
-    var(--cy-700);
   pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 22% 18%, rgb(255 236 200 / 0.9), transparent 70%),
+    radial-gradient(70% 40% at 60% 100%, rgb(255 255 255 / 0.85), transparent 75%),
+    linear-gradient(180deg, #bcd9d6 0%, #d6e6e0 34%, #e9eee8 62%, #f1efe6 100%);
 }
 .world-canvas {
   position: absolute !important;
   inset: 0;
   opacity: 0;
-  transition: opacity 900ms var(--ease-out);
+  transition: opacity 1400ms var(--ease-out);
 }
 .world[data-ready='true'] .world-canvas { opacity: 1; }
 .world[data-ready='true'] .world-fallback { opacity: 0; }
 
-/* Drawn islands: what shows before the 3D loads and if WebGL is unavailable */
-.world-fallback { position: absolute; inset: 0; transition: opacity 900ms ease; }
+/* Drawn landmass: what shows before the 3D loads and if WebGL is unavailable */
+.world-fallback { position: absolute; inset: 0; transition: opacity 1400ms ease; }
 .wf-island {
   position: absolute;
-  width: clamp(12rem, 30vw, 26rem);
-  aspect-ratio: 2.4;
-  border-radius: 50%;
-  background: linear-gradient(#fffdf9, #efe8dd);
-  box-shadow: 0 2.4rem 3rem -1.6rem rgb(120 104 80 / 0.28);
+  right: 12%;
+  top: 30%;
+  width: clamp(14rem, 34vw, 30rem);
+  aspect-ratio: 1.3;
+  background:
+    radial-gradient(40% 18% at 30% 8%, #58a987, transparent 70%),
+    radial-gradient(45% 20% at 65% 6%, #28785d, transparent 70%),
+    linear-gradient(180deg, #28785d 0 10%, #8c725b 10% 26%, #d29a54 26% 30%, #8c725b 30% 48%, #5a4636 48% 70%, #3f4a4c 100%);
+  clip-path: polygon(0 8%, 12% 2%, 30% 5%, 48% 0, 66% 4%, 84% 1%, 100% 7%, 94% 22%, 88% 40%, 76% 58%, 66% 78%, 56% 100%, 46% 86%, 36% 66%, 22% 46%, 8% 26%);
+  filter: saturate(0.9);
 }
 .wf-island::after {
   content: '';
   position: absolute;
-  left: 18%;
-  right: 18%;
-  top: 55%;
-  height: 120%;
-  background: linear-gradient(#e7dfd2, transparent);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  z-index: -1;
+  left: 44%;
+  top: 8%;
+  width: 7%;
+  height: 70%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.85), rgb(128 213 207 / 0.5), transparent);
 }
-.wf-a { right: 10%; top: 42%; }
-.wf-b { right: 38%; top: 72%; width: clamp(6rem, 12vw, 10rem); opacity: 0.7; }
-.wf-orb {
-  position: absolute;
-  right: calc(10% + clamp(12rem, 30vw, 26rem) / 2 - 2rem);
-  top: calc(42% - 4.6rem);
-  width: 4rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #a9b6ff, #536bfa 60%, #3445c4);
-}
+.wf-b { right: 52%; top: 64%; width: clamp(6rem, 11vw, 9rem); opacity: 0.55; filter: blur(1px) saturate(0.7); }
+.wf-orb { display: none; }
 
-/* Desktop: a soft wash on the left keeps the text on a calm, near-solid ground */
+/* Desktop: a soft linen wash on the left gives the text a calm, near-solid ground */
 .world-veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgb(247 246 242 / 0.94) 0%, rgb(247 246 242 / 0.82) 34%, rgb(247 246 242 / 0) 58%);
+  background: linear-gradient(90deg, rgb(244 242 235 / 0.95) 0%, rgb(244 242 235 / 0.84) 32%, rgb(244 242 235 / 0) 56%);
 }
 @media (max-width: 999px) {
-  .wf-a { right: 50%; transform: translateX(50%); top: 16%; }
+  .wf-island { right: 50%; transform: translateX(50%); top: 9%; width: min(72vw, 20rem); }
   .wf-b { display: none; }
-  .wf-orb { right: 50%; transform: translateX(50%); top: calc(16% - 4.4rem); }
-  /* compact: the island sits at the top; text flows below on a canvas wash */
-  .world-veil { background: linear-gradient(180deg, rgb(247 246 242 / 0) 0%, rgb(247 246 242 / 0) 34%, rgb(247 246 242 / 0.9) 56%); }
+  .world-veil { background: linear-gradient(180deg, rgb(244 242 235 / 0) 0%, rgb(244 242 235 / 0) 38%, rgb(244 242 235 / 0.9) 58%); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .world-veil { background: linear-gradient(90deg, #f4f2eb 0 46%, transparent 60%); }
 }

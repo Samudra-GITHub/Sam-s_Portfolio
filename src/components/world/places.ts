@@ -1,5 +1,5 @@
 /**
- * The islands of the world, in the order the camera visits them.
+ * The chapters of the world, in the order the camera visits them.
  * Each one is a real section of the homepage (its `id` is the section's
  * anchor), so every 3D place has a plain HTML equivalent.
  */
@@ -8,19 +8,19 @@ export interface Place {
   label: string;
   /** what the island is, shown on the map */
   island: string;
-  /** island centre in world units */
+  /** kept for older callers; camera shots live in World.tsx */
   at: [number, number, number];
   /** accent colour of the island's details */
   accent: string;
 }
 
 export const PLACES: Place[] = [
-  { id: 'top', label: 'Welcome', island: 'Landing island', at: [0, 0, 0], accent: '#536bfa' },
-  { id: 'work', label: 'Work', island: 'Project district', at: [14, -2.2, -9], accent: '#f49a7b' },
-  { id: 'experiments', label: 'Experiments', island: 'The garden', at: [27, 1.4, -2], accent: '#9fd9e8' },
-  { id: 'about', label: 'About', island: 'Observatory', at: [39, -0.6, -12], accent: '#b9a9f4' },
-  { id: 'toolkit', label: 'Toolkit', island: 'Workshop', at: [51, 1.8, -4], accent: '#d5e978' },
-  { id: 'contact', label: 'Contact', island: 'The gate', at: [63, 0, -10], accent: '#536bfa' },
+  { id: 'top', label: 'Welcome', island: 'The arrival', at: [0, 0, 0], accent: '#d29a54' },
+  { id: 'work', label: 'Work', island: 'Over the archipelago', at: [0, 0, 0], accent: '#28785d' },
+  { id: 'experiments', label: 'Experiments', island: 'Down by the falls', at: [0, 0, 0], accent: '#80d5cf' },
+  { id: 'about', label: 'About', island: 'The overlook', at: [0, 0, 0], accent: '#58a987' },
+  { id: 'toolkit', label: 'Toolkit', island: 'Under the roots', at: [0, 0, 0], accent: '#8c725b' },
+  { id: 'contact', label: 'Contact', island: 'The horizon', at: [0, 0, 0], accent: '#318e91' },
 ];
 
 /** Navigation shows these; "top" is the brand link. */
