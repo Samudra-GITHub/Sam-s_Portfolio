@@ -169,6 +169,25 @@ export function frameIsland(shot: IslandShot, fovDeg: number, aspect: number, ph
   return pose(shot, dAz, fovDeg, aspect, phone, outCam, outLook);
 }
 
+/**
+ * Where the lens stands in every project shot of a formation, at the common screen shapes (desktop and phone,
+ * with World's field of view for each). For placing things where those shots will see them; uses the
+ * estimated bounds until the real ones are set.
+ */
+export function lensesFor(far: number) {
+  const out: THREE.Vector3[] = [];
+  const look = new THREE.Vector3();
+  for (const shot of ISLAND_SHOTS) {
+    if (shot.far !== far) continue;
+    for (const [fov, aspect, phone] of [[38, 1.6, false], [38, 1.78, false], [38, 1.33, false], [50, 0.75, true], [50, 0.46, true]] as const) {
+      const cam = new THREE.Vector3();
+      frameIsland(shot, fov, aspect, phone, cam, look);
+      out.push(cam);
+    }
+  }
+  return out;
+}
+
 /** Screen-space rectangle (0..1, y down) of a box as this camera sees it: used to verify framing. */
 export function screenRect(box: THREE.Box3, camera: THREE.Camera) {
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;

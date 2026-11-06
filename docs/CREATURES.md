@@ -1,6 +1,6 @@
-# Creature concepts (awaiting approval)
+# Creatures
 
-Five original species for the Veil Archipelago. These designs are proposals. Nothing is modelled, animated or placed until they are approved.
+Five original species for the Veil Archipelago. The concepts below were approved and built. **Built** (at the end) records what shipped and where it differs from the concept.
 
 **Originality.** These are not taken from any film or game.
 - None is six-legged.
@@ -68,9 +68,34 @@ Each silhouette comes from a different real-world body plan: cuttlefish, samara 
 - **Behaviour:** clusters on shaded cliffs and around the crystals. The wings pulse slowly, and they scatter when disturbed.
 - **Signature moment:** a glowing cluster under the hero island in the Toolkit view.
 
-## After approval
+## Built
 
-1. Build `veil/fauna.ts` and a lab turnaround sheet. Screenshots come back for a second look.
-2. Animation: fin waves, flapping, spinning, a walk cycle, curling. Done in the vertex shader, driven by `uTime`.
-3. Placement and signature moments, synced to scroll.
-4. Performance check: an A/B against the current build.
+Code: `src/components/world/veil/fauna.ts`. Turnaround sheet: `lab/creatures.html?c=0..4&v=0..2` (species, view), lit by the real environment with the sun behind the camera.
+
+**Shared material.** `faunaMaterial` uses the shared `paint()` light and fog, with per-vertex colour and glow. Membranes are parametric sheets: a wave runs along `u` and its amplitude grows along `v` (fin ripple), and `uLift` folds the sheet about its root (wingbeat). Each individual gets its own phase from its position, so instanced crowds never move in step.
+
+| Species | Triangles | Motion | Where it lives |
+| --- | --- | --- | --- |
+| Veil Drifter | 17k | Fin waves along both skirts, ribbon tails | Two. One loops behind the hero and crosses the arrival view (never nearer than about 90 units to any stop's camera). The other sweeps the far formations. Drawn 2.2× and 3× concept size so they read at camera distance. |
+| Spinlets | 1k each | Wingbeat (fast fold of the blades), banking turns. The whole flight runs in the vertex shader (`FLOCK`), so no instance data is uploaded per frame (see PERFORMANCE.md) | Two instanced flocks of 40 (24 on low tier) wheel in the open sky either side of the hero. Over the hero they would sit behind the title and tagline in the arrival view. |
+| Shingleback | 17k | None yet | Two on the hero's canopy floor. Not yet confirmed visible from any stop. |
+| Mossback | 20k | The head dips to graze and lifts again, hinged at the neck; the body stays still | A herd of three on the open top of far formation 8, which is Tarang's island (the first project stop). |
+| Lumen Moth | 2k each | Slow wing pulse | 24 instanced (12 on low tier), resting flat on the shaded cliffs under the hero. Seen in the Toolkit view. |
+
+**Placing the herd.** The spot must be seen by the shot, so the placement asks `camera.ts` (`lensesFor`) where the lens stands for that formation's project shot, at five screen shapes from phone to wide desktop. It ranks flat ground toward the lens and keeps only spots that pass three tests:
+1. Rays to every lens clear all formations and the hero.
+2. A second, lower ray clears the other formations' canopies.
+3. There is enough level ground for three animals a body length apart.
+
+Trees are then kept off the meadow and off the sightlines to the lens: `scatterForest` clearings can be capsules. The giant's plateau (Grama Sathi's island) was tried first and fails test 1: far 1 hides it from that shot.
+
+**Size.** Mossbacks are drawn a quarter larger than the far trees' scale would make them, so they still read at the shot's distance.
+
+**Differences from the concept, still open:**
+- Motion runs on time, not scroll. Nothing is scroll-synced yet.
+- The Drifter does not yet pass on cue in the About overlook.
+- Spinlets do not lift off the canopy as the camera arrives.
+- The Shingleback hangs nowhere and does not curl.
+- The herd grazes in place rather than crossing its clearing.
+- Moths do not scatter.
+- On a phone the herd is only a few pixels tall.

@@ -8,6 +8,8 @@ import type { TerrainJob, TerrainResult } from './terrain.worker';
 import { FAR, HERO, HERO_BOUNDS, HERO_SCALE } from './spec';
 import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMaterial, leafMaterial, rockMaterial, solidDepthMaterial } from './shaders';
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
+import { populate, type FaunaSites } from './fauna';
+import { lensesFor } from '../camera';
 
 /**
  * The Veil Archipelago environment: the sculpted hero mountain (baked in
@@ -359,6 +361,35 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     if (nm) addFoliage(clusterGeo, leafMat, leafDepth, flora.leaves.slice(-nm * 4), scene);
   }
 
+  // ---------------- where the fauna lives (placed once the far formations exist) ----------------
+  const sites: FaunaSites = { heroTop: [], heroCliff: [], herd: { at: [], scale: 1 } };
+  {
+    const r = rng(613);
+    // canopy floor: open ground near the middle of the hero, away from the rivers
+    for (const [x, z] of [[9, -7], [-8, 9], [5, 13], [-12, -9], [15, 4], [-3, -14]]) {
+      const hit = surfaceAt(x, z);
+      if (hit && !riversWorld.some((rv) => rv.some((q) => Math.hypot(q.x - hit.x, q.z - hit.z) < 3))) sites.heroTop.push(hit.clone());
+    }
+    // shaded cliffs under the rim: two clusters of resting places, near the crystals' depth
+    const pos = heroGeo.attributes.position, nor = heroGeo.attributes.normal;
+    const cliff: number[] = [];
+    // faces turned toward the "under the roots" view, so the glowing clusters are seen from it
+    const toView = new THREE.Vector3(-0.66, 0, 0.75);
+    for (let i = 0; i < pos.count; i += 3) {
+      const y = pos.getY(i), ny = nor.getY(i);
+      const facing = nor.getX(i) * toView.x + nor.getZ(i) * toView.z;
+      if (y < -10 && y > -42 && ny < 0.15 && ny > -0.6 && facing > 0.45) cliff.push(i);
+    }
+    for (let k = 0; k < 2 && cliff.length; k++) {
+      const seed = new THREE.Vector3().fromBufferAttribute(pos, cliff[Math.floor(r() * cliff.length)]);
+      const near = cliff.filter((i) => new THREE.Vector3().fromBufferAttribute(pos, i).distanceTo(seed) < 9);
+      for (let j = 0; j < 12 && near.length; j++) {
+        const i = near.splice(Math.floor(r() * near.length), 1)[0];
+        sites.heroCliff.push({ p: new THREE.Vector3().fromBufferAttribute(pos, i), n: new THREE.Vector3().fromBufferAttribute(nor, i).normalize() });
+      }
+    }
+  }
+
   // ---------------- distant formations ----------------
   say('Raising the far mountains…');
   await frame();
@@ -375,6 +406,8 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   ];
   // the three largest formations each carry a fall off the rim
   const FAR_FALLS = new Set([1, 4, 5]);
+  // the Mossback herd's formation (see below)
+  const HERD_ON = 8;
   // mesh all nine off the main thread (two workers), then dress them here one per frame
   const specs = far.map((f) => {
     const r = rng(f.seed);
@@ -494,10 +527,95 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     islandBounds[i] = hiGeo.boundingBox!.clone().translate(new THREE.Vector3(...f.at));
     islandBounds[i].max.y += f.s * 0.42;
     const rock = rockMaterial(c, f.s, { ...farPalettes[f.seed % 2], ...farMoss[i % 3] }, undefined, true);
+    const clearings: { p: THREE.Vector3; r: number; to?: THREE.Vector3 }[] = [];
+    if (i === HERD_ON) {
+      // a meadow for the Mossback herd in plain sight of this formation's own project shot, on desktop and
+      // phone alike (camera.ts says where those lenses stand)
+      const cams = lensesFor(i);
+      const r = rng(f.seed + 7);
+      const pp = hiGeo.attributes.position, pn = hiGeo.attributes.normal;
+      const flat: number[] = [];
+      for (let k = 0; k < pp.count; k += 2) if (pn.getY(k) > 0.93) flat.push(k);
+      const v = (k: number) => new THREE.Vector3().fromBufferAttribute(pp, k).add(new THREE.Vector3(...f.at));
+      if (flat.length) {
+        const toCam = cams.reduce((a, c) => a.add(c), new THREE.Vector3()).divideScalar(cams.length).sub(new THREE.Vector3(...f.at)).setY(0).normalize();
+        const ys = flat.map((k) => pp.getY(k)).sort((x, y) => x - y);
+        const high = ys[Math.floor(ys.length * 0.5)];
+        // every formation and the hero can stand in the way (world coordinates)
+        const side = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+        const probes = [new THREE.Mesh(heroGeo, side), ...far.map((h, j) => {
+          const m = new THREE.Mesh(meshes[j * 2], side);
+          m.position.set(...h.at);
+          m.updateMatrixWorld();
+          return m;
+        })];
+        const others = probes.filter((_, j) => j !== i + 1);
+        const ray = new THREE.Raycaster();
+        const lp = new THREE.Vector3(), d = new THREE.Vector3(), low2 = new THREE.Vector3();
+        const open = (k: number) => {
+          lp.copy(v(k)); lp.y += f.s * 0.04;
+          return cams.every((cam) => {
+            d.copy(cam).sub(lp);
+            ray.far = d.length();
+            d.normalize();
+            ray.set(lp, d);
+            if (ray.intersectObjects(probes, false).length) return false;
+            // other formations' canopies stand ~25 units over their rock: a ray that low must clear it too
+            low2.copy(lp).addScaledVector(d, f.s * 0.6);
+            low2.y -= 26;
+            ray.set(low2, d);
+            return ray.intersectObjects(others, false).length === 0;
+          });
+        };
+        // a meadow, not a summit: enough level ground for three animals a body length apart
+        const meadow = (k: number) => {
+          const q = v(k);
+          let n = 0;
+          for (const j of flat) {
+            const w = v(j);
+            if (Math.abs(w.y - q.y) < f.s * 0.06 && Math.hypot(w.x - q.x, w.z - q.z) < f.s * 0.6) n++;
+          }
+          return n;
+        };
+        // best first: toward the lens, and high; the costly tests stop at the first spot that passes
+        const ranked = flat
+          .filter((k) => pp.getY(k) >= high)
+          .map((k) => ({ k, sc: pp.getX(k) * toCam.x + pp.getZ(k) * toCam.z + pp.getY(k) * 0.6 }))
+          .sort((x, y) => y.sc - x.sc);
+        const need = flat.length * 0.04;
+        let seedK = -1;
+        for (let t = 0; t < Math.min(ranked.length, 1500); t += 6) {
+          // step in from the very edge so the herd stands on ground, not on the lip
+          const k = ranked[Math.min(ranked.length - 1, t + 12)].k;
+          if (meadow(k) > need && open(k)) { seedK = k; break; }
+        }
+        if (seedK < 0) seedK = ranked[Math.min(ranked.length - 1, 12)].k;
+        const seed = v(seedK);
+        const herd: THREE.Vector3[] = [seed];
+        const gap = f.s * 0.5; // about one body length at the herd's scale
+        for (let t = 0; t < 8000 && herd.length < 3; t++) {
+          const k = flat[Math.floor(r() * flat.length)];
+          const c2 = v(k);
+          if (c2.distanceTo(seed) < f.s * 1.1 && Math.abs(c2.y - seed.y) < f.s * 0.06 && herd.every((h) => h.distanceTo(c2) > gap) && open(k)) herd.push(c2);
+        }
+        // a quarter larger than the trees' scale would make them, so they still read at the shot's distance
+        sites.herd = { at: herd, scale: (f.s / 26) * 1.25, face: toCam.clone() };
+        // keep the trees off their meadow and off the sightline to the lens (local coordinates)
+        for (const h of herd) {
+          const lh = h.clone().sub(new THREE.Vector3(...f.at));
+          clearings.push({ p: lh, r: f.s * 0.3 });
+          for (const cam of cams) {
+            const to = cam.clone().sub(new THREE.Vector3(...f.at));
+            clearings.push({ p: lh.clone().setY(lh.y + f.s * 0.04), to: lh.clone().lerp(to, (f.s * 2) / to.distanceTo(lh)), r: f.s * 0.07 });
+          }
+        }
+      }
+    }
     const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
       scale: Math.max(1.2, f.s / 26),
       highY: f.s * 0.4,
+      clearings,
       // every other formation has a few flowering trees in its clearings: a colour accent seen from afar
       counts: { giant: 8, spire: 16, weeper: 0, bloom: i % 2 ? 3 : 0, shrub: low ? 40 : 110, fern: 0 },
     });
@@ -706,6 +824,12 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     scene.add(pts);
   }
 
+  // ---------------- fauna ----------------
+  say('Waking the wildlife…');
+  await frame();
+  const fauna = populate(c, scene, sites, low);
+  if (import.meta.env.DEV) (window as unknown as { __fauna: unknown }).__fauna = { herd: sites.herd.at.map((p) => p.toArray().map(Math.round)), moths: sites.heroCliff.length, top: sites.heroTop.length, tris: Math.round(fauna.triangles()) };
+
   // ---------------- sun shadows (rendered once: the sun does not move) ----------------
   const SH = low ? 1024 : 2048;
   const shadowRT = new THREE.WebGLRenderTarget(SH, SH);
@@ -760,6 +884,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     update(camera, time) {
       c.uTime.value = time;
       c.uCam.value.copy(camera.position);
+      fauna.update(time);
       sky.position.copy(camera.position);
     },
   };

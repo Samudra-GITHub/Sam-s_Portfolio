@@ -321,6 +321,18 @@ export class Flora {
   }
 }
 
+const _seg = new THREE.Line3(), _q = new THREE.Vector3(), _c = new THREE.Vector3();
+/** a tree at p is inside a clearing if its trunk or crown is: a sightline is blocked by the crown, not the root */
+function cleared(cl: { p: THREE.Vector3; r: number; to?: THREE.Vector3 }, p: THREE.Vector3, s: number) {
+  if (!cl.to) return cl.p.distanceTo(p) < cl.r;
+  _seg.set(cl.p, cl.to);
+  for (const h of [0, 7, 14]) {
+    _q.copy(p).setY(p.y + h * s);
+    if (_seg.closestPointToPoint(_q, true, _c).distanceTo(_q) < cl.r) return true;
+  }
+  return false;
+}
+
 export interface ScatterOptions {
   seed: number;
   /** world-space river polylines to keep clear */
@@ -329,6 +341,8 @@ export interface ScatterOptions {
   scale?: number;
   /** world y above which the ground counts as high crag (spires) */
   highY?: number;
+  /** places to keep free of trees (mesh coordinates); with `to`, a capsule from p to `to` (a sightline) */
+  clearings?: { p: THREE.Vector3; r: number; to?: THREE.Vector3 }[];
 }
 
 /** Forest distribution on a terrain mesh: clumped by a forest mask, species by altitude, rivers kept open. */
@@ -365,6 +379,7 @@ export function scatterForest(geo: THREE.BufferGeometry, o: ScatterOptions) {
     const base = p.clone().add(new THREE.Vector3(0, -0.25 * s, 0));
     const mask = fbm(p.x * 0.035, 0.5, p.z * 0.035, o.seed + 5, 3);
     if (nearRiver(p, 2.2 * s)) continue;
+    if (o.clearings?.some((cl) => cleared(cl, p, s))) continue;
     const high = p.y > highY;
     // trees
     if (mask > -0.15 || high) {

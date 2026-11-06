@@ -127,6 +127,31 @@ A/B against the previous commit, production builds, back to back:
 
 No long tasks while scrolling after the change.
 
+## Creatures pass
+
+Five species (see `docs/CREATURES.md`): about 220k triangles in all, most of them in instanced crowds.
+
+**A regression found and fixed.** The first build of the Spinlet flocks moved the birds on the CPU and re-uploaded their instance matrices every frame. At 1280×800 that cost 11 ms a frame: scroll fell from 50 to 39 FPS against the previous commit. Isolating each species with temporary switches showed:
+- with the flocks hidden, 50 FPS;
+- with the flocks drawn but frozen (no uploads), 49 FPS;
+- hiding the moths changed nothing.
+
+Writing to a buffer the GPU is still drawing from stalls ANGLE/D3D11, even though the buffer is small (80 matrices). The flocks now fly on the GPU. Each bird's flight parameters go into its instance matrix once, and the vertex shader (`FLOCK`) computes its position, heading and bank from `uTime`. Nothing is uploaded per frame.
+
+A/B against the previous commit after the fix (production builds, back to back, on the same machine):
+
+| Viewport | Before scroll FPS | After scroll FPS | Scroll p95 |
+| --- | --- | --- | --- |
+| 1280×800 (two runs each) | 48.0 / 44.5 | 42.7 / 43.2 | 35 ms both |
+| 1920×1080 | 29.5 | 29.1 | 56 ms both |
+| 375×812 | 75.3 | 76.0 | 28 ms both |
+
+The two builds are level within run-to-run noise, apart from the first 1280 pair. No long tasks while scrolling.
+
+**Caveat on the absolute numbers.** The machine was much busier during this session: the previous commit measures 44–48 FPS here, against 61–65 in the art pass above. The comparison holds; the absolute FPS does not. The 60 FPS target needs re-measuring on a quiet machine.
+
+**Load.** Placing the herd adds ray tests against every formation at build time, about 0.5 s on the phone-size run (2.7 s to 3.5 s ready). It happens once, while the loading screen shows.
+
 ## Not yet at target
 
 - **1920×1080 on this iGPU** holds about 53 FPS, not 60. It settles at a reduced resolution (×0.72) to get there.
