@@ -30,6 +30,8 @@ export interface EnvironmentOptions {
 export interface Environment {
   scene: THREE.Scene;
   common: ReturnType<typeof commonUniforms>;
+  /** world-space bounds of each far formation (index = FAR index), trees included: the camera frames these */
+  islands: THREE.Box3[];
   /** call once per frame before rendering */
   update(camera: THREE.Camera, time: number): void;
 }
@@ -388,9 +390,14 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     ] as TerrainJob[]),
   );
   const clusterLo = clusterGeometry(7, 5).scale(1.3, 1.3, 1.3);
+  const islandBounds: THREE.Box3[] = [];
   for (const [i, f] of far.entries()) {
     await frame();
     const hiGeo = meshes[i * 2], loGeo = meshes[i * 2 + 1];
+    hiGeo.computeBoundingBox();
+    // rock bounds plus the canopy above the top surface
+    islandBounds[i] = hiGeo.boundingBox!.clone().translate(new THREE.Vector3(...f.at));
+    islandBounds[i].max.y += f.s * 0.42;
     const rock = rockMaterial(c, f.s, farPalettes[f.seed % 2], undefined, true);
     const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
@@ -647,6 +654,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   return {
     scene,
     common: c,
+    islands: islandBounds,
     update(camera, time) {
       c.uTime.value = time;
       c.uCam.value.copy(camera.position);

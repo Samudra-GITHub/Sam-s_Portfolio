@@ -110,7 +110,7 @@ export default function Home() {
           </div>
           {featured.map((p, i) => (
             <article key={p.slug} id={`p-${p.slug}`} className="pg-chapter" aria-labelledby={`t-${p.slug}`} data-active={active === p.slug || undefined}>
-              {/* pinned beside the project's island while its chapter is in view (World.tsx writes --isle-x/y/r) */}
+              {/* pinned beside the project's island while its chapter is in view (World.tsx writes --isle-y) */}
               <div className="isle-cap">
                 <p className="pg-kicker mono">
                   {pad(i + 1)} / {pad(featured.length)} · {p.category}
