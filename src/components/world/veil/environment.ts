@@ -367,6 +367,14 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     { strata: ['#a98a6b', '#c5b495', '#8a6048', '#6f7779', '#7c6550'] },
     { strata: ['#9c8270', '#b9ab92', '#7d5a4a', '#66707a', '#6f5b4c'], under: '#3f3b45' },
   ];
+  // each formation keeps its own moss: deep forest, sunlit meadow, blue-green damp
+  const farMoss = [
+    { mossA: '#2c4f36', mossB: '#5f8646' },
+    { mossA: '#3b5a2e', mossB: '#86a04e' },
+    { mossA: '#23494a', mossB: '#4f7f5f' },
+  ];
+  // the three largest formations each carry a fall off the rim
+  const FAR_FALLS = new Set([1, 4, 5]);
   // mesh all nine off the main thread (two workers), then dress them here one per frame
   const specs = far.map((f) => {
     const r = rng(f.seed);
@@ -390,6 +398,93 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     ] as TerrainJob[]),
   );
   const clusterLo = clusterGeometry(7, 5).scale(1.3, 1.3, 1.3);
+  const rootBark = barkMaterial(c, '#3a2e26', '#66543f');
+  /**
+   * Hanging roots under the rim (the forest above has to hold on to something) and, on the largest
+   * formations, a fall pouring off the edge with mist where it frays out. Local coordinates.
+   */
+  const farDressing = (geo: THREE.BufferGeometry, f: (typeof FAR)[number], idx: number) => {
+    const r = rng(f.seed * 13 + 1);
+    const pos = geo.attributes.position, nor = geo.attributes.normal;
+    const box = geo.boundingBox!;
+    const top = box.max.y, span = box.max.y - box.min.y;
+    const toHero = new THREE.Vector3(-f.at[0], 0, -f.at[2]).normalize();
+    // the plateau: median height of the flat top ground (crags rise above it, so the box top is no guide)
+    const flatY: number[] = [];
+    for (let i = 0; i < pos.count; i += 7) if (nor.getY(i) > 0.85) flatY.push(pos.getY(i));
+    flatY.sort((a, b) => a - b);
+    const plateau = flatY.length ? flatY[Math.floor(flatY.length * 0.5)] : top - span * 0.25;
+    const p = new THREE.Vector3(), n = new THREE.Vector3();
+    const roots: THREE.BufferGeometry[] = [];
+    const want = low ? 14 : 34;
+    const needLip = FAR_FALLS.has(idx);
+    let lip: { p: THREE.Vector3; out: THREE.Vector3 } | null = null;
+    let checks = 0;
+    const probe = new THREE.Raycaster();
+    const probeMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+    for (let tries = 0; tries < pos.count * 2 && (roots.length < want || (needLip && !lip)); tries++) {
+      const i = Math.floor(r() * pos.count);
+      p.fromBufferAttribute(pos, i);
+      n.fromBufferAttribute(nor, i);
+      const depth = (top - p.y) / span;
+      const out = new THREE.Vector3(n.x, 0, n.z);
+      if (out.lengthSq() < 0.05) continue;
+      out.normalize();
+      // a fall leaves from a steep face just under the top surface, on the side that faces the hero
+      if (needLip && !lip && checks < 80 && Math.abs(p.y - plateau) < span * 0.06 && p.y < plateau && n.y < 0.35 && n.y > -0.2 && out.dot(toHero) > 0.4) {
+        // only a true rim: open air outward, and nothing below the first stretch of the fall
+        checks++;
+        const o = p.clone().addScaledVector(out, f.s * 0.04);
+        probe.set(o, out);
+        probe.far = f.s * 1.5;
+        if (!probe.intersectObject(probeMesh, false).length) {
+          probe.set(o.clone().addScaledVector(out, f.s * 0.08), down);
+          probe.far = f.s * 4;
+          if (!probe.intersectObject(probeMesh, false).length) lip = { p: p.clone(), out: out.clone() };
+        }
+      }
+      if (roots.length < want && depth > 0.08 && depth < 0.45 && n.y < 0.2 && n.y > -0.75) {
+        const L = f.s * (0.12 + r() * 0.38);
+        const j = () => new THREE.Vector3(r() - 0.5, 0, r() - 0.5).multiplyScalar(f.s * 0.05);
+        const a = p.clone().addScaledVector(n, -f.s * 0.01);
+        roots.push(
+          taperTube(
+            [
+              a,
+              a.clone().addScaledVector(out, f.s * 0.02).add(new THREE.Vector3(0, -L * 0.3, 0)).add(j()),
+              a.clone().addScaledVector(out, f.s * 0.03).add(new THREE.Vector3(0, -L * 0.65, 0)).add(j()),
+              a.clone().addScaledVector(out, f.s * 0.035).add(new THREE.Vector3(0, -L, 0)).add(j()),
+            ],
+            f.s * (0.004 + r() * 0.005),
+            f.s * 0.0008,
+            8,
+            4,
+            0.5,
+          ),
+        );
+      }
+    }
+    const water: THREE.Mesh[] = [];
+    if (lip) {
+      const drop = f.s * 1.5, width = f.s * 0.085, v = f.s * 0.12;
+      const T = Math.sqrt((2 * drop) / 9.8);
+      const side = lip.out.clone().cross(new THREE.Vector3(0, 1, 0)).normalize();
+      for (const ly of [{ off: 0, w: 1, op: 0.9, sp: 0.8 }, { off: 0.4, w: 0.55, op: 0.6, sp: 1.2 }]) {
+        const pts: THREE.Vector3[] = [], widths: number[] = [], sides: THREE.Vector3[] = [];
+        for (let k = 0; k <= 28; k++) {
+          const tau = (k / 28) * T;
+          pts.push(lip.p.clone().addScaledVector(lip.out, f.s * 0.01 * (1 + ly.off) + v * tau).add(new THREE.Vector3(0, -0.5 * 9.8 * tau * tau, 0)));
+          widths.push(width * ly.w * (1 + 1.4 * (k / 28)));
+          sides.push(side);
+        }
+        const { g, L } = ribbon(pts, widths, sides);
+        water.push(new THREE.Mesh(g, waterMat(ly.op, ly.sp, 1, L)));
+        // mist where the fall frays out, in world space for the cloud pass
+        if (ly.off === 0) for (const k of [18, 23, 28]) mistPuffs.push({ p: pts[k].clone().add(new THREE.Vector3(...f.at)), s: f.s * (0.22 + k * 0.012), o: 0.14 + k * 0.006 });
+      }
+    }
+    return { roots: roots.length ? mergeGeometries(roots) : null, water };
+  };
   const islandBounds: THREE.Box3[] = [];
   for (const [i, f] of far.entries()) {
     await frame();
@@ -398,26 +493,33 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     // rock bounds plus the canopy above the top surface
     islandBounds[i] = hiGeo.boundingBox!.clone().translate(new THREE.Vector3(...f.at));
     islandBounds[i].max.y += f.s * 0.42;
-    const rock = rockMaterial(c, f.s, farPalettes[f.seed % 2], undefined, true);
+    const rock = rockMaterial(c, f.s, { ...farPalettes[f.seed % 2], ...farMoss[i % 3] }, undefined, true);
     const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
       scale: Math.max(1.2, f.s / 26),
       highY: f.s * 0.4,
-      counts: { giant: 8, spire: 16, weeper: 0, bloom: 0, shrub: low ? 40 : 110, fern: 0 },
+      // every other formation has a few flowering trees in its clearings: a colour accent seen from afar
+      counts: { giant: 8, spire: 16, weeper: 0, bloom: i % 2 ? 3 : 0, shrub: low ? 40 : 110, fern: 0 },
     });
     const trunks = new THREE.Mesh(mergeGeometries(ff.trunks)!, bark);
+    const dress = farDressing(hiGeo, f, i);
     const hi = new THREE.Group();
     hi.add(new THREE.Mesh(hiGeo, rock));
     addFoliage(clusterGeo, leafMat, leafDepth, ff.leaves, hi);
+    if (ff.blossoms.length) addFoliage(blossomGeo, leafMat, leafDepth, ff.blossoms, hi);
     hi.add(trunks);
     const lo = new THREE.Group();
     lo.add(new THREE.Mesh(loGeo, rock));
     addFoliage(clusterLo, leafMat, leafDepth, ff.leaves, lo);
+    if (ff.blossoms.length) addFoliage(blossomGeo, leafMat, leafDepth, ff.blossoms, lo);
     lo.add(trunks.clone());
     const lod = new THREE.LOD();
     lod.position.set(...f.at);
     lod.addLevel(hi, 0);
     lod.addLevel(lo, f.s * 9);
+    // roots and falls are cheap and read at any distance: on the formation itself, outside the LOD levels
+    if (dress.roots) lod.add(new THREE.Mesh(dress.roots, rootBark));
+    for (const w of dress.water) lod.add(w);
     scene.add(lod);
   }
 

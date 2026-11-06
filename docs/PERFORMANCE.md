@@ -102,6 +102,31 @@ On this machine it settles on tier 3 (native resolution, no brushwork, no MSAA) 
 
 Lab GPU time at 1280×800, DPR 1, with brushwork off: full frame **32.5 ms → about 15 ms on the settled tier**, from 231 ms. Triangles went from 1.25 M to about 0.70 M.
 
+## Art pass (geology, far-island dressing, distant falls)
+
+What changed:
+- **Rock shader:**
+  - beds fold at large scale and jump across near-vertical faults;
+  - dark seams along the faults;
+  - vertical rain streaks with sun-bleached rock between them;
+  - hairline fissures on steep faces;
+  - lower contrast between beds.
+- **Far formations:**
+  - hanging roots under every rim;
+  - each formation gets one of three moss palettes;
+  - flowering trees on every other formation;
+  - a waterfall with mist on the three largest. Each fall leaves from a real rim: a ray test checks for open air outward and below.
+
+A/B against the previous commit, production builds, back to back:
+
+| Viewport | Before scroll FPS | After scroll FPS | Scroll p95 |
+| --- | --- | --- | --- |
+| 1280×800 (two runs each) | 65.2 / 63.5 | 64.5 / 60.9 | 21 ms both |
+| 1920×1080 | 53.6 | 51.9 | 28 ms both |
+| 375×812 | 133.7* | 132.4* | |
+
+No long tasks while scrolling after the change.
+
 ## Not yet at target
 
 - **1920×1080 on this iGPU** holds about 53 FPS, not 60. It settles at a reduced resolution (×0.72) to get there.

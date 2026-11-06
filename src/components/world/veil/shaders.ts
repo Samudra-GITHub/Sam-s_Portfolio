@@ -188,9 +188,13 @@ void main(){
   #endif
 
   // strata colour
-  // tilted, unevenly thick beds
-  float warp = snoise(p * 2.3) * 0.32 + snoise(p * 7.0) * 0.07;
-  float band = dot(p, normalize(vec3(0.2, 1.0, 0.12))) * 8.0 + warp;
+  // tilted, unevenly thick beds, folded at large scale and offset across faults, so a cliff never reads as
+  // a stack of even stripes
+  float fold = snoise(p * 0.55 + 4.0);
+  float warp = fold * 0.9 + snoise(p * 2.3) * 0.32 + snoise(p * 7.0) * 0.07;
+  float band = dot(p, normalize(vec3(0.2 + fold * 0.18, 1.0, 0.12 - fold * 0.1))) * 8.0 + warp;
+  float fault = snoise(vec3(p.x * 1.1, p.y * 0.18, p.z * 1.1) + 11.0);     // near-vertical fault planes
+  band += (smoothstep(-0.03, 0.03, fault) - 0.5) * 1.6;                     // beds jump across each one
   band += 0.45 * sin(band * 0.63 + 1.3) + 0.25 * sin(band * 1.7);
   float layer = floor(band); float f = fract(band);
   float h = hash1(layer * 7.13 + 3.0);
@@ -199,10 +203,20 @@ void main(){
   alb = mix(alb, uStrata[2], step(0.45, h));
   alb = mix(alb, uStrata[3], step(0.68, h));
   alb = mix(alb, uStrata[4], step(0.86, h));
-  alb = mix(alb, vec3(0.32, 0.25, 0.19), 0.22);                // pull the beds toward one family
-  alb *= 0.88 + 0.12 * sin(f * 18.85 + snoise(p * 18.0) * 2.0);
-  alb *= mix(0.74, 1.0, smoothstep(0.0, 0.06, f));            // crevice between beds
-  alb *= 0.9 + 0.16 * snoise(p * vec3(3.0, 0.8, 3.0));         // large tonal patches
+  alb = mix(alb, vec3(0.32, 0.25, 0.19), 0.3);                 // pull the beds toward one family
+  alb *= 0.9 + 0.1 * sin(f * 18.85 + snoise(p * 18.0) * 2.0);
+  alb *= mix(0.78, 1.0, smoothstep(0.0, 0.06, f));            // crevice between beds
+  alb *= 0.88 + 0.2 * snoise(p * vec3(3.0, 0.8, 3.0));         // large tonal patches
+  float steep = 1.0 - smoothstep(0.3, 0.65, abs(n.y));
+  // the fault line itself: a dark seam where the beds break
+  alb *= 1.0 - (1.0 - smoothstep(0.0, 0.025, abs(fault))) * 0.3 * steep;
+  // rain streaks: water runs down the cliffs from every ledge and stains them in long vertical tongues
+  float streak = snoise(vec3(p.x * 13.0, p.y * 0.7, p.z * 13.0));
+  alb *= 1.0 - smoothstep(0.15, 0.7, streak) * 0.22 * steep;
+  alb = mix(alb, alb * vec3(1.08, 1.04, 0.95), smoothstep(0.25, 0.75, -streak) * 0.5 * steep); // sun-bleached between them
+  // fissures: hairline vertical cracks on the faces
+  float crack = abs(snoise(vec3(p.x * 6.0, p.y * 1.3, p.z * 6.0) + 21.0));
+  alb *= 1.0 - (1.0 - smoothstep(0.0, 0.03, crack)) * 0.3 * steep;
   // the underside: cooler, wetter, darker
   alb = mix(alb, uUnder, (1.0 - smoothstep(-1.3, -0.2, p.y)) * 0.5);
 
