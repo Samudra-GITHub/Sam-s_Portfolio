@@ -53,11 +53,31 @@ export function skycastWorld(c: Common, pad: Pad): ProjectWorld {
   vane.position.set(m.x - 1.6, H - 0.7, m.z);
   group.add(vane);
 
+  // guy wires from two thirds up the mast to anchors in the terrace
+  for (const [ax, az] of [[5.7, -2.0], [1.0, 0.5], [1.2, -4.9]]) {
+    b.rod(V(m.x, H * 0.66, m.z), V(ax, 0.1, az), 0.012, { col: STEEL }, 3);
+    b.box(V(ax, 0.08, az), [0.3, 0.16, 0.3], 0, { col: INK });
+  }
+  // a solar panel on the mast, tilted to the sun, feeding the logger box under it
+  b.box(V(m.x + 0.75, H * 0.45, m.z + 0.2), [1.3, 0.05, 0.9], 0.6, { col: hex('#1d2a6b'), gloss: 0.7 }, -0.7);
+  b.box(V(m.x + 0.5, H * 0.3, m.z + 0.45), [0.5, 0.6, 0.25], 0.6, { col: PAPER });
+
+  // ---- the equipment hut: paper walls, an ink roof falling to the back, a cobalt door, a vent
+  const hu = V(5.2, 0, 1.4);
+  b.box(hu.clone().add(V(0, 1.1, 0)), [2.4, 2.2, 2.0], 0, { col: PAPER });
+  b.box(hu.clone().add(V(0, 2.32, 0)), [2.7, 0.14, 2.4], 0, { col: INK }, -0.12);
+  b.box(hu.clone().add(V(-0.4, 0.95, 1.01)), [0.8, 1.7, 0.06], 0, { col: COBALT }, 0, 0, 0.02);
+  for (let i = 0; i < 4; i++) b.box(hu.clone().add(V(0.6, 1.3 + i * 0.14, 1.02)), [0.6, 0.04, 0.03], 0, { col: hex('#c8c4ba') }, 0, 0, 0);
+  b.box(hu.clone().add(V(0.6, 1.55, 1.02)), [0.7, 0.66, 0.02], 0, { col: hex('#c8c4ba') }, 0, 0, 0);
+
   // ---- the instrument screen: a louvred white box on legs, and a rain gauge
   const ss = V(-3.4, 0, -2.6);
   for (const [x, z] of [[-0.6, -0.5], [0.6, -0.5], [-0.6, 0.5], [0.6, 0.5]]) b.box(ss.clone().add(V(x, 0.6, z)), [0.1, 1.2, 0.1], 0, { col: PAPER });
   b.box(ss.clone().add(V(0, 1.9, 0)), [1.7, 1.4, 1.3], 0, { col: PAPER });
-  for (let i = 0; i < 6; i++) b.box(ss.clone().add(V(0, 1.35 + i * 0.22, 0.66)), [1.6, 0.04, 0.04], 0, { col: hex('#c8c4ba') });
+  for (let i = 0; i < 6; i++) {
+    b.box(ss.clone().add(V(0, 1.35 + i * 0.22, 0.66)), [1.6, 0.04, 0.04], 0, { col: hex('#c8c4ba') }, 0.3, 0, 0);
+    for (const sx of [-1, 1]) b.box(ss.clone().add(V(sx * 0.86, 1.35 + i * 0.22, 0)), [0.04, 0.04, 1.2], 0, { col: hex('#c8c4ba') }, 0, 0, 0);
+  }
   b.box(ss.clone().add(V(0, 2.7, 0)), [1.95, 0.12, 1.55], 0, { col: INK }, 0.08);
   b.cyl(V(-0.9, 0, 0.4), 0.28, 0.28, 1.0, 14, { col: STEEL });
   b.cyl(V(-0.9, 1.0, 0.4), 0.34, 0.28, 0.12, 14, { col: INK });
@@ -91,6 +111,8 @@ export function skycastWorld(c: Common, pad: Pad): ProjectWorld {
   group.add(sign.mesh);
 
   const arch = new THREE.Mesh(b.build(), mat);
+  // the still architecture casts the world's sun shadow (see environment.ts); moving parts do not
+  arch.name = 'arch';
   group.add(arch);
 
   const detail = detailShot(group, V(-3.8, 11, 21), V(-0.8, 4.8, -1.2));

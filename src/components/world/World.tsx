@@ -98,9 +98,10 @@ function Rig() {
           // upper half of the frame, above the caption sheet
           dir.subVectors(dCam, dLook);
           if (d.centre) dLook.copy(d.centre);
-          const back = Math.min(1.6, 1.05 / Math.sqrt(Math.min(1, size.width / size.height)));
+          // (each world's terrace is about 21 units wide: this keeps it, its display and its sign inside a phone's width)
+          const back = Math.min(2.1, 1.38 / Math.sqrt(Math.min(1, size.width / size.height)));
           dCam.copy(dLook).addScaledVector(dir, back);
-          dLook.setY(dLook.y - dir.length() * back * 0.035);
+          dLook.setY(dLook.y - dir.length() * back * 0.012);
         }
         outCam.lerp(dCam, w);
         outLook.lerp(dLook, w);
@@ -199,12 +200,20 @@ function Rig() {
  * allows and steps down (never up, so it does not flicker) when the measured
  * frame time misses the 60 FPS budget. Pixel ratio is the main lever: the
  * scene is fill-rate bound on integrated GPUs.
+ *
+ * Presets (docs/PERFORMANCE.md): Ultra, for high-density and 4K desktop
+ * screens, draws at up to twice the CSS resolution (a 1920 px window on a 4K
+ * panel renders 3840 x 2160); High is the desktop default (pixel ratio up to
+ * 1.5); Standard is what High steps down to; Compact is tablets and phones.
+ * Every class also gets lighter assets from the environment (texture
+ * filtering, lettering density, shadow maps).
  */
-type Tier = { scale: number; brush: boolean; msaa: number };
-// scale multiplies the device pixel ratio (capped at 1.5 on desktop, 1.25 on phones).
+type Tier = { scale: number; brush: boolean; msaa: number; cap?: number };
+// scale multiplies the device pixel ratio (capped at `cap`: 1.5 on desktop unless Ultra, 1.25 on phones).
 // Order of sacrifice, measured on an Intel UHD iGPU: brushwork (~8 ms), multisampling (~5 ms), then resolution.
 const TIERS: Record<'full' | 'compact', Tier[]> = {
   full: [
+    { scale: 1, brush: true, msaa: 4, cap: 2 },
     { scale: 1, brush: true, msaa: 4 },
     { scale: 1, brush: false, msaa: 4 },
     { scale: 1, brush: false, msaa: 0 },
@@ -217,7 +226,15 @@ const TIERS: Record<'full' | 'compact', Tier[]> = {
     { scale: 0.72, brush: false, msaa: 0 },
   ],
 };
-const pixelRatio = (compact: boolean, t: Tier) => Math.min(window.devicePixelRatio || 1, compact ? 1.25 : 1.5) * t.scale;
+const pixelRatio = (compact: boolean, t: Tier) => Math.min(window.devicePixelRatio || 1, compact ? 1.25 : (t.cap ?? 1.5)) * t.scale;
+/** Ultra only where it shows: a dense screen (pixel ratio 1.5 and up) or a panel 2560 device pixels wide or more */
+const ultraScreen = () => (window.devicePixelRatio || 1) >= 1.5 || window.screen.width * (window.devicePixelRatio || 1) >= 2560;
+/**
+ * `?quality=ultra` is the presentation mode: it holds the Ultra tier (no stepping down), for a 4K screen on a
+ * GPU that can carry it, or for capturing stills. Phones and tablets ignore it.
+ */
+const pinnedUltra = (compact: boolean) => !compact && typeof location !== 'undefined' && new URLSearchParams(location.search).get('quality') === 'ultra';
+const firstTier = (compact: boolean) => (compact || ultraScreen() || pinnedUltra(compact) ? 0 : 1);
 
 /** One loop for the whole site: the canvas renders from GSAP's ticker, after Lenis has moved the page. */
 function Driver() {
@@ -237,7 +254,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
   const composer = useRef<EffectComposer | null>(null);
   const frames = useRef(0);
   const tiers = TIERS[compact ? 'compact' : 'full'];
-  const tier = useRef(0);
+  const tier = useRef(firstTier(compact));
   const samples = useRef<number[]>([]);
   const settled = useRef(false);
 
@@ -245,7 +262,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
     let live = true;
     buildEnvironment(gl, { low: compact, base: import.meta.env.BASE_URL }).then((e) => {
       if (!live) return;
-      const t = TIERS[compact ? 'compact' : 'full'][0];
+      const t = TIERS[compact ? 'compact' : 'full'][firstTier(compact)];
       setIslandBounds(e.islands);
       setIslandDetails(e.worlds);
       composer.current = createPainter(gl, e.scene, camera, { paint: t.brush, low: compact });
@@ -291,7 +308,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
     // adaptive quality. Warm-up: judge 45 frames at a time by their median, skipping a tier when far off budget.
     // After that keep watching in long windows (150 frames), so a heavier stretch of the page can still step
     // down once, but never in quick succession (no visible pumping). Never steps back up.
-    if (frames.current < 30 || document.hidden || tier.current >= tiers.length - 1) return;
+    if (frames.current < 30 || document.hidden || tier.current >= tiers.length - 1 || pinnedUltra(compact)) return;
     samples.current.push(dt * 1000);
     const win = settled.current ? 150 : 45;
     if (samples.current.length < win) return;

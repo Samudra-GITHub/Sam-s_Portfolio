@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Common } from '../shaders';
-import { archMaterial, Builder, cardMaterial, CH, ease, hex, screenMaterial, steam } from './kit';
-import { beats, type Pad, type ProjectWorld, texture, uploadTexture } from './stage';
+import { archMaterial, Builder, cardMaterial, CH, ease, fit, hex, screenMaterial, steam } from './kit';
+import { beats, type Pad, type ProjectWorld, sharpCanvas, texture, uploadTexture } from './stage';
 
 /**
  * NOIR CAFÉ's island: a coffee house that exists only as a website, given a
@@ -22,10 +22,7 @@ const STONE = hex('#b9ad9c'), STONE_DARK = hex('#8f8577'), OAK = hex('#9a7652'),
 
 /** the café wordmark as the real site sets it: a ring, then NOIR CAFÉ in Cormorant capitals */
 function wordmark(font: string) {
-  const cv = document.createElement('canvas');
-  cv.width = 1024;
-  cv.height = 160;
-  const g = cv.getContext('2d')!;
+  return sharpCanvas(1024, 160, (g) => {
   g.fillStyle = '#f3e9dc';
   g.strokeStyle = '#f3e9dc';
   g.lineWidth = 8;
@@ -37,18 +34,12 @@ function wordmark(font: string) {
   g.textBaseline = 'alphabetic';
   g.letterSpacing = '6px';
   g.fillText('NOIR CAFÉ', 150, 122);
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
-  return t;
+  });
 }
 
 /** the A-frame board: the four languages and currencies the site really ships */
 function menuBoard(font: string) {
-  const cv = document.createElement('canvas');
-  cv.width = 512;
-  cv.height = 640;
-  const g = cv.getContext('2d')!;
+  return sharpCanvas(512, 640, (g) => {
   g.fillStyle = '#1b1410';
   g.fillRect(0, 0, 512, 640);
   g.strokeStyle = '#c98a4b';
@@ -68,10 +59,7 @@ function menuBoard(font: string) {
     g.font = `500 24px ui-monospace, monospace`;
     g.fillText(code, 256, y + 38);
   });
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
-  return t;
+  });
 }
 
 /** the rosetta on the signature cup, poured as the 2D world pours it */
@@ -211,6 +199,8 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
 
   const mat = archMaterial(c);
   const arch = new THREE.Mesh(b.build(), mat);
+  // the still architecture casts the world's sun shadow (see environment.ts); moving parts do not
+  arch.name = 'arch';
   group.add(arch);
 
   // ---- cards: the wordmark on the fascia, the board, the crema
@@ -249,7 +239,6 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   screen.position.copy(kp(0, 3.05, 0.0));
   screen.rotation.y = kiosk.yaw;
   group.add(screen);
-  scr.uniforms.uCrop.value.set(1, 1);
   const pages: THREE.Texture[] = [];
   for (const n of ['menu', 'reservation', 'shop']) pages.push(texture(`${base}world/noir/${n}.webp`));
   scr.uniforms.uA.value = pages[0];
@@ -289,7 +278,8 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
       scr.uniforms.uA.value = pages[i % pages.length];
       scr.uniforms.uB.value = pages[(i + 1) % pages.length];
       scr.uniforms.uMix.value = ease(f, 0.82, 1);
-      scr.uniforms.uScroll.value = 0;
+      fit(scr.uniforms.uFitA.value, scr.uniforms.uA.value, 1.6);
+      fit(scr.uniforms.uFitB.value, scr.uniforms.uB.value, 1.6);
     },
   };
 }

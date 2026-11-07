@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { COMMON, type Common } from '../shaders';
 
 /**
@@ -32,6 +34,8 @@ export interface Part {
   ao?: number;
   /** > 0 makes the part pulse in height with a pulse material (its phase); see archMaterial({ pulse }) */
   aux?: number;
+  /** 0..1: a polished surface (vinyl, lacquer, glass, steel) catches the sun and the sky */
+  gloss?: number;
 }
 
 const _up = new THREE.Vector3(0, 1, 0);
@@ -44,6 +48,7 @@ export class Builder {
   private glow: number[] = [];
   private ao: number[] = [];
   private aux: number[] = [];
+  private gloss: number[] = [];
   private idx: number[] = [];
 
   /** append a geometry under a transform, coloured as one part; `aoY` darkens it toward its foot */
@@ -63,19 +68,52 @@ export class Builder {
       const foot = aoY ? THREE.MathUtils.smoothstep(ly, aoY[0], aoY[1]) : 1;
       this.ao.push((p.ao ?? 1) * (0.55 + 0.45 * foot));
       this.aux.push(p.aux ?? 0);
+      this.gloss.push(p.gloss ?? 0);
     }
-    const gi = g.index!;
-    for (let i = 0; i < gi.count; i++) this.idx.push(base + gi.getX(i));
+    const gi = g.index;
+    if (gi) for (let i = 0; i < gi.count; i++) this.idx.push(base + gi.getX(i));
+    else for (let i = 0; i < gp.count; i++) this.idx.push(base + i);
     g.dispose();
   }
 
-  /** a box: centre, size, yaw (radians), part */
-  box(c: THREE.Vector3Like, size: [number, number, number], yaw: number, p: Part, pitch = 0, roll = 0) {
-    const g = new THREE.BoxGeometry(1, 1, 1);
+  /**
+   * A box: centre, size, yaw (radians), part. Its edges are rounded over (one segment) so they catch the
+   * light the way a made thing does; `bevel` sets the radius (0 for a hard edge: tiles, panes).
+   */
+  box(c: THREE.Vector3Like, size: [number, number, number], yaw: number, p: Part, pitch = 0, roll = 0, bevel?: number) {
+    const lo = Math.min(...size);
+    const r = bevel ?? Math.min(0.09, lo * 0.2);
     _q.setFromEuler(_e.set(pitch, yaw, roll, 'YXZ'));
-    _m.compose(_v.set(c.x, c.y, c.z), _q, _s.set(...size));
-    // the foot of each box sits in shade
-    this.add(g, _m.clone(), p, [-0.5, 0.2]);
+    if (r < 0.012) {
+      _m.compose(_v.set(c.x, c.y, c.z), _q, _s.set(...size));
+      // the foot of each box sits in shade
+      this.add(new THREE.BoxGeometry(1, 1, 1), _m.clone(), p, [-0.5, 0.2]);
+      return;
+    }
+    const g = new RoundedBoxGeometry(size[0], size[1], size[2], 1, Math.min(r, lo * 0.45));
+    _m.compose(_v.set(c.x, c.y, c.z), _q, _s.set(1, 1, 1));
+    this.add(g, _m.clone(), p, [-size[1] / 2, -size[1] / 2 + Math.min(size[1], 1.2) * 0.6]);
+  }
+
+  /** a weathered boulder: an icosphere pushed about by noise, flattened on top, half sunk where it sits */
+  rock(c: THREE.Vector3Like, r: number, p: Part, seed = 1, squash = 0.7) {
+    const g0 = new THREE.IcosahedronGeometry(1, 2);
+    g0.deleteAttribute('normal');
+    g0.deleteAttribute('uv');
+    const g = mergeVertices(g0);
+    g0.dispose();
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      _v.fromBufferAttribute(pos, i);
+      const n = Math.sin(_v.x * 3.1 + seed) * Math.sin(_v.y * 2.7 + seed * 1.7) * Math.sin(_v.z * 3.7 + seed * 0.6);
+      _v.multiplyScalar(1 + n * 0.28 + Math.sin(_v.x * 7 + _v.z * 5 + seed) * 0.05);
+      if (_v.y > 0.35) _v.y = 0.35 + (_v.y - 0.35) * 0.45;
+      pos.setXYZ(i, _v.x * r, _v.y * r * squash, _v.z * r);
+    }
+    g.computeVertexNormals();
+    _q.setFromEuler(_e.set(0, seed * 2.3, 0));
+    _m.compose(_v.set(c.x, c.y, c.z), _q, _s.set(1, 1, 1));
+    this.add(g, _m.clone(), p, [-r * squash, r * squash * 0.4]);
   }
 
   /** a turned solid (cylinder, cone, disc): base centre, radii, height */
@@ -124,6 +162,7 @@ export class Builder {
     g.setAttribute('aGlow', new THREE.Float32BufferAttribute(this.glow, 2));
     g.setAttribute('aAO', new THREE.Float32BufferAttribute(this.ao, 1));
     g.setAttribute('aAux', new THREE.Float32BufferAttribute(this.aux, 1));
+    g.setAttribute('aGloss', new THREE.Float32BufferAttribute(this.gloss, 1));
     g.setIndex(this.idx);
     g.computeBoundingSphere();
     return g;
@@ -137,40 +176,55 @@ export class Builder {
 /* ------------------------------------------------------------ materials */
 
 const ARCH_VS = /* glsl */ `
-attribute vec3 aCol; attribute vec2 aGlow; attribute float aAO; attribute float aAux;
+attribute vec3 aCol; attribute vec2 aGlow; attribute float aAO; attribute float aAux; attribute float aGloss;
 uniform float uTime; uniform float uBase; uniform float uLevel;
-varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO;
+varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO; varying float vGloss; varying float vMeter;
 void main(){
   vec3 pos = position;
+  vMeter = 1.0;
 #ifdef PULSE
-  // level meters: each part rises and falls on its own phase, scaled by how far the world has come alive
+  // LED level meters: aux = column number + the segment's height in its column (0..1). Each column follows
+  // its own beat; a segment is lit while the level stands above it, scaled by how far the world has woken.
   if (aAux > 0.0) {
-    float k = 0.5 + 0.5 * sin(uTime * (2.1 + fract(aAux * 0.37) * 2.6) + aAux * 5.3);
-    k = 0.5 + 0.5 * k * k + 0.25 * sin(uTime * 7.0 + aAux * 3.1);
-    pos.y = mix(uBase, pos.y, mix(0.12, clamp(k, 0.1, 1.0), uLevel));
+    float col = floor(aAux), h = fract(aAux);
+    float k = 0.5 + 0.5 * sin(uTime * (2.1 + fract(col * 0.37) * 2.6) + col * 5.3);
+    float beat = pow(0.5 + 0.5 * sin(uTime * 7.4), 6.0);
+    k = 0.1 + 0.62 * k * k + 0.18 * beat + 0.1 * sin(uTime * 13.0 + col * 2.3);
+    float level = mix(0.08, clamp(k, 0.08, 1.0), uLevel);
+    vMeter = step(h, level);
   }
 #endif
   vec4 wp = modelMatrix * vec4(pos, 1.0);
-  vWP = wp.xyz; vN = normalize(mat3(modelMatrix) * normal); vCol = aCol; vGlow = aGlow; vAO = aAO;
+  vWP = wp.xyz; vN = normalize(mat3(modelMatrix) * normal); vCol = aCol; vGlow = aGlow; vAO = aAO; vGloss = aGloss;
   gl_Position = projectionMatrix * viewMatrix * wp;
 }`;
 
 const ARCH_FS = /* glsl */ `
 ${COMMON}
 uniform vec4 uOn; uniform vec3 uWarm; uniform vec2 uSeq;
-varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO;
+varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO; varying float vGloss; varying float vMeter;
 void main(){
   vec3 n = normalize(vN);
   float brush = snoise(vWP * 2.0) * 0.4;
   float sh = shadowAt(vWP, 0.002);
-  vec3 col = paint(vCol, n, vWP, vAO, brush, sh);
+  // painted breakup: a broad tonal drift and a finer mottle, so no surface is one flat colour
+  float tone = snoise(vWP * 0.31 + 3.7) * 0.07 + snoise(vWP * 1.9) * 0.035;
+  vec3 alb = vCol * (1.0 + tone * (1.0 - vGlow.x));
+  vec3 col = paint(alb, n, vWP, vAO, brush, sh);
+  // polished surfaces: the sky at a glancing angle, a tight sun glint where the light lands
+  vec3 V = normalize(uCam - vWP);
+  float fres = pow(1.0 - max(dot(n, V), 0.0), 3.0);
+  float glint = pow(max(dot(reflect(-uSun, n), V), 0.0), 48.0) * sh;
+  col += vGloss * (uSkyCol * (0.12 + 0.9 * fres) + uSunCol * glint * 0.9);
   // switched light: channel 0 always on, 1..4 follow the choreography
   int ch = int(vGlow.y + 0.5);
   float on = ch == 0 ? 1.0 : ch == 1 ? uOn.x : ch == 2 ? uOn.y : ch == 3 ? uOn.z : ch == 4 ? uOn.w
     : clamp(uSeq.x * uSeq.y - float(ch - 5), 0.0, 1.0);
   // a warm interior flicker, very slight, so lit windows read as lived in
   float life = 0.94 + 0.06 * sin(uTime * 2.3 + vWP.x * 0.7 + vWP.z * 0.4);
-  col = mix(col, vCol * uWarm * life, vGlow.x * on);
+  // an unlit meter segment is dark glass with its colour just showing
+  col *= mix(0.32, 1.0, vMeter);
+  col = mix(col, vCol * uWarm * life, vGlow.x * on * vMeter);
   gl_FragColor = vec4(fogApply(col, vWP), 1.0);
 }`;
 
@@ -197,12 +251,11 @@ void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vWP = wp.xyz
 
 const SCREEN_FS = /* glsl */ `
 ${COMMON}
-uniform sampler2D uA; uniform sampler2D uB; uniform float uMix; uniform float uOn; uniform float uScroll; uniform vec2 uCrop; uniform float uWipe;
+uniform sampler2D uA; uniform sampler2D uB; uniform float uMix; uniform float uOn; uniform vec4 uFitA; uniform vec4 uFitB; uniform float uWipe;
 varying vec2 vUv; varying vec3 vWP;
 void main(){
-  // the page drifts slowly, as if someone were reading it; uCrop picks the part of the screenshot shown
-  vec2 uv = vec2(vUv.x, 1.0 - (1.0 - vUv.y) * uCrop.y - uScroll * (1.0 - uCrop.y));
-  vec3 a = texture2D(uA, uv).rgb, b = texture2D(uB, uv).rgb;
+  // each picture is fitted to the panel: cropped (a page from its top, a frame about its middle), never stretched
+  vec3 a = texture2D(uA, vUv * uFitA.xy + uFitA.zw).rgb, b = texture2D(uB, vUv * uFitB.xy + uFitB.zw).rgb;
   // a crossfade, or (uWipe) a front that sweeps across the picture, as a reconstruction would
   float m = uWipe > 0.5 ? smoothstep(vUv.x - 0.04, vUv.x + 0.04, uMix * 1.1 - 0.05) : smoothstep(0.0, 1.0, uMix);
   vec3 col = mix(a, b, m);
@@ -214,10 +267,25 @@ void main(){
   float warm = smoothstep(0.3, 1.0, uOn);
   vec3 lit = mix(vec3(0.9, 0.85, 0.75) * band, col * 1.05, warm);
   col = mix(off, lit, band);
-  // a faint glass sheen
-  col += 0.04 * smoothstep(0.6, 1.0, vUv.y + vUv.x * 0.3);
-  gl_FragColor = vec4(fogApply(col, vWP), 1.0);
+  // a faint glass sheen, and the panel's own light falling off at its very edge
+  col += 0.035 * smoothstep(0.6, 1.0, vUv.y + vUv.x * 0.3);
+  vec2 e = min(vUv, 1.0 - vUv);
+  col *= 0.9 + 0.1 * smoothstep(0.0, 0.04, min(e.x, e.y));
+  // alpha 0 keeps the picture out of the brushwork pass, so pages and type stay crisp
+  gl_FragColor = vec4(fogApply(col, vWP), 0.0);
 }`;
+
+/**
+ * How a picture fills a panel of aspect `panel` without stretching (uv scale and offset): a picture wider
+ * than the panel loses its sides, a taller one (a page) is shown from its top.
+ */
+export function fit(out: THREE.Vector4, t: THREE.Texture | null, panel: number) {
+  const img = t?.image as { width?: number; height?: number } | undefined;
+  const asp = img?.width && img.height ? img.width / img.height : panel;
+  if (asp > panel) out.set(panel / asp, 1, (1 - panel / asp) / 2, 0);
+  else out.set(1, asp / panel, 0, 1 - asp / panel);
+  return out;
+}
 
 /** a display panel showing real project screenshots, crossfading between two, with a power-on */
 export function screenMaterial(c: Common) {
@@ -230,8 +298,8 @@ export function screenMaterial(c: Common) {
       uB: { value: null as THREE.Texture | null },
       uMix: { value: 0 },
       uOn: { value: 0 },
-      uScroll: { value: 0 },
-      uCrop: { value: new THREE.Vector2(1, 1) },
+      uFitA: { value: new THREE.Vector4(1, 1, 0, 0) },
+      uFitB: { value: new THREE.Vector4(1, 1, 0, 0) },
       uWipe: { value: 0 },
     },
   });
@@ -315,7 +383,8 @@ void main(){
   // letters light one after another, left to right, as uReveal runs from 0 to 1
   float lit = smoothstep(vUv.x - 0.06, vUv.x, uReveal * 1.12 - 0.06) * uOn;
   vec3 col = mix(t.rgb * 0.55, t.rgb * uLit, lit);
-  gl_FragColor = vec4(fogApply(col, vWP), 1.0);
+  // alpha 0: lettering stays out of the brushwork pass
+  gl_FragColor = vec4(fogApply(col, vWP), 0.0);
 }`;
 
 export function cardMaterial(c: Common, map: THREE.Texture, lit = new THREE.Vector3(1.6, 1.45, 1.2)) {

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Common } from '../shaders';
 import { Builder, CH, hex, SEQ } from './kit';
-import { beats, builder, canvasCard, detailShot, kiosk, lamps, type Pad, placeGroup, type ProjectWorld, SANS, V } from './stage';
+import { beats, builder, canvasCard, detailShot, kiosk, lamps, type Pad, placeGroup, type ProjectWorld, ripples, SANS, spill, V } from './stage';
 
 /**
  * PRAHARI: mine safety data, with a copilot that cannot make numbers up. An open pit cut into the terrace,
@@ -45,11 +45,27 @@ export function prahariWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   // ---- sensors on the rim: five report in turn, then the sixth crosses its limit
   const rim: [number, number][] = [[-9.6, 6.4], [-5.0, 6.6], [-0.6, 6.2], [-0.6, -6.2], [-9.6, -6.4], [-0.6, 0.2]];
   rim.forEach(([x, z], k) => {
-    b.box(V(x, LIFT + 0.7, z), [0.14, 1.4, 0.14], 0, { col: CREAM });
-    b.box(V(x, LIFT + 1.2, z + 0.1), [0.36, 0.3, 0.12], 0, { col: DARK });
-    if (k < 5) b.sphere(V(x, LIFT + 1.55, z), 0.17, { col: hex('#7ee08a'), glow: 1, ch: SEQ(k) }, 8);
-    else b.sphere(V(x, LIFT + 1.55, z), 0.22, { col: hex('#ff4a33'), glow: 1, ch: CH.d }, 10);
+    // a sensor station: a footing, a mast, a logger box with its own small solar panel and aerial, the status lamp
+    b.box(V(x, LIFT + 0.1, z), [0.5, 0.2, 0.5], 0, { col: STONE_DARK });
+    b.cyl(V(x, LIFT + 0.2, z), 0.06, 0.08, 1.7, 8, { col: CREAM });
+    b.box(V(x, LIFT + 1.15, z + 0.14), [0.52, 0.46, 0.2], 0, { col: DARK, gloss: 0.2 });
+    b.box(V(x, LIFT + 1.6, z - 0.12), [0.6, 0.04, 0.42], 0, { col: hex('#1d2a50'), gloss: 0.6 }, -0.5);
+    b.rod(V(x + 0.2, LIFT + 1.4, z + 0.14), V(x + 0.2, LIFT + 2.3, z + 0.14), 0.012, { col: STEEL }, 3);
+    if (k < 5) b.sphere(V(x, LIFT + 2.0, z), 0.22, { col: hex('#7ee08a'), glow: 1, ch: SEQ(k) }, 12);
+    else b.sphere(V(x, LIFT + 2.0, z), 0.3, { col: hex('#ff4a33'), glow: 1, ch: CH.d }, 14);
   });
+  // the alarm: rings going out from the station over its limit, and its red light on the ground
+  const [ax, az] = rim[5];
+  const alarm = ripples(c, 2.8, new THREE.Color('#ff4a33'), 1.3);
+  alarm.mesh.rotation.x = -Math.PI / 2;
+  alarm.mesh.position.set(ax, LIFT + 0.06, az);
+  group.add(alarm.mesh);
+  const glare = spill(c, 4, 4, new THREE.Color(0.5, 0.08, 0.04));
+  glare.mesh.rotation.x = -Math.PI / 2;
+  glare.mesh.position.set(ax, LIFT + 0.05, az);
+  group.add(glare.mesh);
+  // rubble on the pit floor
+  for (const [rx, rz, rs] of [[-6.2, -1.5, 0.5], [-4.0, 0.9, 0.38], [-5.1, -0.2, 0.3]] as const) b.rock(V(rx, LIFT - 2.1, rz), rs, { col: BENCH[3] }, rx * 7);
 
   // ---- the headframe: safety-yellow legs over the shaft collar, and the winding house behind
   const hf = V(3.2, 0, -3.8), HH = 9.2;
@@ -66,6 +82,14 @@ export function prahariWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
     b.rod(hf.clone().add(V(s * 0.45, HH - 0.4, 0)), hf.clone().add(V(s * 1.2, 0.6, 4.2 - 8.0)), 0.12, { col: AMBER }, 6);
   }
   b.box(hf.clone().add(V(0, HH + 0.1, 0)), [1.4, 0.3, 1.0], 0, { col: AMBER });
+  // the sheave deck: a grating with a guard rail, and the hoist ropes running down into the shaft
+  b.box(hf.clone().add(V(0, HH - 0.25, 0)), [2.2, 0.08, 1.8], 0, { col: STEEL }, 0, 0, 0.02);
+  for (const s of [-1, 1]) {
+    b.box(hf.clone().add(V(s * 1.08, HH + 0.25, 0)), [0.04, 0.04, 1.8], 0, { col: AMBER }, 0, 0, 0);
+    b.box(hf.clone().add(V(0, HH + 0.25, s * 0.88)), [2.2, 0.04, 0.04], 0, { col: AMBER }, 0, 0, 0);
+    b.rod(hf.clone().add(V(s * 0.12, HH + 0.9, 0.95)), hf.clone().add(V(s * 0.12, 0.6, 0.95)), 0.02, { col: STEEL }, 3);
+  }
+  b.box(hf.clone().add(V(0, 1.4, 0.95)), [0.7, 1.0, 0.7], 0, { col: hex('#3c3a33') });
   b.sphere(hf.clone().add(V(0, HH + 1.5, 0)), 0.16, { col: hex('#ff4a33'), glow: 1, ch: CH.b }, 8);
   const wh = V(7.4, 0, -4.8);
   b.box(wh.clone().add(V(0, 1.6, 0)), [4.6, 3.2, 3.6], 0, { col: DARK });
@@ -106,10 +130,26 @@ export function prahariWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   sign.mesh.position.copy(wh).add(V(0, 2.85, 1.86));
   group.add(sign.mesh);
 
+  // the island says plainly that its numbers are not the product's
+  const note = canvasCard(c, [3.6, 0.52], [1024, 148], (g, w, h) => {
+    g.fillStyle = '#2b2a24';
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = '#f2b632';
+    g.font = `700 50px ${SANS}`;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.letterSpacing = '2px';
+    g.fillText('ILLUSTRATIVE · NOT LIVE SENSOR DATA', w / 2, h / 2 + 3);
+  }, new THREE.Vector3(1.25, 1.25, 1.25), [`700 50px ${SANS}`]);
+  note.mesh.position.copy(pc).add(V(0, -0.9, D / 2 + 0.03));
+  group.add(note.mesh);
+
   const arch = new THREE.Mesh(b.build(), mat);
+  // the still architecture casts the world's sun shadow (see environment.ts); moving parts do not
+  arch.name = 'arch';
   group.add(arch);
 
-  const detail = detailShot(group, V(-0.5, 16, 22), V(-2.4, 1.6, -1.4));
+  const detail = detailShot(group, V(-0.5, 16, 22), V(-2.4, 1.6, -1.4), V(-0.6, 1.8, -0.8));
   let turn = 0, last = 0;
   return {
     group,
@@ -122,6 +162,12 @@ export function prahariWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
       sign.mat.uniforms.uOn.value = k.sign > 0 ? 1 : 0;
       sign.mat.uniforms.uReveal.value = k.sign;
       screen.update(t, k.screen);
+      note.mat.uniforms.uOn.value = 1;
+      note.mat.uniforms.uReveal.value = k.windows;
+      // the alarm pulses once the station has crossed its limit
+      const pulse = k.screen * (0.55 + 0.45 * Math.sin(t * 5.2));
+      alarm.mat.uniforms.uOn.value = k.screen;
+      glare.mat.uniforms.uOn.value = pulse;
       const dt = Math.min(0.1, Math.max(0, t - last));
       last = t;
       turn += dt * 1.4 * k.life;

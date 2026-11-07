@@ -186,6 +186,31 @@ A/B against a250d6f (production builds, back to back, same machine, after the up
 
 The new build runs 1 to 4% behind at desktop sizes and level at phone size; the one 10 FPS phone gap did not repeat. The machine was loaded throughout: the same old build measured 36 to 65 FPS at 1280 across this session. 60 FPS is not confirmed here.
 
+## Refinement pass (2026-11-07)
+
+### Quality presets
+
+| Preset | Pixel-ratio cap | When it is used |
+| --- | --- | --- |
+| Ultra | 2 | First tier when the device pixel ratio is at least 1.5, or screen width × DPR is at least 2560. That covers a 4K monitor and Retina laptops. |
+| High | 1.5 | First tier on other desktops. |
+| Lower tiers | as above | The adaptive step-down still applies to Ultra: a GPU that cannot hold the budget drops to High and below. |
+| Phone | 1.25 | `(max-width: 999px)`: lighter shadow maps (512²), 4× anisotropy, 1× sign canvases. |
+
+Ultra is never forced. Adding `?quality=ultra` to the URL pins Ultra on a non-phone screen and disables the step-down, for review captures. With it, this iGPU rendered a 3810×2160 buffer at a 3840-wide viewport. Without it, the adaptive tiers stepped the same viewport down to about 2057 wide.
+
+### A/B
+
+Old: 7e9ea1c. New: this pass. Production builds, back to back, on the same machine, scroll benchmark (`perf.mjs`):
+
+| Viewport | Old scroll FPS | New scroll FPS | Frames over 33 ms, old / new | Longest scroll task, old / new |
+| --- | --- | --- | --- | --- |
+| 1280×800 | 57.5 | 56.8 | 1.8% / 1.8% | 71 ms / 55 ms |
+| 1920×1080 | 44.0 | 44.3 | 12.9% / 12.0% | none / none |
+| 375×812 | 58.2 | 57.9 | 0.8% / 1.3% | none / none |
+
+Idle FPS was level: 60 / 60 at 1280 and 375, 51.3 / 51.5 at 1920. The new build does more per frame, mainly the shadow sampling and the extra geometry, and measures level with the old one, within run-to-run noise. 60 FPS is not confirmed: 1920×1080 scrolls at about 44 FPS on this machine.
+
 ## Not yet at target
 
 - **1920×1080 on this iGPU** holds about 53 FPS, not 60. It settles at a reduced resolution (×0.72) to get there.

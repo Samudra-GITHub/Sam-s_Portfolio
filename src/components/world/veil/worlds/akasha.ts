@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Common } from '../shaders';
 import { Builder, CH, hex, SEQ } from './kit';
-import { beats, builder, canvasCard, detailShot, kiosk, lamps, type Pad, placeGroup, plinth, type ProjectWorld, SANS, V } from './stage';
+import { beats, builder, canvasCard, detailShot, kiosk, lamps, MONO, type Pad, placeGroup, plinth, type ProjectWorld, SANS, V } from './stage';
 
 /**
  * AKASHALENS: getting the ground back from under the clouds. A small ground station in ink and paper with
@@ -49,13 +49,21 @@ export function akashaWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
     prof.push([r, (r * r) / (4 * 2.4)]);
   }
   for (let i = 10; i >= 0; i--) prof.push([(i / 10) * 3.1, (((i / 10) * 3.1) ** 2) / (4 * 2.4) - 0.08]);
-  bowl.lathe(V(0, 0, 0), prof, 36, { col: PAPER });
+  bowl.lathe(V(0, 0, 0), prof, 48, { col: PAPER, gloss: 0.12 });
+  bowl.add(new THREE.TorusGeometry(3.1, 0.06, 6, 48), new THREE.Matrix4().makeRotationX(Math.PI / 2).setPosition(0, 1.0, 0), { col: hex('#dcd8cf') });
   const focus = V(0, 2.4, 0);
   for (let k = 0; k < 3; k++) {
     const a = (k / 3) * Math.PI * 2;
     bowl.rod(V(Math.cos(a) * 2.9, 0.88, Math.sin(a) * 2.9), focus, 0.04, { col: STEEL });
   }
-  bowl.cyl(focus.clone().add(V(0, -0.3, 0)), 0.16, 0.24, 0.5, 10, { col: INK });
+  // the feed: a horn at the focus, and a hub behind the bowl with ribs out to its rim
+  bowl.cyl(focus.clone().add(V(0, -0.42, 0)), 0.3, 0.12, 0.42, 14, { col: INK, gloss: 0.3 });
+  bowl.cyl(focus.clone().add(V(0, -0.02, 0)), 0.14, 0.18, 0.26, 12, { col: STEEL, gloss: 0.5 });
+  bowl.cyl(V(0, -0.5, 0), 0.5, 0.36, 0.5, 16, { col: PAPER });
+  for (let k = 0; k < 10; k++) {
+    const a = (k / 10) * Math.PI * 2;
+    bowl.rod(V(Math.cos(a) * 0.4, -0.3, Math.sin(a) * 0.4), V(Math.cos(a) * 2.95, 0.84, Math.sin(a) * 2.95), 0.035, { col: STEEL }, 4);
+  }
   bowl.sphere(focus.clone().add(V(0, 0.25, 0)), 0.12, { col: LIME, glow: 1, ch: CH.b }, 8);
   const dish = new THREE.Group();
   const yoke = new THREE.Mesh(db.build(), mat);
@@ -79,6 +87,29 @@ export function akashaWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
     pages: [1, 2, 3].flatMap((k) => [`${base}world/akasha/cloudy${k}.webp`, `${base}world/akasha/clear${k}.webp`]),
   });
 
+  // what the lens shows, said plainly on a lectern in front of it
+  const lect = lp(0.2, 0, 1.75);
+  b.box(lect.clone().add(V(0, 0.45, 0)), [0.24, 0.9, 0.24], lensYaw, { col: INK });
+  b.box(lect.clone().add(V(0, 0.95, 0)), [2.9, 0.08, 0.86], lensYaw, { col: INK }, -0.42);
+  const plate = canvasCard(c, [2.7, 0.76], [1024, 288], (g, w, h) => {
+    g.fillStyle = '#111215';
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = '#d8f827';
+    g.font = `600 64px ${MONO}`;
+    g.textAlign = 'left';
+    g.textBaseline = 'middle';
+    g.fillText('dataset/', 48, 70);
+    g.fillStyle = '#fdf9f1';
+    g.font = `600 58px ${SANS}`;
+    g.fillText('Cloudy frames, then clear ones', 48, 146);
+    g.fillStyle = '#9aa0a6';
+    g.font = `500 44px ${SANS}`;
+    g.fillText('Training pairs, not model output', 48, 222);
+  }, new THREE.Vector3(1.2, 1.2, 1.2), [`600 58px ${SANS}`, `600 64px ${MONO}`]);
+  plate.mesh.position.copy(lect).add(V(0, 0.99, 0).add(V(0, 0, 0.02).applyQuaternion(q)));
+  plate.mesh.rotation.set(-0.42, lensYaw, 0, 'YXZ');
+  group.add(plate.mesh);
+
   lamps(b, [[-3.4, 6.4], [3.4, 6.4], [9.3, 5.4], [9.3, -0.8]], INK, LIME);
 
   const sign = canvasCard(c, [5.2, 0.62], [1024, 122], (g, w, h) => {
@@ -95,9 +126,11 @@ export function akashaWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   group.add(sign.mesh);
 
   const arch = new THREE.Mesh(b.build(), mat);
+  // the still architecture casts the world's sun shadow (see environment.ts); moving parts do not
+  arch.name = 'arch';
   group.add(arch);
 
-  const detail = detailShot(group, V(-1.0, 5.2, 23), V(-2.8, 3.3, -1.2));
+  const detail = detailShot(group, V(-1.0, 5.2, 23), V(-2.8, 3.3, -1.2), V(-1.3, 2.8, -0.8));
   return {
     group,
     detail,
@@ -108,6 +141,8 @@ export function akashaWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
       mat.uniforms.uSeq.value.x = k.seq;
       sign.mat.uniforms.uOn.value = k.sign > 0 ? 1 : 0;
       sign.mat.uniforms.uReveal.value = k.sign;
+      plate.mat.uniforms.uOn.value = k.screen > 0 ? 1 : 0;
+      plate.mat.uniforms.uReveal.value = k.screen;
       glass.update(t, k.screen);
       // the dish swings from stow (facing up) onto its pass, then tracks slowly across the sky
       dish.rotation.y = -0.6 + 1.0 * k.life + Math.sin(t * 0.08) * 0.25 * k.life;

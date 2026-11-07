@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { COMMON, type Common } from '../shaders';
-import { archMaterial, Builder, cardMaterial, CH, ease, type Part, type RGB, screenMaterial } from './kit';
+import { archMaterial, Builder, cardMaterial, CH, ease, fit, type Part, type RGB, screenMaterial } from './kit';
 
 /**
  * What every project world shares: the pad it stands on, the shape it hands back to the environment,
@@ -26,13 +26,50 @@ export interface ProjectWorld {
 
 export const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
-/** a group standing on the pad, turned so local +z faces the lens */
+/**
+ * How finely the worlds are drawn, set once by the environment for the device: texture filtering (the GPU's
+ * own anisotropy limit on desktop) and how many canvas pixels signs and labels get per unit (2 on desktop, so
+ * lettering stays sharp on 4K and high-density screens; 1 on phones and tablets).
+ */
+const quality = { aniso: 4, text: 1 };
+export const setWorldQuality = (q: Partial<typeof quality>) => Object.assign(quality, q);
+export const worldQuality = () => quality;
+
+/** a canvas of logical size w x h, backed by `text` times as many pixels, drawn in logical units */
+export function sharpCanvas(w: number, h: number, draw: (g: CanvasRenderingContext2D, w: number, h: number) => void) {
+  const k = quality.text;
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(w * k);
+  cv.height = Math.round(h * k);
+  const g = cv.getContext('2d')!;
+  g.scale(k, k);
+  draw(g, w, h);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = quality.aniso;
+  return t;
+}
+
+/** a group standing on the pad, turned so local +z faces the lens; it sits a little proud of the ground, so
+ * the island's turf never pushes up through a terrace */
 export function placeGroup(name: string, pad: Pad) {
   const group = new THREE.Group();
   group.name = name;
   group.position.copy(pad.p);
+  group.position.y += 0.4;
   group.rotation.y = Math.atan2(pad.face.x, pad.face.z);
   return group;
+}
+
+/** a tiny deterministic random sequence, so a world builds the same every visit */
+export function rng(seed: number) {
+  let a = seed | 0 || 1;
+  return () => ((a = (a * 1664525 + 1013904223) | 0), ((a >>> 8) & 0xffff) / 0x10000);
+}
+
+/** a colour nudged in value (and a touch in warmth): stone, timber and paving are never one flat tone */
+export function vary(c: RGB, k: number, warm = 0): RGB {
+  return [c[0] * (1 + k + warm), c[1] * (1 + k), c[2] * (1 + k - warm)];
 }
 
 /**
@@ -46,20 +83,106 @@ export function detailShot(group: THREE.Group, cam: THREE.Vector3, look: THREE.V
   return { cam: cam.applyMatrix4(m), look: look.applyMatrix4(m), centre: centre.applyMatrix4(m) };
 }
 
-/** a stone terrace that levels the ground, stepping down at the front */
-export function plinth(b: Builder, w: number, d: number, top: RGB, side: RGB) {
-  b.box(V(0, -1.4, 0), [w, 2.8, d], 0, { col: side });
-  b.box(V(0, -0.05, 0), [w - 0.6, 0.1, d - 0.6], 0, { col: top });
-  b.box(V(0, -0.35, d / 2 + 0.3), [6, 0.3, 1.2], 0, { col: top });
-  b.box(V(0, -0.7, d / 2 + 1.2), [6, 0.3, 1.2], 0, { col: side });
+/**
+ * A stone terrace that levels the ground: a deep footing in coursed stone (so a falling slope shows built
+ * wall, not a floating slab), a kerb of dressed blocks of uneven length, paving laid in rows of varied tone
+ * over darker joints, two steps at the front, and weathered boulders where the terrace meets the hillside.
+ */
+export function plinth(b: Builder, w: number, d: number, top: RGB, side: RGB, seed = 7) {
+  const r = rng(seed);
+  // laid stone reads a little deeper than the palette's flat swatch
+  top = vary(top, -0.24, 0.03);
+  side = vary(side, -0.1, 0.02);
+  // the footing: courses of stone, each a slightly different tone, stepping in as they rise
+  for (let k = 0; k < 4; k++) {
+    const y = -0.5 - k * 0.9, inset = (3 - k) * -0.06;
+    b.box(V(0, y, 0), [w - inset * 2 - 0.1, 0.92, d - inset * 2 - 0.1], 0, { col: vary(side, (r() - 0.5) * 0.12 - k * 0.04, 0.02) }, 0, 0, 0.05);
+  }
+  // the joints between the paving stones
+  b.box(V(0, -0.1, 0), [w - 0.5, 0.12, d - 0.5], 0, { col: vary(side, -0.18) }, 0, 0, 0);
+  // the kerb: dressed blocks running round the edge, a touch higher than the paving
+  const kerb = (x0: number, z0: number, dx: number, dz: number, len: number) => {
+    let s = 0;
+    while (s < len - 0.05) {
+      const l = Math.min(len - s, 1.1 + r() * 1.3);
+      const cx = x0 + dx * (s + l / 2), cz = z0 + dz * (s + l / 2);
+      const sz: [number, number, number] = dx ? [l - 0.05, 0.34, 0.55] : [0.55, 0.34, l - 0.05];
+      b.box(V(cx, 0.02 + r() * 0.03, cz), sz, 0, { col: vary(side, 0.1 + (r() - 0.5) * 0.14, 0.03) }, 0, 0, 0.06);
+      s += l;
+    }
+  };
+  kerb(-w / 2, -d / 2 + 0.28, 1, 0, w);
+  kerb(-w / 2 + 0.28, -d / 2 + 0.55, 0, 1, d - 1.1);
+  kerb(w / 2 - 0.28, -d / 2 + 0.55, 0, 1, d - 1.1);
+  // the front kerb leaves a gap for the steps
+  kerb(-w / 2, d / 2 - 0.28, 1, 0, w / 2 - 3.1);
+  kerb(3.1, d / 2 - 0.28, 1, 0, w / 2 - 3.1);
+  // paving: rows of stones of random length, each its own tone
+  const pw = w - 1.3, pd = d - 1.3, row = 1.25;
+  for (let z = -pd / 2; z < pd / 2 - 0.05; z += row) {
+    const rz = Math.min(row, pd / 2 - z);
+    let x = -pw / 2 + (Math.round(z / row) % 2 ? 0 : -0.5);
+    while (x < pw / 2 - 0.05) {
+      const l = 1.0 + r() * 1.1, x0 = Math.max(x, -pw / 2), x1 = Math.min(x + l, pw / 2);
+      if (x1 - x0 > 0.1) b.box(V((x0 + x1) / 2, -0.02, z + rz / 2), [x1 - x0 - 0.06, 0.08, rz - 0.06], 0, { col: vary(top, (r() - 0.5) * 0.11, (r() - 0.5) * 0.04) }, 0, 0, 0);
+      x += l;
+    }
+  }
+  // the steps, worn a little paler where feet go
+  b.box(V(0, -0.3, d / 2 + 0.35), [6, 0.3, 1.1], 0, { col: vary(top, 0.03) }, 0, 0, 0.05);
+  b.box(V(0, -0.62, d / 2 + 1.2), [6.4, 0.32, 1.1], 0, { col: vary(side, 0.06) }, 0, 0, 0.05);
+  for (const s of [-1, 1]) b.box(V(s * 3.3, -0.3, d / 2 + 0.75), [0.5, 0.75, 1.9], 0, { col: vary(side, 0.08) }, 0, 0, 0.06);
+  // boulders where the terrace meets the hill, greyed and greened by weather
+  const moss = (c: RGB): RGB => [c[0] * 0.78, c[1] * 0.9, c[2] * 0.68];
+  for (const [x, z, s] of [[-w / 2 - 0.4, -d / 2 + 1.6, 1.3], [-w / 2 + 0.6, -d / 2 - 0.3, 0.9], [w / 2 + 0.3, -d / 2 + 0.8, 1.1], [w / 2 + 0.5, d / 2 - 1.8, 0.8], [-w / 2 - 0.2, d / 2 - 0.6, 0.95]] as const) {
+    b.rock(V(x, -0.55, z), s, { col: moss(vary(side, (r() - 0.5) * 0.2)) }, seed + x * 3.1 + z);
+  }
 }
 
-/** lamp posts (channel c: the first lights to come on) */
+/**
+ * Lantern posts (channel c: the first lights to come on): a stepped foot, a tapering post with a collar, and
+ * a small glazed lantern under a cap, its light behind four glazing bars.
+ */
 export function lamps(b: Builder, at: [number, number][], pole: RGB, globe: RGB, h = 2.5) {
   for (const [x, z] of at) {
-    b.cyl(V(x, 0, z), 0.06, 0.08, h, 6, { col: pole });
-    b.sphere(V(x, h + 0.15, z), 0.24, { col: globe, glow: 1, ch: CH.c }, 10);
+    b.cyl(V(x, 0, z), 0.17, 0.21, 0.22, 10, { col: pole });
+    b.cyl(V(x, 0.22, z), 0.05, 0.075, h - 0.22, 8, { col: pole, gloss: 0.15 });
+    b.cyl(V(x, h * 0.62, z), 0.085, 0.085, 0.08, 8, { col: pole });
+    b.cyl(V(x, h - 0.02, z), 0.13, 0.1, 0.08, 8, { col: pole });
+    b.box(V(x, h + 0.2, z), [0.2, 0.32, 0.2], 0, { col: globe, glow: 1, ch: CH.c }, 0, 0, 0.03);
+    for (const [ox, oz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) b.box(V(x + ox * 0.115, h + 0.2, z + oz * 0.115), [0.035, 0.36, 0.035], 0, { col: pole }, 0, 0, 0);
+    b.cyl(V(x, h + 0.38, z), 0.02, 0.19, 0.16, 8, { col: pole, gloss: 0.2 });
+    b.sphere(V(x, h + 0.57, z), 0.035, { col: pole }, 6);
   }
+}
+
+/* ---------------------------------------------------------------- light spill */
+
+const SPILL_VS = /* glsl */ `
+varying vec2 vUv; varying vec3 vWP;
+void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vWP = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }`;
+const SPILL_FS = /* glsl */ `
+${COMMON}
+uniform float uOn; uniform vec3 uCol;
+varying vec2 vUv; varying vec3 vWP;
+void main(){
+  vec2 p = vUv * 2.0 - 1.0;
+  float a = exp(-dot(p, p) * 2.6) * uOn;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(uCol * a, 1.0);
+}`;
+
+/** soft light thrown by a lit thing onto the ground or the wall behind it: one additive quad */
+export function spill(c: Common, w: number, h: number, col: THREE.Color) {
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: SPILL_VS,
+    fragmentShader: SPILL_FS,
+    uniforms: { ...c, uOn: { value: 0 }, uCol: { value: col } },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  return { mesh: new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat), mat };
 }
 
 /**
@@ -78,7 +201,7 @@ const loader = new THREE.TextureLoader();
 export function texture(url: string) {
   const t = loader.load(url, uploadTexture);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
+  t.anisotropy = quality.aniso;
   return t;
 }
 
@@ -96,28 +219,42 @@ export function kiosk(
   const q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), o.yaw);
   const at = (lx: number, ly: number, lz: number) => V(lx, ly, lz).applyQuaternion(q).add(V(o.x, 0, o.z));
   if (!o.round) {
-    b.box(at(0, (y - o.h / 2) / 2, -0.05), [0.18, y - o.h / 2, 0.18], o.yaw, { col: o.trim });
-    b.box(at(0, 0.06, 0), [1.4, 0.12, 0.9], o.yaw, { col: o.frame });
-    b.box(at(0, y, -0.08), [o.w + 0.3, o.h + 0.25, 0.14], o.yaw, { col: o.frame });
-    b.box(at(0, y + o.h / 2 + 0.16, -0.08), [o.w + 0.3, 0.06, 0.18], o.yaw, { col: o.trim, glow: 0.5, ch: CH.d });
+    // a stepped foot, a pair of uprights, a deep bezel with a housing behind it and a lit trim along the top
+    const foot = y - o.h / 2;
+    b.box(at(0, 0.08, 0), [Math.min(o.w, 2.0), 0.16, 1.0], o.yaw, { col: o.frame });
+    b.box(at(0, 0.22, -0.02), [Math.min(o.w, 2.0) - 0.3, 0.12, 0.7], o.yaw, { col: o.frame, gloss: 0.15 });
+    for (const s of [-1, 1]) b.box(at(s * Math.min(0.55, o.w * 0.22), foot / 2 + 0.14, -0.1), [0.14, foot - 0.1, 0.16], o.yaw, { col: o.trim, gloss: 0.25 });
+    b.box(at(0, y, -0.12), [o.w + 0.26, o.h + 0.26, 0.22], o.yaw, { col: o.frame, gloss: 0.3 });
+    b.box(at(0, y, -0.32), [o.w * 0.8, o.h * 0.75, 0.24], o.yaw, { col: o.frame });
+    b.box(at(0, y - o.h / 2 - 0.08, 0.0), [o.w * 0.3, 0.04, 0.02], o.yaw, { col: o.trim, glow: 0.7, ch: CH.d }, 0, 0, 0);
+    b.box(at(0, y + o.h / 2 + 0.17, -0.12), [o.w + 0.26, 0.05, 0.24], o.yaw, { col: o.trim, glow: 0.5, ch: CH.d }, 0, 0, 0.02);
   }
   const mat = screenMaterial(c);
   mat.uniforms.uWipe.value = o.wipe ? 1 : 0;
-  const geo = o.round ? new THREE.CircleGeometry(o.w / 2, 48) : new THREE.PlaneGeometry(o.w, o.h);
+  const geo = o.round ? new THREE.CircleGeometry(o.w / 2, 64) : new THREE.PlaneGeometry(o.w, o.h);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.copy(at(0, y, o.round ? 0 : 0.0));
   mesh.rotation.y = o.yaw;
   group.add(mesh);
+  // the screen's light on the ground in front of it
+  const glow = spill(c, o.w * 1.6, o.w * 1.1, new THREE.Color(0.16, 0.17, 0.2));
+  glow.mesh.position.copy(at(0, 0.03, o.w * 0.45));
+  glow.mesh.rotation.set(-Math.PI / 2, 0, o.yaw);
+  group.add(glow.mesh);
   const pages = o.pages.map(texture);
   mat.uniforms.uA.value = pages[0];
   mat.uniforms.uB.value = pages[1 % pages.length];
   const period = o.period ?? 6;
+  const aspect = o.w / o.h;
   return {
     mesh,
     mat,
     /** on: the power-on (0..1); for a wipe display the pages go in pairs (before, after) */
     update(t: number, on: number) {
       mat.uniforms.uOn.value = on;
+      glow.mat.uniforms.uOn.value = on;
+      fit(mat.uniforms.uFitA.value, mat.uniforms.uA.value, aspect);
+      fit(mat.uniforms.uFitB.value, mat.uniforms.uB.value, aspect);
       const k = t / period, i = Math.floor(k), f = k - i;
       if (o.wipe) {
         const n = Math.max(1, pages.length >> 1), j = i % n;
@@ -145,16 +282,7 @@ export function canvasCard(
   /** something to wait for before asking for the fonts (a stylesheet that declares them) */
   after: Promise<unknown> = Promise.resolve(),
 ) {
-  const paint = () => {
-    const cv = document.createElement('canvas');
-    cv.width = px[0];
-    cv.height = px[1];
-    draw(cv.getContext('2d')!, px[0], px[1]);
-    const t = new THREE.CanvasTexture(cv);
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
-    return t;
-  };
+  const paint = () => sharpCanvas(px[0], px[1], draw);
   const mat = cardMaterial(c, paint(), lit);
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size[0], size[1]), mat);
   if (fonts.length && typeof document !== 'undefined' && document.fonts) {
@@ -182,7 +310,7 @@ export function labels(
   items: { text: string; at: THREE.Vector3; yaw?: number }[],
   o: { w: number; h: number; ink: string; paper: string; font?: string; px?: number },
 ) {
-  const cw = 512, ch = Math.round((cw * o.h) / o.w);
+  const cw = 512 * quality.text, ch = Math.round((cw * o.h) / o.w);
   const draw = () => {
     const cv = document.createElement('canvas');
     cv.width = cw * items.length;
@@ -190,18 +318,18 @@ export function labels(
     const g = cv.getContext('2d')!;
     items.forEach((it, i) => {
       g.fillStyle = o.paper;
-      g.fillRect(i * cw + 6, 6, cw - 12, ch - 12);
+      g.fillRect(i * cw + 6 * quality.text, 6 * quality.text, cw - 12 * quality.text, ch - 12 * quality.text);
       g.fillStyle = o.ink;
       g.textAlign = 'center';
       g.textBaseline = 'middle';
       let px = o.px ?? Math.round(ch * 0.46);
       g.font = `600 ${px}px ${o.font ?? SANS}`;
-      while (g.measureText(it.text).width > cw * 0.86 && px > 12) g.font = `600 ${(px -= 2)}px ${o.font ?? SANS}`;
+      while (g.measureText(it.text).width > cw * 0.86 && px > 12 * quality.text) g.font = `600 ${(px -= 2)}px ${o.font ?? SANS}`;
       g.fillText(it.text, i * cw + cw / 2, ch / 2 + 2);
     });
     const t = new THREE.CanvasTexture(cv);
     t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
+    t.anisotropy = quality.aniso;
     return t;
   };
   const pos: number[] = [], uv: number[] = [], idx: number[] = [];

@@ -35,11 +35,14 @@ export function createPainter(renderer: THREE.WebGLRenderer, scene: THREE.Scene,
           uniform sampler2D tDiffuse; uniform vec2 uRes; varying vec2 vUv;
           #define R 2
           void main(){
+            vec4 here = texture2D(tDiffuse, vUv);
+            // screens and lettering mark themselves with alpha 0: they keep their detail
+            if (here.a < 0.5) { gl_FragColor = vec4(here.rgb, 1.0); return; }
             vec2 px = 1.0 / uRes;
             vec3 m[4]; vec3 s[4];
             for (int q = 0; q < 4; q++) { m[q] = vec3(0.0); s[q] = vec3(0.0); }
             for (int j = -R; j <= R; j++) for (int i = -R; i <= R; i++) {
-              vec3 c = texture2D(tDiffuse, vUv + vec2(float(i), float(j)) * px).rgb;
+              vec3 c = textureLod(tDiffuse, vUv + vec2(float(i), float(j)) * px, 0.0).rgb;
               if (i <= 0 && j <= 0) { m[0] += c; s[0] += c * c; }
               if (i >= 0 && j <= 0) { m[1] += c; s[1] += c * c; }
               if (i >= 0 && j >= 0) { m[2] += c; s[2] += c * c; }

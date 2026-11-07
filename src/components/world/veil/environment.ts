@@ -18,7 +18,7 @@ import { portfolioWorld } from './worlds/portfolio';
 import { prahariWorld } from './worlds/prahari';
 import { rintiWorld } from './worlds/rinti';
 import { skycastWorld } from './worlds/skycast';
-import { type Pad, type ProjectWorld, setTextureUploader } from './worlds/stage';
+import { type Pad, type ProjectWorld, setTextureUploader, setWorldQuality } from './worlds/stage';
 import { tarangWorld } from './worlds/tarang';
 
 /**
@@ -437,6 +437,8 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   };
   const worlds: { far: number; world: ProjectWorld }[] = [];
   setTextureUploader((t) => renderer.initTexture(t));
+  // desktop: the GPU's full anisotropic filtering and double-density lettering; phones and tablets: lighter
+  setWorldQuality({ aniso: low ? 4 : Math.min(16, renderer.capabilities.getMaxAnisotropy()), text: low ? 1 : 2 });
   // mesh all nine off the main thread (two workers), then dress them here one per frame
   const specs = far.map((f) => {
     const r = rng(f.seed);
@@ -612,7 +614,8 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         // best first: toward the lens, and high; the costly tests stop at the first spot that passes
         const ranked = flat
           .filter((k) => pp.getY(k) >= high)
-          .filter((k) => !padLocal || Math.hypot(pp.getX(k) - padLocal.x, pp.getZ(k) - padLocal.z) > 20)
+          // well clear of the project world, so in its close shot the herd grazes in the distance, not over the stage
+          .filter((k) => !padLocal || Math.hypot(pp.getX(k) - padLocal.x, pp.getZ(k) - padLocal.z) > 36)
           .map((k) => ({ k, sc: pp.getX(k) * toCam.x + pp.getZ(k) * toCam.z + pp.getY(k) * 0.6 }))
           .sort((x, y) => y.sc - x.sc);
         const need = flat.length * 0.04;
@@ -629,10 +632,11 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         for (let t = 0; t < 8000 && herd.length < 3; t++) {
           const k = flat[Math.floor(r() * flat.length)];
           const c2 = v(k);
-          if (c2.distanceTo(seed) < f.s * 1.1 && Math.abs(c2.y - seed.y) < f.s * 0.06 && herd.every((h) => h.distanceTo(c2) > gap) && open(k)) herd.push(c2);
+          const offPad = !padLocal || Math.hypot(pp.getX(k) - padLocal.x, pp.getZ(k) - padLocal.z) > 32;
+          if (offPad && c2.distanceTo(seed) < f.s * 1.1 && Math.abs(c2.y - seed.y) < f.s * 0.06 && herd.every((h) => h.distanceTo(c2) > gap) && open(k)) herd.push(c2);
         }
-        // a quarter larger than the trees' scale would make them, so they still read at the shot's distance
-        sites.herd = { at: herd, scale: (f.s / 26) * 1.25, face: toCam.clone() };
+        // at the trees' own scale: large enough to read in the establishing shot, small beside the band shell
+        sites.herd = { at: herd, scale: (f.s / 26) * 1.0, face: toCam.clone() };
         // keep the trees off their meadow and off the sightline to the lens (local coordinates)
         for (const h of herd) {
           const lh = h.clone().sub(new THREE.Vector3(...f.at));
@@ -902,6 +906,44 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   c.uShadowTexel.value = 1 / SH;
   renderer.setRenderTarget(shadowRT);
   renderer.render(shadowScene, sunCam);
+  renderer.setRenderTarget(null);
+
+  // The island shadow map covers the hero only. Each project world gets its own small sun shadow (rendered
+  // once: neither the sun nor the architecture moves), so its buildings sit on their terrace instead of
+  // floating in flat light. Only the still architecture casts; records, dishes and rings are left out.
+  const WSH = low ? 512 : 1024;
+  for (const { world } of worlds) {
+    const g = world.group;
+    g.updateMatrixWorld(true);
+    const rt = new THREE.WebGLRenderTarget(WSH, WSH);
+    rt.depthTexture = new THREE.DepthTexture(WSH, WSH);
+    rt.depthTexture.type = THREE.UnsignedIntType;
+    rt.depthTexture.compareFunction = THREE.LessEqualCompare;
+    rt.depthTexture.minFilter = rt.depthTexture.magFilter = THREE.LinearFilter;
+    const centre = g.position.clone().add(new THREE.Vector3(0, 3, 0));
+    const cam = new THREE.OrthographicCamera(-22, 22, 22, -22, 1, 120);
+    cam.position.copy(sun).multiplyScalar(60).add(centre);
+    cam.lookAt(centre);
+    cam.updateMatrixWorld();
+    const casters = new THREE.Scene();
+    g.traverse((o) => {
+      if (!(o instanceof THREE.Mesh) || o.name !== 'arch') return;
+      const m = new THREE.Mesh(o.geometry, solidDepth);
+      m.matrixAutoUpdate = false;
+      m.matrix.copy(o.matrixWorld);
+      casters.add(m);
+    });
+    renderer.setRenderTarget(rt);
+    renderer.render(casters, cam);
+    const matrix = new THREE.Matrix4().multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse);
+    g.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.ShaderMaterial | undefined;
+      if (!m?.uniforms?.uShadowMap) return;
+      m.uniforms.uShadowMap = { value: rt.depthTexture };
+      m.uniforms.uShadowMatrix = { value: matrix };
+      m.uniforms.uShadowTexel = { value: 1 / WSH };
+    });
+  }
   renderer.setRenderTarget(null);
 
   // warm-up: draw every object and every LOD level once into a tiny target, so geometry and

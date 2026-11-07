@@ -21,16 +21,34 @@ export function portfolioWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
 
   // ---- the dais: paper, an ink inlay, a lime ring that lights, nine project lights round its edge
   const o = V(-2.0, 0, -1.4);
-  b.cyl(o, 5.8, 6.1, 0.5, 48, { col: PAPER });
-  b.cyl(o.clone().add(V(0, 0.5, 0)), 5.1, 5.1, 0.03, 48, { col: INK });
-  b.add(new THREE.TorusGeometry(5.45, 0.07, 6, 64), new THREE.Matrix4().compose(o.clone().add(V(0, 0.53, 0)), new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI / 2), V(1, 1, 1)), { col: LIME, glow: 0.8, ch: CH.b });
-  for (let k = 0; k < 9; k++) {
-    const a = (k / 9) * Math.PI * 2 + 0.35;
-    b.sphere(o.clone().add(V(Math.cos(a) * 5.8, 0.62, Math.sin(a) * 5.8)), 0.16, { col: LIME, glow: 1, ch: SEQ(k) }, 8);
+  b.cyl(o, 6.3, 6.5, 0.22, 64, { col: hex('#e6e1d6') });
+  b.cyl(o.clone().add(V(0, 0.22, 0)), 5.8, 6.0, 0.3, 64, { col: PAPER });
+  b.cyl(o.clone().add(V(0, 0.5, 0)), 5.1, 5.1, 0.03, 64, { col: INK, gloss: 0.4 });
+  // the dial: hour ticks inlaid round the ink face
+  for (let k = 0; k < 36; k++) {
+    const a = (k / 36) * Math.PI * 2, r = k % 3 ? 4.75 : 4.6;
+    b.box(o.clone().add(V(Math.cos(a) * r, 0.54, Math.sin(a) * r)), [k % 3 ? 0.3 : 0.6, 0.02, 0.05], -a, { col: PAPER }, 0, 0, 0);
   }
-  // the column the instrument stands on
-  b.cyl(o.clone().add(V(0, 0.5, 0)), 0.5, 0.75, 0.4, 20, { col: INK });
-  b.cyl(o.clone().add(V(0, 0.9, 0)), 0.16, 0.22, 2.6, 12, { col: INK });
+  b.add(new THREE.TorusGeometry(5.45, 0.07, 6, 64), new THREE.Matrix4().compose(o.clone().add(V(0, 0.53, 0)), new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI / 2), V(1, 1, 1)), { col: LIME, glow: 0.8, ch: CH.b });
+  // nine project lights on small ink pedestals round the edge, each a lens in a collar
+  for (let k = 0; k < 9; k++) {
+    const a = (k / 9) * Math.PI * 2 + 0.35, p = o.clone().add(V(Math.cos(a) * 5.75, 0.52, Math.sin(a) * 5.75));
+    b.cyl(p, 0.2, 0.24, 0.3, 12, { col: INK, gloss: 0.3 });
+    b.cyl(p.clone().add(V(0, 0.3, 0)), 0.17, 0.17, 0.05, 12, { col: hex('#c9ccd2'), gloss: 0.6 });
+    b.sphere(p.clone().add(V(0, 0.38, 0)), 0.13, { col: LIME, glow: 1, ch: SEQ(k) }, 12);
+  }
+  // the column the instrument stands on: a stepped foot, a fluted shaft, a collar under the rings
+  b.cyl(o.clone().add(V(0, 0.5, 0)), 0.62, 0.85, 0.3, 24, { col: INK, gloss: 0.3 });
+  b.cyl(o.clone().add(V(0, 0.8, 0)), 0.42, 0.5, 0.25, 24, { col: INK, gloss: 0.3 });
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2;
+    b.box(o.clone().add(V(Math.cos(a) * 0.2, 2.35, Math.sin(a) * 0.2)), [0.07, 2.9, 0.07], -a, { col: INK, gloss: 0.4 }, 0, 0, 0.02);
+  }
+  b.cyl(o.clone().add(V(0, 1.05, 0)), 0.16, 0.2, 2.7, 16, { col: INK, gloss: 0.3 });
+  b.cyl(o.clone().add(V(0, 3.75, 0)), 0.3, 0.2, 0.18, 16, { col: hex('#c9ccd2'), gloss: 0.6 });
+  // a fixed meridian ring the moving rings turn inside
+  b.add(new THREE.TorusGeometry(4.55, 0.06, 8, 96), new THREE.Matrix4().makeTranslation(o.x, 4.4, o.z), { col: hex('#c9ccd2'), gloss: 0.6 });
+  b.add(new THREE.TorusGeometry(4.55, 0.035, 6, 96), new THREE.Matrix4().makeRotationX(Math.PI / 2).setPosition(o.x, 4.4, o.z), { col: hex('#c9ccd2'), gloss: 0.6 });
 
   // ---- the instrument: three tilted rings, each carrying a body, round the monogram
   const centre = o.clone().add(V(0, 4.4, 0));
@@ -42,8 +60,14 @@ export function portfolioWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   ];
   for (const [r, tilt, yaw, col, rate] of spec) {
     const rb = new Builder();
-    rb.add(new THREE.TorusGeometry(r, 0.05, 6, 72), new THREE.Matrix4().makeRotationX(Math.PI / 2), { col: PAPER });
-    rb.sphere(V(r, 0, 0), 0.34, { col, glow: 0.35, ch: CH.a }, 16);
+    rb.add(new THREE.TorusGeometry(r, 0.07, 8, 96), new THREE.Matrix4().makeRotationX(Math.PI / 2), { col: PAPER, gloss: 0.35 });
+    // graduations on the ring, and a body in a collar riding it
+    for (let k = 0; k < 24; k++) {
+      const a = (k / 24) * Math.PI * 2;
+      rb.box(V(Math.cos(a) * r, 0, Math.sin(a) * r), [0.05, k % 6 ? 0.12 : 0.24, 0.16], -a, { col: hex('#c9ccd2') }, 0, 0, 0);
+    }
+    rb.add(new THREE.TorusGeometry(0.42, 0.04, 6, 24), new THREE.Matrix4().makeTranslation(r, 0, 0), { col: hex('#c9ccd2'), gloss: 0.6 });
+    rb.sphere(V(r, 0, 0), 0.34, { col, glow: 0.35, ch: CH.a, gloss: 0.5 }, 24);
     const spin = new THREE.Mesh(rb.build(), mat);
     const pivot = new THREE.Object3D();
     pivot.position.copy(centre);
@@ -96,9 +120,11 @@ export function portfolioWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   group.add(sign.mesh);
 
   const arch = new THREE.Mesh(b.build(), mat);
+  // the still architecture casts the world's sun shadow (see environment.ts); moving parts do not
+  arch.name = 'arch';
   group.add(arch);
 
-  const detail = detailShot(group, V(3.5, 7.6, 22.5), V(-1.2, 3.6, -1.2));
+  const detail = detailShot(group, V(3.5, 7.6, 22.5), V(-1.2, 3.6, -1.2), V(0.4, 2.8, -0.8));
   let phase = 0, last = 0;
   return {
     group,

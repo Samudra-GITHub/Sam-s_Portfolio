@@ -119,9 +119,45 @@ It holds:
 - up to five technologies;
 - the links.
 
+## Refinement pass (audit, 2026-11-07)
+
+Audit of the nine worlds at 1920×1080, detail shots, before any change. What failed, world by world, and what the pass does about it.
+
+**Shared (all nine).**
+- Every box has hard, unlit edges, so forms read as primitives. Boxes get a chamfer that catches the light.
+- Flat colour per part: no tonal breakup, no wear. The architecture shader gets a painted tone breakup and grime toward the ground.
+- Plinths are pale featureless slabs, and the island's grass pokes through their tops. They become paved stone terraces with a dressed kerb, set a little above the ground.
+- Lamps are lollipops (a pole and a ball). They become lantern posts.
+- Displays: the brush pass smears every screenshot and sign; screenshots are stretched to the plane (Rinti's portrait pages worst); pictures are 1024 px though the repos hold 1440 px originals. Screens and signs are kept out of the brush pass, pictures are fitted (cropped, never stretched) and re-encoded from the original captures, filtering uses the GPU's full anisotropy.
+- No high-resolution preset: the pixel ratio is capped at 1.5.
+
+| World | Audit | Pass |
+| --- | --- | --- |
+| Tarang | Record is a flat disc; tonearm a stick; meters a flat yellow bar chart; Mossbacks tower over the shell. | Grooved vinyl with a moving sheen, label, platter rim; jointed tonearm with headshell and counterweight; meters as segmented LED columns; herd moved back and scaled to the stage. |
+| Rinti AI | Pipeline beacons are bare spheres on posts; screens stretched. | Beacon housings with collars and a lit lens, a lit conduit between stages; screens fitted. |
+| AkashaLens | Lens shows the pair with no explanation. | A plate on the lens stand states what the pictures are (dataset pairs: cloudy input, clear target). Dish gets a ribbed back and feed horn. |
+| SkyCast | Mast and screen are thin and lost on the slab. | Instrument details, a cobalt-trimmed equipment hut; the display keeps showing no readings. |
+| Krama | Sneaker is a lumpy blob; gallery is a flat orange box; wordmark crops on phones. | New sneaker: last-shaped upper, midsole with sidewall, outsole, toe cap, collar, laces, heel tab; gallery with portal frame and plinth; wordmark lowered and narrowed. |
+| Grama Sathi | Huts are cones on cylinders; board flat. | Thatch with layered eaves, mud walls with a plinth band, posts; board framed on legs. |
+| Noir Café | Glazing hides the bar. | Lit interior brought forward. |
+| PRAHARI | Benches are plain rings; sensors tiny; alert hard to see. | Bench faces stepped and toned as strata; larger sensor heads; the red alert pulses with a halo; a plate says the readings are illustrative. |
+| Portfolio | Captures may drift from the build. | Re-captured from the current build; a script regenerates them. |
+
+### Outcome
+
+What shipped, beyond the table above:
+- **Shadows.** Each world bakes its own sun shadow map once, before warm-up. The map is 1024² on desktop and 512² on phones, with an orthographic camera covering ±22 units around the world. Only the architecture mesh (`name = 'arch'`) casts. Before this, the worlds sat outside the hero's shadow map and had no shadows at all.
+- **Screens and signs stay sharp.** Screens and cards write alpha 0. The brush (Kuwahara) pass passes those pixels through untouched. Pictures are cover-fitted with `fit()` in `kit.ts`: a wider picture loses its sides, a taller one shows from the top, and nothing is stretched. Sign canvases draw at 2× on desktop.
+- **Pictures at native size.** No genuine source above 1440×900 exists for any project, so none is upscaled. Each picture is re-encoded from its original capture at native size. Portfolio's three captures are regenerated from the current build by `scripts/capture-portfolio-screens.mjs`.
+- **Phone framing.** Each world passes its own framing centre to `detailShot`, and the phone step-back grows on tall screens. At 390×844, every main installation now fits in frame.
+- **Mossbacks** graze farther from the Tarang pad, at the stage's scale.
+- **Ultra preset.** See `docs/PERFORMANCE.md`.
+
+Not reworked in this pass: terrain, vegetation, water and atmosphere; creature models; Noir's glazing.
+
 ## Open
 
-- The Mossbacks graze just behind Tarang's band shell. Sized to read from the establishing shot, they tower over it in the detail shot.
-- On phones, some displays and roof signs (Krama's wordmark) touch the frame edge.
 - Noir's bar and pendants behind the glazing are hard to read through the painted pass.
+- Environment (geology, vegetation, water, atmosphere) and creature models were not refined in the 2026-11-07 pass.
+- No project has a capture above 1440×900. Sharper screens at 4K need new native captures from each project.
 - The brief's SoleVerse is Krama: the data records it as Krama's former name. ArthaYukti is not in the project data, so it has no island until its details are supplied.
