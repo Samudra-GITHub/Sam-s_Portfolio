@@ -3,11 +3,9 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { scrollToTarget } from './lib/scroll';
 import { initPointer } from './lib/pointer';
 import { initSoundDelegation } from './lib/sound';
-import Cursor from './components/core/Cursor';
 import SmoothScroll from './components/core/SmoothScroll';
 import { PageTransitionProvider } from './components/core/PageTransition';
 import { KageProvider } from './components/kage/Kage';
-import Nav from './components/Nav';
 import Home from './pages/Home';
 import DevDataToggle from './components/core/DevDataToggle';
 import NotFound from './pages/NotFound';
@@ -35,12 +33,10 @@ export default function App() {
     <PageTransitionProvider>
       <KageProvider>
         <SmoothScroll />
-        <Cursor />
         <a className="skip-link" href="#main">
           Skip to content
         </a>
         <div id="site">
-          {pathname !== '/' && <Nav />}
           <Suspense fallback={<div style={{ minHeight: '100dvh' }} />}>
             <Routes>
               <Route path="/" element={<Home />} />

@@ -1,0 +1,154 @@
+/* The case-study page and the smaller studio pages. Tokens come from .studio in studio.css. */
+
+/* ---------------- case study: hero ---------------- */
+.st-case__hero {
+  padding: clamp(140px, 18vh, 200px) var(--st-margin) clamp(56px, 7vw, 104px);
+  display: grid;
+  gap: 18px;
+}
+.st-case__crumb a { text-decoration: none; border-bottom: 1px solid currentColor; }
+.st-case__crumb a:hover { color: var(--st-violet); }
+.studio .st-case__title {
+  margin: 0;
+  font-family: var(--st-display);
+  font-size: clamp(3.5rem, 10vw, 11rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+  overflow-wrap: anywhere;
+}
+.st-case__intro {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--st-gutter);
+  align-items: start;
+  margin-top: clamp(24px, 3vw, 48px);
+  padding-top: 24px;
+  border-top: 1px solid var(--st-graphite);
+}
+.st-case__tagline {
+  grid-column: 1 / 6;
+  margin: 0;
+  font-family: var(--st-display);
+  font-weight: 300;
+  font-size: clamp(1.5rem, 2.2vw, 2.125rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.st-case__facts { grid-column: 7 / 10; margin: 0; display: grid; gap: 10px; }
+.st-case__facts div { display: grid; grid-template-columns: 5.5em 1fr; gap: 12px; }
+.st-case__facts dt { font-family: var(--st-mono); font-size: var(--st-t-meta); color: var(--st-ink-2); padding-top: 2px; }
+.st-case__facts dd { margin: 0; }
+.st-case__actions { grid-column: 10 / 13; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+
+/* ---------------- case study: pictures ---------------- */
+.st-case__media { padding: 0 var(--st-margin); perspective: 1800px; }
+.st-case__wide { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--st-gutter); row-gap: clamp(24px, 3vw, 48px); }
+.st-case__lead { grid-column: 1 / -1; }
+.st-case__more { grid-column: span 6; }
+.st-case__more:nth-child(2):last-child { grid-column: 3 / 11; }
+.st-case__wide .st-case__more:nth-child(4):last-child { grid-column: 4 / 10; }
+
+.st-case__bed {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(24px, 5vw, 80px);
+  padding: clamp(48px, 7vw, 112px) 24px;
+  border-radius: 14px;
+  background: var(--plate-bg);
+}
+.st-case__small { width: min(100%, 420px); box-shadow: 0 30px 60px -32px rgb(0 0 0 / 0.6); }
+
+.st-case__pairs { display: grid; gap: clamp(28px, 3vw, 48px); max-width: 1160px; margin: 0 auto; }
+.st-case__pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--st-gutter); }
+.st-case__pair .st-meta { grid-column: 1 / -1; }
+
+.st-case__plate {
+  min-height: clamp(320px, 42vw, 620px);
+  border-radius: 14px;
+  background: var(--plate-bg);
+  color: var(--plate-fg);
+  display: grid;
+  align-content: end;
+  gap: 18px;
+  padding: clamp(28px, 5vw, 80px);
+  border-left: 6px solid var(--plate-accent);
+}
+.st-case__plate p:first-child {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--st-display);
+  font-weight: 500;
+  font-size: clamp(2.25rem, 5vw, 5.25rem);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+.st-case__plate .st-meta { color: inherit; opacity: 0.75; }
+
+/* ---------------- case study: body ---------------- */
+.st-case__body {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--st-gutter);
+  padding: clamp(96px, 11vw, 176px) var(--st-margin) 0;
+}
+.st-case__col { display: grid; gap: 20px; align-content: start; }
+.st-case__col:first-child { grid-column: 1 / 7; }
+.st-case__col:last-child { grid-column: 8 / 13; }
+.st-case__col h2 { margin-top: 12px; }
+.st-case__col h2:first-child { margin-top: 0; }
+.st-case__desc { margin: 0; font-size: var(--st-t-lead); line-height: 1.5; max-width: 40ch; }
+.st-case__status { margin: 8px 0 0; padding: 18px 20px; border-radius: 12px; background: var(--st-stone); display: grid; gap: 4px; max-width: 52ch; }
+.st-case__tech { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.st-case__tech li { font-size: 0.9375rem; padding: 6px 14px; border-radius: 999px; background: var(--st-paper); }
+
+/* ---------------- case study: next ---------------- */
+.st-case__next { padding: clamp(96px, 11vw, 176px) var(--st-margin) 0; }
+.st-case__next a {
+  display: grid;
+  gap: 10px;
+  padding-top: 24px;
+  border-top: 1px solid var(--st-graphite);
+  text-decoration: none;
+}
+.st-case__next-name {
+  font-family: var(--st-display);
+  font-size: var(--st-t-display);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  transition: color 0.2s, transform 0.5s var(--st-ease);
+}
+.st-case__next-line { font-size: var(--st-t-lead); color: var(--st-ink-2); }
+.st-case__next a:hover .st-case__next-name,
+.st-case__next a:focus-visible .st-case__next-name { color: var(--st-violet); transform: translateX(14px); }
+
+/* ---------------- small pages: a heading over a section ---------------- */
+.st-page__head { padding: clamp(140px, 18vh, 200px) var(--st-margin) 0; display: grid; gap: 18px; }
+.studio .st-page__title { margin: 0; font-family: var(--st-display); font-size: var(--st-t-monument); font-weight: 700; letter-spacing: -0.06em; line-height: 0.88; }
+.st-page__head + .st-universe,
+.st-page__head + .st-about { padding-top: clamp(56px, 6vw, 96px); }
+.st-page__head + .st-universe .st-universe__head .st-title,
+.st-page__head + .st-about .st-about__head .st-title { display: none; }
+.st-page--contact .st-contact { margin-top: 0; min-height: 100svh; align-content: end; padding-top: 160px; }
+.st-nav--dark { color: var(--st-ivory); }
+
+.st-lost { min-height: 100svh; display: grid; align-content: center; gap: 24px; padding: 120px var(--st-margin) 64px; }
+.studio .st-lost__title { margin: 0; font-family: var(--st-display); font-size: clamp(5rem, 22vw, 22rem); font-weight: 700; letter-spacing: -0.07em; line-height: 0.82; }
+.st-lost p { margin: 0; }
+
+/* ---------------- phones ---------------- */
+@media (max-width: 899px) {
+  .st-case__intro > *, .st-case__body > *, .st-case__wide > * { grid-column: 1 / -1 !important; }
+  .st-case__intro { row-gap: 28px; }
+  .st-case__actions { align-items: flex-start; }
+  .st-case__bed { flex-direction: column; }
+  .st-case__pair { grid-template-columns: 1fr; }
+  .st-case__body { row-gap: 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-case__next-name { transition: none; }
+  .st-case__next a:hover .st-case__next-name { transform: none; }
+}

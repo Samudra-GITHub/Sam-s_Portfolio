@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
-import { Link } from 'react-router-dom';
-import '@fontsource-variable/sora';
-import '@fontsource-variable/inter';
-import '@fontsource/ibm-plex-mono/400.css';
-import '@fontsource/ibm-plex-mono/500.css';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useLocation } from 'react-router-dom';
+import { scrollToTarget } from '../lib/scroll';
+import { StudioPage } from './StudioShell';
 import { projects } from '../data/projects';
 import { config } from '../data/config';
-import { gsap, ScrollTrigger } from '../lib/gsap';
+import { gsap } from '../lib/gsap';
 import { matches, MQ } from '../lib/runtime';
 import Magnetic from '../components/core/Magnetic';
-import { createSculpture } from './sculpture';
+import type { createSculpture } from './sculpture';
+import { light, useStudioMotion } from './motion';
 import { About, Contact, Experiments, Toolkit, Universe } from './sections';
-import './studio.css';
 
 const W = `${import.meta.env.BASE_URL}world`;
 const bySlug = (slug: string) => projects.find((p) => p.slug === slug)!;
@@ -28,13 +26,8 @@ function useSculpture() {
   useEffect(() => {
     const cv = canvas.current, a = hero.current, b = intro.current;
     if (!cv || !a || !b) return;
-    let s: ReturnType<typeof createSculpture>;
-    try {
-      s = createSculpture(cv, { reduced: matches(MQ.reducedMotion), compact: matches(MQ.compact) });
-    } catch {
-      setFailed(true);
-      return;
-    }
+    let s: ReturnType<typeof createSculpture> | null = null;
+    let gone = false;
     const ease = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
     const tick = () => {
       const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
@@ -48,68 +41,28 @@ function useSculpture() {
       // fit the band (about 2.8 times as wide as it is tall) inside each slot, by width and by height
       const fit = (r: DOMRect, k: number) => Math.min(r.height * k, r.width / 2.85);
       const h = fit(ra, 1.25) + (fit(rb, 0.8) - fit(ra, 1.25)) * j;
-      s.place(cx, cy, h, j);
-      s.setVisible(cy + h > -40 && cy - h < vh + 40);
-      s.tick(performance.now());
+      s!.place(cx, cy, h, j);
+      s!.setVisible(cy + h > -40 && cy - h < vh + 40);
+      s!.tick(performance.now());
     };
-    gsap.ticker.add(tick);
+    // three.js arrives in its own chunk, after the name and the text have painted
+    import('./sculpture')
+      .then(({ createSculpture }) => {
+        if (gone) return;
+        s = createSculpture(cv, { reduced: matches(MQ.reducedMotion), compact: matches(MQ.compact) });
+        gsap.ticker.add(tick);
+      })
+      .catch(() => {
+        if (!gone) setFailed(true);
+      });
     return () => {
+      gone = true;
       gsap.ticker.remove(tick);
-      s.dispose();
+      s?.dispose();
     };
   }, []);
   return { canvas, hero, intro, failed };
 }
-
-/* ------------------------------------------------------------ motion */
-
-function useStudioMotion(root: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const el = root.current;
-    if (!el || matches(MQ.reducedMotion)) return;
-    const ctx = gsap.context(() => {
-      // the name: each part rises out of its own line
-      gsap.from('.st-hero [data-line]', { yPercent: 105, duration: 1.15, ease: 'expo.out', stagger: 0.08, delay: 0.15 });
-      gsap.from('.st-hero [data-fade]', { opacity: 0, y: 16, duration: 0.9, ease: 'power3.out', stagger: 0.07, delay: 0.6 });
-      // every section: heading, then text, then pictures
-      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((n) => {
-        gsap.from(n.querySelectorAll(':scope [data-r]'), {
-          y: 28,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          stagger: 0.075,
-          scrollTrigger: { trigger: n, start: 'top 82%', once: true },
-        });
-      });
-      // project screens settle from a tilt to flat as they come up the page
-      gsap.utils.toArray<HTMLElement>('[data-tilt]').forEach((n) => {
-        gsap.fromTo(
-          n,
-          { rotateX: 14, rotateY: Number(n.dataset.tilt) || 0, y: 60 },
-          { rotateX: 0, rotateY: 0, y: 0, ease: 'none', scrollTrigger: { trigger: n, start: 'top bottom', end: 'center 55%', scrub: 0.6 } },
-        );
-      });
-    }, el);
-    ScrollTrigger.refresh();
-    return () => ctx.revert();
-  }, [root]);
-}
-
-/** the pointer lights a screen: a soft highlight where it is, and the screen leans toward it */
-const light = {
-  onPointerMove(e: RPointerEvent<HTMLElement>) {
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
-    e.currentTarget.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
-    e.currentTarget.style.setProperty('--lean-x', `${((e.clientY - r.top) / r.height - 0.5) * -4}deg`);
-    e.currentTarget.style.setProperty('--lean-y', `${((e.clientX - r.left) / r.width - 0.5) * 5}deg`);
-  },
-  onPointerLeave(e: RPointerEvent<HTMLElement>) {
-    e.currentTarget.style.setProperty('--lean-x', '0deg');
-    e.currentTarget.style.setProperty('--lean-y', '0deg');
-  },
-};
 
 function Screen({ src, alt, w = 1440, h = 900, tilt = 0, className = '' }: { src: string; alt: string; w?: number; h?: number; tilt?: number; className?: string }) {
   return (
@@ -279,20 +232,18 @@ export default function StudioHome() {
   const root = useRef<HTMLElement>(null);
   const { canvas, hero, intro, failed } = useSculpture();
   useStudioMotion(root);
+  // arriving from another page with a section in the address (/#about): go there once the page has laid out
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const t = window.setTimeout(() => scrollToTarget(hash, { immediate: true }), 120);
+    return () => window.clearTimeout(t);
+  }, [hash]);
 
   return (
-    <main id="main" className="studio" ref={root}>
+    <StudioPage rootRef={root}>
       <canvas ref={canvas} className="st-canvas" aria-hidden="true" />
 
-      <header className="st-nav">
-        <Link to="/" className="st-wordmark">Samudra Kar</Link>
-        <nav aria-label="Main">
-          <a href="#work">Work</a>
-          <a href="#universe">Index</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </header>
 
       <section className="st-hero" aria-labelledby="st-name">
         <h1 id="st-name" className="st-name" aria-label="Samudra Kar, designer and developer">
@@ -357,6 +308,6 @@ export default function StudioHome() {
       <Experiments />
       <Toolkit />
       <Contact />
-    </main>
+    </StudioPage>
   );
 }

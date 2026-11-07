@@ -6,9 +6,8 @@ import { config } from '../data/config';
 import { real } from '../lib/content';
 import { gsap } from '../lib/gsap';
 import { matches, MQ } from '../lib/runtime';
+import { cover } from './media';
 import './sections.css';
-
-const W = `${import.meta.env.BASE_URL}world`;
 
 /* ============================================================ Project universe */
 
@@ -20,21 +19,12 @@ const GROUPS: { key: string; label: string; slugs: string[] }[] = [
   { key: 'embedded', label: 'Embedded', slugs: ['catch-the-rocket', 'speed-of-numbers'] },
 ];
 
-/** real screenshots, where a project has them */
-const PICS: Record<string, { src: string; w: number; h: number; alt: string }> = {
-  tarang: { src: `${W}/tarang/home.webp`, w: 1440, h: 900, alt: "Tarang's home screen" },
-  krama: { src: `${W}/krama/home.webp`, w: 1440, h: 900, alt: "Krama's home page" },
-  'noir-cafe': { src: `${W}/noir/menu.webp`, w: 1440, h: 900, alt: "Noir Café's menu page" },
-  'rinti-ai': { src: `${W}/rinti/login.webp`, w: 520, h: 540, alt: "Rinti's sign-in screen" },
-  prahari: { src: `${W}/prahari/login.webp`, w: 1440, h: 900, alt: "PRAHARI's sign-in screen" },
-  'akasha-lens': { src: `${W}/akasha/clear2.webp`, w: 487, h: 287, alt: 'A clear satellite image from an AkashaLens training pair' },
-};
 
 const groupOf = (slug: string) => GROUPS.find((g) => g.slugs.includes(slug))!;
 const hasPage = (p: Project) => paged.some((q) => q.slug === p.slug);
 
 function Lens({ p }: { p: Project }) {
-  const pic = PICS[p.slug];
+  const pic = cover(p.slug);
   return (
     <motion.div
       key={p.slug}
