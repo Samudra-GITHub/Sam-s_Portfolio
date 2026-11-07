@@ -140,6 +140,8 @@ const mirrorZ = (g: THREE.BufferGeometry) => {
 const FAUNA_VS = /* glsl */ `
 attribute vec3 aCol; attribute float aGlow; attribute float aAO;
 uniform float uTime; uniform float uAmp; uniform float uFreq; uniform float uWave; uniform float uLift; uniform vec2 uNeck;
+// scroll cues (0..1): a flock scatters, a grazer looks up, wings beat wider
+uniform float uScatter; uniform float uAlert; uniform float uBoost;
 varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying float vGlow; varying float vAO; varying vec2 vUv;
 void main(){
   #if defined(FLOCK)
@@ -149,7 +151,9 @@ void main(){
   vec4 A = instanceMatrix[0], B = instanceMatrix[1], S = instanceMatrix[2];
   vec3 ctr = A.xyz + vec3(sin(uTime * 0.07 + A.w) * 12.0, sin(uTime * 0.3 + A.w) * 4.0, cos(uTime * 0.05 + A.w) * 12.0);
   float fa = uTime * B.z + B.w;
-  vec3 at = ctr + vec3(cos(fa) * B.x, B.y + sin(fa * 1.7) * 0.8, sin(fa) * B.x);
+  // scattering, each bird swings wider and climbs by its own amount
+  float sc = uScatter * (0.6 + 0.4 * fract(B.w * 7.3));
+  vec3 at = ctr + vec3(cos(fa) * B.x * (1.0 + 1.6 * sc), B.y + sin(fa * 1.7) * 0.8 + sc * (14.0 + B.x * 1.5), sin(fa) * B.x * (1.0 + 1.6 * sc));
   // heading along the circle it flies, banked into the turn (Euler YXZ: yaw, bank, roll)
   float yw = -fa - 1.5707963, bk = S.x, rl = 0.35;
   mat3 Ry = mat3(cos(yw), 0.0, -sin(yw), 0.0, 1.0, 0.0, sin(yw), 0.0, cos(yw));
@@ -173,13 +177,16 @@ void main(){
   // membranes: a wave travels along u, its amplitude grows away from the root (v); uLift folds the whole
   // sheet up and down about the root (wingbeat), uWave sets how many waves run along it (fin ripple)
   float s = sin(uTime * uFreq + uv.x * uWave + ph);
-  float bend = uAmp * pow(uv.y, 1.3) * s + uLift * uv.y * s;
+  float bend = (uAmp * pow(uv.y, 1.3) * s + uLift * uv.y * s) * (1.0 + 1.5 * uBoost);
   p.y += bend;
   #endif
   #ifdef GRAZE
   // the head dips to graze and lifts again, hinged at the neck; the body stays still
   float w = smoothstep(uNeck.x, uNeck.x + 1.2, p.x);
   float ga = (sin(uTime * 0.32 + ph) * 0.5 + 0.5) * 0.42 * w;
+  // alerted, the head comes up above the line of the back, each animal a beat after the last
+  float al = clamp(uAlert * 1.5 - fract(ph * 0.31) * 0.5, 0.0, 1.0);
+  ga = mix(ga, -0.22 * w, al * al * (3.0 - 2.0 * al));
   vec2 q = p.xy - uNeck;
   float cg = cos(ga), sg = sin(ga);
   p.xy = uNeck + vec2(q.x * cg + q.y * sg, -q.x * sg + q.y * cg);
@@ -192,7 +199,7 @@ void main(){
 
 const FAUNA_FS = /* glsl */ `
 ${COMMON}
-uniform vec3 uGlowCol; uniform float uRibs; uniform float uSheen;
+uniform vec3 uGlowCol; uniform float uRibs; uniform float uSheen; uniform float uBoost;
 varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying float vGlow; varying float vAO; varying vec2 vUv;
 void main(){
   vec3 n = normalize(vN);
@@ -217,7 +224,7 @@ void main(){
   // wet eyes and hard plates catch a small highlight
   vec3 H = normalize(uSun + V);
   col += uSunCol * pow(max(dot(n, H), 0.0), 40.0) * uSheen * sh;
-  col += uGlowCol * vGlow * (0.75 + 0.25 * sin(uTime * 1.7 + vWP.x * 0.5 + vWP.z * 0.3));
+  col += uGlowCol * vGlow * (0.75 + 0.25 * sin(uTime * 1.7 + vWP.x * 0.5 + vWP.z * 0.3)) * (1.0 + 1.6 * uBoost);
   gl_FragColor = vec4(fogApply(col, vWP), 1.0);
 }`;
 
@@ -247,6 +254,9 @@ export function faunaMaterial(c: Common, sheetMode: boolean, m: Motion = {}) {
       uRibs: { value: m.ribs ?? 0 },
       uSheen: { value: m.sheen ?? 0.15 },
       uNeck: { value: new THREE.Vector2(...(m.neck ?? [0, 0])) },
+      uScatter: { value: 0 },
+      uAlert: { value: 0 },
+      uBoost: { value: 0 },
     },
   });
 }
@@ -575,8 +585,30 @@ const triCount = (o: THREE.Object3D) => {
   return t;
 };
 
-/** Place every species in the scene; returns the per-frame update. */
-export function populate(c: Common, scene: THREE.Scene, site: FaunaSites, low = false) {
+/**
+ * Where the scroll cues happen, as stop indices along the page (the same float the camera follows):
+ * the herd's island stop, the About overlook (with its camera and target) and the Toolkit view.
+ */
+export interface FaunaCues {
+  herd: number;
+  about: { at: number; cam: THREE.Vector3; look: THREE.Vector3 };
+  toolkit: number;
+}
+
+/** the fauna materials under an object (they carry the scroll-cue uniforms) */
+const shaderMats = (o: THREE.Object3D) => {
+  const out: THREE.ShaderMaterial[] = [];
+  o.traverse((x) => {
+    const m = (x as THREE.Mesh).material as THREE.ShaderMaterial | undefined;
+    // fauna materials only: the Mossback's back carries flora materials too
+    if (m?.isShaderMaterial && m.uniforms.uScatter && !out.includes(m)) out.push(m);
+  });
+  return out;
+};
+const sstep01 = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+
+/** Place every species in the scene; returns the per-frame update, which takes the scroll position. */
+export function populate(c: Common, scene: THREE.Scene, site: FaunaSites, cues: FaunaCues, low = false) {
   const r = rng(905);
   const root = new THREE.Group();
   root.name = 'fauna';
@@ -641,9 +673,10 @@ export function populate(c: Common, scene: THREE.Scene, site: FaunaSites, low = 
   });
 
   // Lumen Moths: resting flat on the shaded cliffs under the hero, wings pulsing
+  const moth = lumenMoth(c).group;
   const mothCount = Math.min(site.heroCliff.length, low ? 12 : 24);
   if (mothCount) {
-    const cr = crowd(lumenMoth(c).group, mothCount);
+    const cr = crowd(moth, mothCount);
     for (let i = 0; i < mothCount; i++) {
       const { p, n } = site.heroCliff[i];
       q.setFromUnitVectors(up, n).multiply(new THREE.Quaternion().setFromAxisAngle(up, r() * Math.PI * 2));
@@ -653,17 +686,52 @@ export function populate(c: Common, scene: THREE.Scene, site: FaunaSites, low = 
     root.add(cr.group);
   }
 
+  // the Drifter's pass across the About overlook: from right of the view to left, in front of the far formations
+  const ad = cues.about.look.clone().sub(cues.about.cam).normalize();
+  const ar = new THREE.Vector3().crossVectors(ad, up).normalize();
+  const p2 = new THREE.Vector3(), p3 = new THREE.Vector3();
+  const crossing = (s: number, t: number, out: THREE.Vector3) =>
+    out.copy(cues.about.cam).addScaledVector(ad, 170).addScaledVector(ar, 110 - 220 * s).addScaledVector(up, 16 + Math.sin(t * 0.5) * 4);
+  const spinMats = shaderMats(spin), mossMats = shaderMats(moss), mothMats = shaderMats(moth);
+  let lastT = 0, alert = 0;
+
   return {
     root,
     triangles: () => triCount(root),
-    update(t: number) {
+    update(t: number, f = 0) {
+      const dt = Math.min(0.1, Math.max(0, t - lastT));
+      lastT = t;
+      const near = (at: number, w: number) => Math.max(0, 1 - Math.abs(f - at) / w);
+
+      // the About overlook: the near Drifter leaves its loop and crosses the view, right to left as you scroll
+      const ab = sstep01(near(cues.about.at, 0.9));
+      const along = Math.min(1, Math.max(0, (f - cues.about.at + 0.9) / 1.8));
       drifters.forEach((g, i) => {
         const a = t * (i ? 0.01 : 0.022) + i * Math.PI;
         drifterAt(a, i, p0);
         drifterAt(a + 0.004, i, p1);
+        if (i === 0 && ab > 0) {
+          crossing(along, t, p2);
+          crossing(along + 0.004, t, p3);
+          p0.lerp(p2, ab);
+          p1.lerp(p3, ab);
+        }
         g.position.copy(p0);
         g.rotation.set(0, Math.atan2(-(p1.z - p0.z), p1.x - p0.x), Math.sin(a * 2) * 0.05);
       });
+
+      // leaving the arrival view, the flocks break apart and climb; they gather again once out of sight
+      const scatter = sstep01((f - 0.05) / 0.55) * sstep01((3 - f) / 1.5);
+      for (const m of spinMats) m.uniforms.uScatter.value = scatter;
+
+      // while the camera travels in to the herd's island they look up; at rest they go back to grazing
+      const moving = Math.abs(f - cues.herd) > 0.02 && Math.abs(f - cues.herd) < 0.8 ? 1 : 0;
+      alert += (moving - alert) * (1 - Math.exp(-dt / (moving > alert ? 0.5 : 2.5)));
+      for (const m of mossMats) m.uniforms.uAlert.value = alert;
+
+      // the Toolkit view: the moths under the hero glow brighter and open their wings wider
+      const boost = sstep01(near(cues.toolkit, 0.8));
+      for (const m of mothMats) m.uniforms.uBoost.value = boost;
     },
   };
 }

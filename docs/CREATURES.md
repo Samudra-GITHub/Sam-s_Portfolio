@@ -91,11 +91,14 @@ Trees are then kept off the meadow and off the sightlines to the lens: `scatterF
 
 **Size.** Mossbacks are drawn a quarter larger than the far trees' scale would make them, so they still read at the shot's distance.
 
+**Scroll cues.** World shares the page position (the float stop index the camera follows) with the environment, and `fauna.update(t, f)` keys four moments to it. Each one reverses when you scroll back:
+- **About overlook:** the near Drifter leaves its loop and crosses the view right to left as you scroll through the section.
+- **Leaving the arrival view:** the Spinlet flocks break apart and climb (`uScatter`, in the `FLOCK` shader). They regroup once out of sight.
+- **Travelling in to Tarang:** the Mossbacks lift their heads, each a beat after the last (`uAlert`). Once the camera rests, they go back to grazing over a couple of seconds.
+- **Toolkit view:** the moths under the hero glow brighter and open their wings wider (`uBoost`).
+
 **Differences from the concept, still open:**
-- Motion runs on time, not scroll. Nothing is scroll-synced yet.
-- The Drifter does not yet pass on cue in the About overlook.
-- Spinlets do not lift off the canopy as the camera arrives.
-- The Shingleback hangs nowhere and does not curl.
+- The Shingleback hangs nowhere, does not curl, and has no cue: it is not yet visible from any stop.
 - The herd grazes in place rather than crossing its clearing.
 - Moths do not scatter.
 - On a phone the herd is only a few pixels tall.

@@ -9,7 +9,7 @@ import { FAR, HERO, HERO_BOUNDS, HERO_SCALE } from './spec';
 import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMaterial, leafMaterial, rockMaterial, solidDepthMaterial } from './shaders';
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
 import { populate, type FaunaSites } from './fauna';
-import { lensesFor } from '../camera';
+import { lensesFor, STOPS } from '../camera';
 
 /**
  * The Veil Archipelago environment: the sculpted hero mountain (baked in
@@ -35,7 +35,8 @@ export interface Environment {
   /** world-space bounds of each far formation (index = FAR index), trees included: the camera frames these */
   islands: THREE.Box3[];
   /** call once per frame before rendering */
-  update(camera: THREE.Camera, time: number): void;
+  /** `scroll`: the page position as a float stop index (STOPS), for the creatures' cues */
+  update(camera: THREE.Camera, time: number, scroll?: number): void;
 }
 
 const S = HERO_SCALE;
@@ -827,7 +828,13 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   // ---------------- fauna ----------------
   say('Waking the wildlife…');
   await frame();
-  const fauna = populate(c, scene, sites, low);
+  const stopAt = (id: string) => STOPS.findIndex((st) => st.id === id);
+  const about = STOPS[stopAt('about')];
+  const fauna = populate(c, scene, sites, {
+    herd: STOPS.findIndex((st) => st.isle?.far === HERD_ON),
+    about: { at: stopAt('about'), cam: about.cam, look: about.look },
+    toolkit: stopAt('toolkit'),
+  }, low);
   if (import.meta.env.DEV) (window as unknown as { __fauna: unknown }).__fauna = { herd: sites.herd.at.map((p) => p.toArray().map(Math.round)), moths: sites.heroCliff.length, top: sites.heroTop.length, tris: Math.round(fauna.triangles()) };
 
   // ---------------- sun shadows (rendered once: the sun does not move) ----------------
@@ -881,10 +888,10 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     scene,
     common: c,
     islands: islandBounds,
-    update(camera, time) {
+    update(camera, time, scroll = 0) {
       c.uTime.value = time;
       c.uCam.value.copy(camera.position);
-      fauna.update(time);
+      fauna.update(time, scroll);
       sky.position.copy(camera.position);
     },
   };

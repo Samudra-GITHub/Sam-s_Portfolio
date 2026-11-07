@@ -28,6 +28,8 @@ const track = createTrack(
   STOPS.map((s) => s.id),
   (id) => (id === 'top' ? 0.05 : 0.45),
 );
+/** the page position (float stop index) this frame: the camera follows it, the creatures take their cues from it */
+const scroll = { f: 0 };
 
 function Rig() {
   const { camera, size } = useThree();
@@ -88,6 +90,7 @@ function Rig() {
     const phone = size.width < 1000;
     let f = track.progress();
     if (STILL) f = Math.round(f);
+    scroll.f = f;
     const i = Math.min(STOPS.length - 2, Math.floor(f));
     const k = Math.min(1, f - i);
     place(i, phone, camA, lookA);
@@ -223,7 +226,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
   useFrame((state, dt) => {
     if (!env || !composer.current) return;
     if (perf.current) gl.info.reset();
-    env.update(camera, STILL ? 12 : 12 + state.clock.elapsedTime);
+    env.update(camera, STILL ? 12 : 12 + state.clock.elapsedTime, scroll.f);
     composer.current.render();
     perf.current?.frame();
     frames.current++;
