@@ -7,6 +7,7 @@ import { StudioPage } from './StudioShell';
 import { light, useStudioMotion } from './motion';
 import { SHOTS, type Shot } from './media';
 import { Contact } from './sections';
+import { CASE_ZONES, useLeaves } from './useLeaves';
 import './project.css';
 
 function Frame({ shot, tilt = 0, className = '' }: { shot: Shot; tilt?: number; className?: string }) {
@@ -61,6 +62,7 @@ function Gallery({ p }: { p: Project }) {
 export default function StudioProject({ project: p }: { project: Project }) {
   const root = useRef<HTMLElement>(null);
   useStudioMotion(root, p.slug);
+  const leafCanvas = useLeaves(root, CASE_ZONES, p.slug);
   const next = paged[(paged.findIndex((q) => q.slug === p.slug) + 1) % paged.length];
   const live = real(p.live);
   const facts: [string, string][] = [
@@ -72,6 +74,7 @@ export default function StudioProject({ project: p }: { project: Project }) {
 
   return (
     <StudioPage className="st-case" rootRef={root}>
+      <canvas ref={leafCanvas} className="st-leaves" aria-hidden="true" />
       <section className="st-case__hero" style={{ '--case-accent': p.palette.accent } as CSSProperties}>
         <p className="st-meta st-case__crumb" data-fade>
           <Link to="/#universe">Index</Link> <span aria-hidden="true">/</span> {p.category}

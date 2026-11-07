@@ -257,3 +257,47 @@
   .st-uni__name, .st-contact__label, .st-kit__group button > span:first-child, .st-weight span { transition: none; }
   .st-uni li.is-on .st-uni__name, .st-contact__links a:hover .st-contact__label { transform: none; }
 }
+
+/* ---------------- kinetic type (Kinetic.tsx) ---------------- */
+.st-k__w { display: inline-block; white-space: nowrap; }
+.st-k__c { display: inline-block; will-change: auto; }
+/* rise: each word is its own clip, so the characters come up out of it */
+.st-k--rise .st-k__w { overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+
+/* ---------------- about: the montage ---------------- */
+.st-montage { grid-column: 1 / -1; position: relative; height: clamp(520px, 56vw, 860px); margin: clamp(16px, 2vw, 32px) 0; }
+.st-montage__words { position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; justify-content: center; z-index: 2; pointer-events: none; font-family: var(--st-display); font-weight: 600; font-size: clamp(3rem, 8.6vw, 9.5rem); letter-spacing: -0.055em; line-height: 0.92; text-transform: lowercase; mix-blend-mode: difference; color: #f5f3ee; }
+.st-montage__word { display: block; white-space: nowrap; }
+/* the words are drawn in difference over the pictures: ink on the paper, light over a dark screen.
+   these two colours land on graphite and cobalt ink over the ivory ground */
+.st-montage__word:nth-child(even) { align-self: flex-end; color: #c4aa18; }
+.st-montage__shot { position: absolute; margin: 0; border-radius: 10px; overflow: hidden; background: var(--st-graphite); box-shadow: 0 30px 60px -36px rgb(23 25 29 / 0.55); }
+.st-montage__shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* each picture sits on the empty side of its line of type, beneath the words */
+.st-montage__shot { z-index: 1; }
+.st-montage__shot--0 { right: 3%; top: 1%; width: 25%; aspect-ratio: 16 / 10; }
+.st-montage__shot--1 { left: 1%; top: 21%; width: 23%; aspect-ratio: 16 / 10; }
+.st-montage__shot--2 { right: 12%; top: 41%; width: 21%; aspect-ratio: 16 / 10; }
+.st-montage__shot--3 { left: 3%; top: 60%; width: 19%; aspect-ratio: 4 / 3; }
+.st-montage__shot--4 { right: 0; top: 79%; width: 23%; aspect-ratio: 16 / 10; }
+
+/* ---------------- study 04: the field ---------------- */
+.st-study--field { grid-column: 1 / -1; min-height: 380px; background: var(--st-graphite); color: var(--st-ivory); position: relative; }
+.st-study--field .st-meta { color: #a5aab0; }
+.st-field { position: relative; border-radius: 8px; overflow: hidden; min-height: 280px; cursor: crosshair; }
+.st-field canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.st-field p { position: absolute; inset: auto 16px 16px; }
+
+@media (max-width: 899px) {
+  /* phones have no drift to pull the pictures off the words, so the collage is recomposed:
+     two covers above the word block, two below, the fifth left out */
+  .st-montage { height: 160vw; }
+  .st-montage__words { font-size: 12vw; }
+  .st-montage__shot { width: 40%; }
+  .st-montage__shot--0 { right: 4%; top: 2%; }
+  .st-montage__shot--1 { left: 4%; top: 15%; }
+  .st-montage__shot--2 { right: 4%; left: auto; top: 70%; }
+  .st-montage__shot--3 { left: 4%; top: 78%; }
+  .st-montage__shot--4 { display: none; }
+  .st-study--field { min-height: 320px; }
+}

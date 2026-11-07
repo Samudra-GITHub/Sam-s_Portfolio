@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { scrollToTarget } from '../lib/scroll';
 import { StudioPage } from './StudioShell';
 import { projects } from '../data/projects';
 import { config } from '../data/config';
 import { gsap } from '../lib/gsap';
+import { HOME_ZONES, useLeaves } from './useLeaves';
 import { matches, MQ } from '../lib/runtime';
 import Magnetic from '../components/core/Magnetic';
 import type { createSculpture } from './sculpture';
 import { light, useStudioMotion } from './motion';
 import { About, Contact, Experiments, Toolkit, Universe } from './sections';
+import { Akasha, Building, Rinti } from './showcases';
+import { Kinetic } from './Kinetic';
+import { useReel } from './reel';
 
 const W = `${import.meta.env.BASE_URL}world`;
 const bySlug = (slug: string) => projects.find((p) => p.slug === slug)!;
@@ -45,18 +49,52 @@ function useSculpture() {
       s!.setVisible(cy + h > -40 && cy - h < vh + 40);
       s!.tick(performance.now());
     };
+    let make: (() => void) | null = null;
+    // if the GPU drops the context, the slot shows the still chrome pill; when it comes back, the sculpture is rebuilt
+    const lost = (e: Event) => {
+      e.preventDefault();
+      gsap.ticker.remove(tick);
+      cv.style.visibility = 'hidden';
+      setFailed(true);
+    };
+    const restored = () => {
+      if (gone || !make) return;
+      s?.dispose();
+      cv.style.visibility = '';
+      make();
+      setFailed(false);
+    };
+    cv.addEventListener('webglcontextlost', lost);
+    cv.addEventListener('webglcontextrestored', restored);
+    // no WebGL at all: show the still pill straight away, without fetching three.js or letting it log its failure
+    const probe = document.createElement('canvas');
+    const probeGl = probe.getContext('webgl2') || probe.getContext('webgl');
+    if (!probeGl) {
+      const t = window.setTimeout(() => setFailed(true), 0);
+      return () => {
+        window.clearTimeout(t);
+        cv.removeEventListener('webglcontextlost', lost);
+        cv.removeEventListener('webglcontextrestored', restored);
+      };
+    }
+    probeGl.getExtension('WEBGL_lose_context')?.loseContext(); // give the probe's context straight back
     // three.js arrives in its own chunk, after the name and the text have painted
     import('./sculpture')
       .then(({ createSculpture }) => {
         if (gone) return;
-        s = createSculpture(cv, { reduced: matches(MQ.reducedMotion), compact: matches(MQ.compact) });
-        gsap.ticker.add(tick);
+        make = () => {
+          s = createSculpture(cv, { reduced: matches(MQ.reducedMotion), compact: matches(MQ.compact) });
+          gsap.ticker.add(tick);
+        };
+        make();
       })
       .catch(() => {
         if (!gone) setFailed(true);
       });
     return () => {
       gone = true;
+      cv.removeEventListener('webglcontextlost', lost);
+      cv.removeEventListener('webglcontextrestored', restored);
       gsap.ticker.remove(tick);
       s?.dispose();
     };
@@ -64,7 +102,9 @@ function useSculpture() {
   return { canvas, hero, intro, failed };
 }
 
-function Screen({ src, alt, w = 1440, h = 900, tilt = 0, className = '' }: { src: string; alt: string; w?: number; h?: number; tilt?: number; className?: string }) {
+
+/** tilt: the angle the screen settles from as it comes up the page; leave it out for a screen that has its own entrance */
+function Screen({ src, alt, w = 1440, h = 900, tilt, className = '' }: { src: string; alt: string; w?: number; h?: number; tilt?: number; className?: string }) {
   return (
     <figure className={`st-screen ${className}`} data-tilt={tilt} {...light}>
       <img src={src} alt={alt} width={w} height={h} loading="lazy" decoding="async" />
@@ -115,48 +155,6 @@ function Tarang() {
   );
 }
 
-const PAIRS = [1, 2, 3];
-function Akasha() {
-  const p = bySlug('akasha-lens');
-  const [pair, setPair] = useState(1);
-  const [cut, setCut] = useState(50);
-  return (
-    <article className="st-show st-akasha" data-reveal aria-labelledby="w-akasha">
-      <div className="st-akasha__viewer" data-r>
-        <div className="st-compare" style={{ '--cut': `${cut}%` } as CSSProperties}>
-          <img src={`${W}/akasha/cloudy${pair}.webp`} alt={`Sample ${pair}: the cloudy satellite image the model is given`} width={487} height={287} loading="lazy" />
-          <img className="st-compare__clear" src={`${W}/akasha/clear${pair}.webp`} alt={`Sample ${pair}: the clear image of the same ground the model learns to reconstruct`} width={487} height={287} loading="lazy" />
-          <span className="st-compare__edge" aria-hidden="true" />
-          <span className="st-compare__tag st-compare__tag--a" aria-hidden="true">Cloudy input</span>
-          <span className="st-compare__tag st-compare__tag--b" aria-hidden="true">Clear target</span>
-          <input type="range" min={0} max={100} value={cut} onChange={(e) => setCut(+e.target.value)} aria-label="Slide between the cloudy input and the clear target" />
-        </div>
-        <div className="st-akasha__pairs" role="group" aria-label="Training pairs">
-          {PAIRS.map((n) => (
-            <button key={n} type="button" aria-pressed={pair === n} onClick={() => setPair(n)}>
-              <img src={`${W}/akasha/clear${n}.webp`} alt="" width={487} height={287} loading="lazy" />
-              <span>Pair {n}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="st-akasha__text">
-        <h3 id="w-akasha" className="st-show__name" data-r>{p.title}</h3>
-        <p className="st-lead" data-r>{p.tagline}</p>
-        <p className="st-body" data-r>{p.description}</p>
-        <dl className="st-spec" data-r>
-          <dt>Model</dt><dd>U-Net, trained on cloudy and clear pairs</dd>
-          <dt>Outputs</dt><dd>Reconstruction, cloud mask, cover percentage, confidence heatmap</dd>
-          <dt>Evaluation</dt><dd>MAE, PSNR, SSIM</dd>
-          <dt>Built for</dt><dd>ISRO Hackathon 2026</dd>
-          <dt>Status</dt><dd>{p.status}</dd>
-        </dl>
-        <Links github={p.github} />
-      </div>
-    </article>
-  );
-}
-
 function Krama() {
   const p = bySlug('krama');
   return (
@@ -178,39 +176,13 @@ function Krama() {
   );
 }
 
-const STAGES = ['Intent', 'Planning', 'Search', 'Extraction', 'Claim checks', 'Cited answer'];
-function Rinti() {
-  const p = bySlug('rinti-ai');
-  return (
-    <article className="st-show st-rinti" data-reveal aria-labelledby="w-rinti">
-      <div className="st-rinti__head">
-        <h3 id="w-rinti" className="st-show__name" data-r>{p.title}</h3>
-        <p className="st-lead" data-r>{p.tagline}</p>
-      </div>
-      <ol className="st-pipeline" aria-label="Rinti's research pipeline" data-r>
-        {STAGES.map((s, i) => (
-          <li key={s} style={{ '--i': i } as CSSProperties}>
-            {s}
-          </li>
-        ))}
-      </ol>
-      <div className="st-rinti__foot">
-        <p className="st-body" data-r>{p.description}</p>
-        <p className="st-meta" data-r>{p.highlights[2]}</p>
-        <Links github={p.github} live={p.live} />
-        <Screen className="st-rinti__screen" src={`${W}/rinti/login.webp`} alt="Rinti's sign-in screen" w={520} h={540} tilt={6} />
-      </div>
-    </article>
-  );
-}
-
 function Noir() {
   const p = bySlug('noir-cafe');
   return (
     <article className="st-show st-noir" data-reveal aria-labelledby="w-noir">
       <div className="st-noir__stage">
-        <Screen className="st-noir__menu" src={`${W}/noir/menu.webp`} alt="Noir Café's menu page: 'Made slowly. Served simply.' with the espresso list" tilt={-7} />
-        <Screen className="st-noir__shop" src={`${W}/noir/shop.webp`} alt="Noir Café's shop page with brewing equipment" tilt={7} />
+        <Screen className="st-noir__menu" src={`${W}/noir/menu.webp`} alt="Noir Café's menu page: 'Made slowly. Served simply.' with the espresso list" />
+        <Screen className="st-noir__shop" src={`${W}/noir/shop.webp`} alt="Noir Café's shop page with brewing equipment" />
       </div>
       <div className="st-noir__text">
         <p className="st-meta" data-r>{p.category} · {p.year}</p>
@@ -231,7 +203,9 @@ function Noir() {
 export default function StudioHome() {
   const root = useRef<HTMLElement>(null);
   const { canvas, hero, intro, failed } = useSculpture();
+  const leafCanvas = useLeaves(root, HOME_ZONES);
   useStudioMotion(root);
+  useReel(root);
   // arriving from another page with a section in the address (/#about): go there once the page has laid out
   const { hash } = useLocation();
   useEffect(() => {
@@ -243,6 +217,7 @@ export default function StudioHome() {
   return (
     <StudioPage rootRef={root}>
       <canvas ref={canvas} className="st-canvas" aria-hidden="true" />
+      <canvas ref={leafCanvas} className="st-leaves" aria-hidden="true" />
 
 
       <section className="st-hero" aria-labelledby="st-name">
@@ -278,7 +253,7 @@ export default function StudioHome() {
       <section className="st-intro" data-reveal aria-labelledby="st-approach">
         <div ref={intro} className="st-intro__slot" aria-hidden="true" />
         <div className="st-intro__text">
-          <h2 id="st-approach" className="st-title" data-r>Precision, with play.</h2>
+          <Kinetic as="h2" id="st-approach" className="st-title" text="Precision, with play." />
           <p className="st-statement" data-r>
             I&rsquo;m a designer, developer and student. I build digital spaces that feel physical: interfaces with weight, motion that explains what just
             happened, and AI tools you can actually read.
@@ -291,9 +266,11 @@ export default function StudioHome() {
         </div>
       </section>
 
+      <Building />
+
       <section id="work" className="st-work" aria-labelledby="st-work-title">
         <div className="st-work__head" data-reveal>
-          <h2 id="st-work-title" className="st-title" data-r>Selected work</h2>
+          <Kinetic as="h2" id="st-work-title" className="st-title" mode="whip" text="Selected work" />
           <p className="st-lead" data-r>Music, research, satellites, sneakers and coffee, each designed and built end to end.</p>
         </div>
         <Tarang />

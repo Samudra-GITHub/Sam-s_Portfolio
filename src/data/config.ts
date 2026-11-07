@@ -63,7 +63,7 @@ export const config: SiteConfig = {
     // TODO(samudra): set a real track to show it on the cassette, e.g.
     // nowPlaying: { track: '...', artist: '...' }
     nowPlaying: { track: '[PLACEHOLDER_TRACK]', artist: '[PLACEHOLDER_ARTIST]' },
-    currentlyBuilding: 'Tarang and Krama',
+    currentlyBuilding: 'W.E.D.N.E.S.D.A.Y., a local AI assistant',
     photographyNote: 'Light, edges and timing: the same habits I bring to interfaces.',
   },
   contact: {

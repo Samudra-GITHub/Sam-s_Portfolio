@@ -7,6 +7,8 @@ import { real } from '../lib/content';
 import { gsap } from '../lib/gsap';
 import { matches, MQ } from '../lib/runtime';
 import { cover } from './media';
+import { Kinetic } from './Kinetic';
+import { createField } from './field';
 import './sections.css';
 
 /* ============================================================ Project universe */
@@ -14,7 +16,7 @@ import './sections.css';
 /** every project, grouped by the kind of work it is; the counts and the lens come from the project data */
 const GROUPS: { key: string; label: string; slugs: string[] }[] = [
   { key: 'web', label: 'Web products', slugs: ['tarang', 'krama', 'noir-cafe', 'prahari', 'skycast'] },
-  { key: 'ai', label: 'AI and vision', slugs: ['rinti-ai', 'akasha-lens', 'grama-sathi', 'niriksh-ai'] },
+  { key: 'ai', label: 'AI and vision', slugs: ['wednesday', 'rinti-ai', 'akasha-lens', 'grama-sathi', 'niriksh-ai'] },
   { key: 'motion', label: 'Interfaces and motion', slugs: ['personal-portfolio', 'the-waffle-house', 'orbit-os', 'previous-portfolio', 'first-website'] },
   { key: 'embedded', label: 'Embedded', slugs: ['catch-the-rocket', 'speed-of-numbers'] },
 ];
@@ -110,12 +112,41 @@ export function Universe() {
 
 /* ============================================================ About */
 
+/**
+ * The editorial montage: the roles set huge, with real screens from the work laid over and under them at different
+ * depths. The pictures repeat what the work section shows, so they are decorative here and hidden from screen readers.
+ */
+const MONTAGE: { slug: string; depth: number }[] = [
+  { slug: 'wednesday', depth: 0.6 },
+  { slug: 'rinti-ai', depth: 1.1 },
+  { slug: 'tarang', depth: 1.6 },
+  { slug: 'akasha-lens', depth: 0.4 },
+  { slug: 'krama', depth: 1.3 },
+];
+function Montage() {
+  const shots = MONTAGE.map((m) => ({ ...m, shot: cover(m.slug) })).filter((m) => m.shot);
+  return (
+    <div className="st-montage" aria-hidden="true">
+      <p className="st-montage__words">
+        {config.about.roles.map((r) => (
+          <span key={r} className="st-montage__word">{r}</span>
+        ))}
+      </p>
+      {shots.map((m, i) => (
+        <figure key={m.slug} className={`st-montage__shot st-montage__shot--${i}`} data-depth={m.depth}>
+          <img src={m.shot!.src} alt="" width={m.shot!.w} height={m.shot!.h} loading="lazy" decoding="async" />
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 export function About() {
   const team = projects.filter((p) => p.team);
   return (
     <section id="about" className="st-about" data-reveal aria-labelledby="st-about-title">
       <div className="st-about__head">
-        <h2 id="st-about-title" className="st-title st-title--big" data-r>About</h2>
+        <Kinetic as="h2" id="st-about-title" className="st-title st-title--big" text="About" />
         <p className="st-statement st-statement--flush" data-r>
           {config.about.roles.map((r, i) => (
             <span key={r}>
@@ -126,6 +157,7 @@ export function About() {
         </p>
         <p className="st-body" data-r>{config.about.interests}</p>
       </div>
+      <Montage />
       <dl className="st-facets">
         {config.about.facets.map((f) => (
           <div key={f.key} data-r>
@@ -247,6 +279,46 @@ function ScrubStudy() {
   );
 }
 
+/** study 04: a fragment shader; the pointer pushes the contour lines aside */
+function FieldStudy() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const [failed, setFailed] = useState<'' | 'off' | 'lost'>('');
+  useEffect(() => {
+    const cv = ref.current;
+    if (!cv) return;
+    const reduced = matches(MQ.reducedMotion);
+    let dispose = createField(cv, { reduced });
+    let t = 0;
+    if (!dispose) t = window.setTimeout(() => setFailed('off'), 0);
+    // the GPU can drop the context (driver reset, too many contexts); say so, and draw again once it is restored
+    const lost = (e: Event) => {
+      e.preventDefault();
+      dispose?.();
+      dispose = null;
+      setFailed('lost');
+    };
+    const restored = () => {
+      dispose = createField(cv, { reduced });
+      setFailed(dispose ? '' : 'off');
+    };
+    cv.addEventListener('webglcontextlost', lost);
+    cv.addEventListener('webglcontextrestored', restored);
+    return () => {
+      window.clearTimeout(t);
+      cv.removeEventListener('webglcontextlost', lost);
+      cv.removeEventListener('webglcontextrestored', restored);
+      dispose?.();
+    };
+  }, []);
+  return (
+    <div className="st-field">
+      <canvas ref={ref} aria-hidden="true" />
+      {failed === 'off' && <p className="st-meta">This browser has WebGL switched off, so the field can&rsquo;t draw.</p>}
+      {failed === 'lost' && <p className="st-meta">The graphics card dropped the field for a moment. It will draw again when it comes back.</p>}
+    </div>
+  );
+}
+
 export function Experiments() {
   const shipped = ['the-waffle-house', 'orbit-os'].map((s) => projects.find((p) => p.slug === s)!).filter(Boolean);
   return (
@@ -254,7 +326,7 @@ export function Experiments() {
       <div className="st-lab__head" data-reveal>
         <h2 id="st-lab-title" className="st-title st-title--big" data-r>Experiments</h2>
         <p className="st-lead" data-r>
-          Three small studies in what I&rsquo;m experimenting with: {config.about.experimenting.replace(/\.$/, '').replace(/^./, (c) => c.toLowerCase())}. They run here, on this page.
+          Four small studies in what I&rsquo;m experimenting with: {config.about.experimenting.replace(/\.$/, '').replace(/^./, (c) => c.toLowerCase())}. They run here, on this page.
         </p>
       </div>
       <div className="st-lab__grid" data-reveal>
@@ -269,6 +341,10 @@ export function Experiments() {
         <figure className="st-study st-study--scrub" data-r>
           <ScrubStudy />
           <figcaption><span className="st-meta">Study 03</span> The scroll takes the word apart and sets it back.</figcaption>
+        </figure>
+        <figure className="st-study st-study--field" data-r>
+          <FieldStudy />
+          <figcaption><span className="st-meta">Study 04</span> A fragment shader: move the pointer through the field and the lines part around it.</figcaption>
         </figure>
       </div>
       <ul className="st-lab__shipped" data-reveal>
@@ -361,11 +437,7 @@ export function Contact() {
 
   return (
     <section id="contact" className="st-contact" data-reveal aria-labelledby="st-contact-title">
-      <h2 id="st-contact-title" className="st-contact__title" data-r>
-        Let&rsquo;s build
-        <br />
-        something.
-      </h2>
+      <Kinetic as="h2" id="st-contact-title" className="st-contact__title" mode="drop" text={'Let’s build\nsomething.'} />
       <p className="st-lead" data-r>
         {email ? 'Write to me, or find me on any of these.' : 'The quickest way to reach me is a message on any of these.'}
       </p>

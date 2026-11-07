@@ -15,6 +15,7 @@ export type Kind = (typeof KINDS)[number]['id'];
 
 export const KIND_OF: Record<string, Kind[]> = {
   tarang: ['web', 'creative'],
+  wednesday: ['ai', 'full'],
   'rinti-ai': ['ai', 'full'],
   'akasha-lens': ['ai'],
   skycast: ['web'],

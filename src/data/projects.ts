@@ -106,14 +106,14 @@ const source: Project[] = [
     category: 'AI assistant',
     tagline: 'An AI companion that plans its research.',
     description:
-      'A chat workspace with a research engine at its core: it plans sub-queries, searches, extracts sources, checks claims and writes back a cited answer. Conversations, per-user memory and real accounts sit alongside.',
+      'A chat workspace with a research engine at its core: it plans sub-queries, searches, reads sources, cross-checks claims and writes back a cited answer. Saved conversations and an editable memory sit alongside.',
     tech: ['Next.js', 'React', 'FastAPI', 'Python', 'Framer Motion', 'Lenis'],
     highlights: [
-      'Research pipeline: intent, planning, search, extraction, claim evaluation, synthesis with citations',
+      'Research pipeline: intent, planning, searching, reading, cross-checking, writing with citations',
       'Streaming chat with saved conversations and per-user memory',
-      'Real accounts: Argon2 password hashing and HttpOnly session cookies',
+      'Answers through Groq or any OpenAI-compatible server; an open pull request adds local models through Ollama',
     ],
-    status: 'Live demo (sign-in required). Voice code exists in the repo but is not wired up yet.',
+    status: 'Live demo, open without signing in: every visitor shares one local user. Account code (Argon2 hashing, HttpOnly sessions) exists but is switched off. Voice code exists in the repo but is not wired up yet.',
     motifs: ['Conversation', 'Research', 'Layers'],
     palette: { bg: COBALT, fg: PAPER, accent: LIME },
     github: 'https://github.com/Samudra-GITHub/Rinti-Ai',
@@ -260,6 +260,32 @@ const source: Project[] = [
     github: 'https://github.com/Samudra-GITHub/Sam-s_Portfolio',
   },
   /* ---------------- more work ---------------- */
+  {
+    id: 'proj_wed',
+    title: 'W.E.D.N.E.S.D.A.Y.',
+    alias: 'Watchful Earth-Data Navigator, Entirely Self-hosted Desktop Assistant for You',
+    slug: 'wednesday',
+    tier: 'more',
+    year: '2026',
+    category: 'Local AI assistant',
+    tagline: 'A private assistant with a living Earth at its centre.',
+    description:
+      'A desktop assistant for Windows 11 that answers with a language model running on the same machine. Every tool it wants to use is checked by a capability broker, and around it sits World: a 3D globe of live public data you can question in plain language.',
+    longDescription:
+      'The Earth view builds on gods-eye-view by Bilawal Sidhu (MIT) and CesiumJS. Data comes from USGS, NASA EONET, GDACS, Open-Meteo, CelesTrak, adsb.lol and OpenSky.',
+    tech: ['Python', 'FastAPI', 'React', 'TypeScript', 'CesiumJS', 'Ollama', 'qwen2.5:7b'],
+    highlights: [
+      'A capability broker: the model can only propose actions, and anything outside its permissions is denied',
+      'World in four modes: Live, Time, Orbit and the Moon, with Ask the Earth and What happened here?',
+      'Pulse: earthquakes, natural events, disaster alerts and world news, each with its source and time',
+      'Memory only you can edit, stored on the machine; location you can pause or stop',
+      '232 backend tests and 45 desktop tests passing',
+    ],
+    status: 'In active development. Not yet verified: voice on a real microphone, frame rate on a dedicated graphics card, and replies on a GPU (about six minutes per question on this CPU).',
+    motifs: ['Earth', 'Permission', 'Local'],
+    palette: { bg: INK, fg: PAPER, accent: '#F2B45A' },
+    github: 'https://github.com/Samudra-GITHub/W.E.D.N.E.S.D.A.Y.',
+  },
   {
     id: 'proj_10',
     title: 'Niriksh AI',
