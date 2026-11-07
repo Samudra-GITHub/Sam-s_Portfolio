@@ -66,6 +66,21 @@ const HERO_BOX = new THREE.Box3(v(-24, -60, -24), v(24, 24, 24));
 /** Real island bounds, filled in when the environment is built; estimated from the spec until then. */
 const bounds: (THREE.Box3 | undefined)[] = [];
 export const setIslandBounds = (b: THREE.Box3[]) => b.forEach((x, i) => (bounds[i] = x));
+
+/** Detail shots of the project worlds built on formations (FAR index -> world-space pose), set after the build. */
+const details: ({ cam: THREE.Vector3; look: THREE.Vector3 } | undefined)[] = [];
+export const setIslandDetails = (d: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3 } }[]) => d.forEach((x) => (details[x.far] = x.detail));
+export const islandDetail = (far: number) => details[far];
+
+/**
+ * The presentation of a project chapter, by how far the arrival line is through it (u, 0..1):
+ * the camera rests on the island for the first PROJECT_HOLD of the chapter, then travels on.
+ * Inside the rest: establishing shot, then a move in to the detail shot (where a world exists),
+ * the world comes alive, and the caption appears.
+ */
+export const PROJECT_HOLD = 0.62;
+export const DETAIL_IN: [number, number] = [0.08, 0.46];
+export const CAPTION_AT = 0.4;
 export function islandBox(far: number) {
   const known = bounds[far];
   if (known) return known;

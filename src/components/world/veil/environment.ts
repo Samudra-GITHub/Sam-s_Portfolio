@@ -10,6 +10,7 @@ import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMateria
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
 import { populate, type FaunaSites } from './fauna';
 import { lensesFor, STOPS } from '../camera';
+import { noirWorld, type Pad, type ProjectWorld } from './worlds/noir';
 
 /**
  * The Veil Archipelago environment: the sculpted hero mountain (baked in
@@ -36,7 +37,9 @@ export interface Environment {
   islands: THREE.Box3[];
   /** call once per frame before rendering */
   /** `scroll`: the page position as a float stop index (STOPS), for the creatures' cues */
-  update(camera: THREE.Camera, time: number, scroll?: number): void;
+  update(camera: THREE.Camera, time: number, scroll?: number, presentation?: (far: number) => number): void;
+  /** project worlds built on formations: their detail shots (world space), for the camera */
+  worlds: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3 } }[];
 }
 
 const S = HERO_SCALE;
@@ -409,6 +412,9 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   const FAR_FALLS = new Set([1, 4, 5]);
   // the Mossback herd's formation (see below)
   const HERD_ON = 8;
+  // formations that host a project world (FAR index -> builder); each gets a levelled pad facing its shot
+  const WORLDS: Record<number, (pad: Pad) => ProjectWorld> = { 0: (pad) => noirWorld(c, pad, opts.base ?? '/') };
+  const worlds: { far: number; world: ProjectWorld }[] = [];
   // mesh all nine off the main thread (two workers), then dress them here one per frame
   const specs = far.map((f) => {
     const r = rng(f.seed);
@@ -612,6 +618,17 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         }
       }
     }
+    let pad: Pad | null = null;
+    if (WORLDS[i]) {
+      pad = findPad(hiGeo, f, lensesFor(i));
+      // the café's terrace and its sightlines stay free of trees (local coordinates)
+      const lp = pad.p.clone().sub(new THREE.Vector3(...f.at));
+      clearings.push({ p: lp, r: 15 });
+      for (const cam of lensesFor(i)) {
+        const to = cam.clone().sub(new THREE.Vector3(...f.at));
+        clearings.push({ p: lp.clone().setY(lp.y + 3), to: lp.clone().lerp(to, 60 / to.distanceTo(lp)), r: 6 });
+      }
+    }
     const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
       scale: Math.max(1.2, f.s / 26),
@@ -640,6 +657,11 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     if (dress.roots) lod.add(new THREE.Mesh(dress.roots, rootBark));
     for (const w of dress.water) lod.add(w);
     scene.add(lod);
+    if (pad) {
+      const w = WORLDS[i](pad);
+      scene.add(w.group);
+      worlds.push({ far: i, world: w });
+    }
   }
 
   // ---------------- clouds and mist ----------------
@@ -888,11 +910,55 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     scene,
     common: c,
     islands: islandBounds,
-    update(camera, time, scroll = 0) {
+    worlds: worlds.map((w) => ({ far: w.far, detail: w.world.detail })),
+    update(camera, time, scroll = 0, presentation) {
       c.uTime.value = time;
       c.uCam.value.copy(camera.position);
       fauna.update(time, scroll);
+      for (const w of worlds) w.world.update(time, presentation?.(w.far) ?? 1);
       sky.position.copy(camera.position);
     },
   };
+}
+
+/**
+ * A level pad for a project world on a formation's top: the most level stretch of high ground on the side its
+ * project shot looks from, so the building faces the lens. Returns the pad's world centre and facing.
+ */
+function findPad(geo: THREE.BufferGeometry, f: { at: [number, number, number]; s: number }, lenses: THREE.Vector3[]): Pad {
+  const pp = geo.attributes.position, pn = geo.attributes.normal;
+  const at = new THREE.Vector3(...f.at);
+  const lens = lenses.reduce((a, l) => a.add(l), new THREE.Vector3()).divideScalar(Math.max(1, lenses.length));
+  const face = lens.clone().sub(at).setY(0).normalize();
+  const flat: number[] = [];
+  for (let k = 0; k < pp.count; k += 2) if (pn.getY(k) > 0.85) flat.push(k);
+  const ys = flat.map((k) => pp.getY(k)).sort((a, b) => a - b);
+  const high = ys[Math.floor(ys.length * 0.55)] ?? 0;
+  // a fixed sample of every vertex, to judge how level the ground around a candidate is
+  const sample: number[] = [];
+  const step = Math.max(1, Math.floor(pp.count / 6000));
+  for (let k = 0; k < pp.count; k += step) sample.push(k);
+  const R = 10;
+  let best = flat[0], bestScore = -Infinity, bestY = 0;
+  const cands = flat.filter((k) => pp.getY(k) >= high);
+  for (let t = 0; t < cands.length; t += Math.max(1, Math.floor(cands.length / 400))) {
+    const k = cands[t];
+    const x = pp.getX(k), y = pp.getY(k), z = pp.getZ(k);
+    let near = 0, level = 0, top = -Infinity;
+    for (const j of sample) {
+      const dx = pp.getX(j) - x, dz = pp.getZ(j) - z;
+      if (dx * dx + dz * dz > R * R) continue;
+      const dy = pp.getY(j) - y;
+      if (dy < -6) continue; // the underside of the formation, not ground
+      near++;
+      if (Math.abs(dy) < 1.5) level++;
+      if (dy < 6) top = Math.max(top, pp.getY(j));
+    }
+    if (near < 4) continue;
+    // level ground first, then toward the lens, then nothing rising through the pad
+    const score = (level / near) * 3 + (x * face.x + z * face.z) / f.s - Math.max(0, top - y - 1.5) * 0.3;
+    if (score > bestScore) { bestScore = score; best = k; bestY = y; }
+  }
+  const p = new THREE.Vector3(pp.getX(best), bestY + 0.15, pp.getZ(best)).add(at);
+  return { p, face };
 }

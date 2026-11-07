@@ -6,7 +6,7 @@ import { createTrack } from './progress';
 import { pointer, STILL } from './input';
 import { buildEnvironment, type Environment } from './veil/environment';
 import { createPainter, setBrushwork, setMultisample } from './veil/paint';
-import { compositionEnabled, createCompositionOverlay, FRAMING, frameIsland, islandBox, screenRect, setIslandBounds, STOPS } from './camera';
+import { CAPTION_AT, compositionEnabled, createCompositionOverlay, DETAIL_IN, FRAMING, frameIsland, islandBox, islandDetail, PROJECT_HOLD, screenRect, setIslandBounds, setIslandDetails, STOPS } from './camera';
 import { createPerfMonitor, perfEnabled } from './perf';
 import { gsap } from '../../lib/gsap';
 import { follow } from '../../lib/motion';
@@ -26,10 +26,29 @@ import { matches, MQ } from '../../lib/runtime';
 // the hero travels the whole way (the camera flies while the introduction takes off); others rest first
 const track = createTrack(
   STOPS.map((s) => s.id),
-  (id) => (id === 'top' ? 0.05 : 0.45),
+  // project chapters rest longer: the island is established, the camera moves in, the world comes alive
+  (id) => (id === 'top' ? 0.05 : id.startsWith('p-') ? PROJECT_HOLD : 0.45),
 );
-/** the page position (float stop index) this frame: the camera follows it, the creatures take their cues from it */
-const scroll = { f: 0 };
+/**
+ * The page position this frame: f, the float stop index the camera follows (the creatures take their cues
+ * from it), and the raw phase (stop i, u through its stretch) that paces each project's presentation.
+ */
+const scroll = { f: 0, i: 0, u: 0 };
+const smooth = (x: number, a: number, b: number) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
+/** how far the camera has moved in from the establishing shot to the detail shot, for stop j */
+const detailWeight = (j: number) => (STILL || scroll.i !== j ? 0 : smooth(scroll.u, DETAIL_IN[0], DETAIL_IN[1]));
+/** how far a formation's project world has come alive (0 before its chapter, 1 once presented) */
+const stopOfFar = (far: number) => STOPS.findIndex((st) => st.isle?.far === far);
+const presentation = (far: number) => {
+  const j = stopOfFar(far);
+  if (STILL) return 1;
+  if (scroll.i > j) return 1;
+  if (scroll.i < j) return 0;
+  return Math.min(1, scroll.u / PROJECT_HOLD);
+};
 
 function Rig() {
   const { camera, size } = useThree();
@@ -47,6 +66,9 @@ function Rig() {
   const right = useMemo(() => new THREE.Vector3(), []);
   const up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const anchor = useRef({ key: '', id: '' });
+  const reveal = useRef({ i: -1, on: false });
+  const dCam = useMemo(() => new THREE.Vector3(), []);
+  const dLook = useMemo(() => new THREE.Vector3(), []);
   const overlay = useRef<ReturnType<typeof createCompositionOverlay> | null>(null);
 
   useEffect(() => {
@@ -65,6 +87,20 @@ function Rig() {
     const st = STOPS[j];
     if (st.isle) {
       frameIsland(st.isle, cam.fov, size.width / size.height, phone, outCam, outLook);
+      // a project world: from the establishing shot, move in to its detail shot as the chapter unfolds
+      const d = islandDetail(st.isle.far);
+      const w = d ? detailWeight(j) : 0;
+      if (d && w > 0) {
+        dCam.copy(d.cam);
+        dLook.copy(d.look);
+        if (phone) {
+          // portrait screens step back so the café's width still fits
+          dir.subVectors(dCam, dLook);
+          dCam.copy(dLook).addScaledVector(dir, 1 / Math.sqrt(Math.min(1, size.width / size.height)) * 0.8);
+        }
+        outCam.lerp(dCam, w);
+        outLook.lerp(dLook, w);
+      }
       return;
     }
     outCam.copy(st.cam);
@@ -91,6 +127,9 @@ function Rig() {
     let f = track.progress();
     if (STILL) f = Math.round(f);
     scroll.f = f;
+    const ph = track.phase();
+    scroll.i = ph.i;
+    scroll.u = ph.u;
     const i = Math.min(STOPS.length - 2, Math.floor(f));
     const k = Math.min(1, f - i);
     place(i, phone, camA, lookA);
@@ -131,6 +170,18 @@ function Rig() {
         document.getElementById(stop.id)?.style.setProperty('--isle-y', `${key}px`);
         anchor.current = { key, id: stop.id };
       }
+    }
+    // the caption follows the world: it appears once the island has been established (and its world lit)
+    const revealIdx = scroll.i;
+    const rs = STOPS[revealIdx];
+    // ...and leaves as the camera departs, so the travel to the next island is never covered
+    const want = rs?.isle
+      ? STILL || ((!islandDetail(rs.isle.far) ? scroll.u >= 0.02 : scroll.u >= CAPTION_AT) && scroll.u <= PROJECT_HOLD + 0.1)
+      : false;
+    if (revealIdx !== reveal.current.i || want !== reveal.current.on) {
+      if (reveal.current.i >= 0) document.getElementById(STOPS[reveal.current.i].id)?.removeAttribute('data-reveal');
+      if (want) document.getElementById(rs.id)?.setAttribute('data-reveal', '');
+      reveal.current = { i: want ? revealIdx : -1, on: want };
     }
     overlay.current?.draw({ cam: camera.position, look: look.current, fov: cam.fov, id: stop.id, rect, raise });
   });
@@ -192,6 +243,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
       if (!live) return;
       const t = TIERS[compact ? 'compact' : 'full'][0];
       setIslandBounds(e.islands);
+      setIslandDetails(e.worlds);
       composer.current = createPainter(gl, e.scene, camera, { paint: t.brush, low: compact });
       setDpr(pixelRatio(compact, t));
       // compile every shader now, not the first time its object scrolls into view (that stalls the page)
@@ -226,7 +278,7 @@ function Veil({ compact, onReady, setDpr }: { compact: boolean; onReady?: () => 
   useFrame((state, dt) => {
     if (!env || !composer.current) return;
     if (perf.current) gl.info.reset();
-    env.update(camera, STILL ? 12 : 12 + state.clock.elapsedTime, scroll.f);
+    env.update(camera, STILL ? 12 : 12 + state.clock.elapsedTime, scroll.f, presentation);
     composer.current.render();
     perf.current?.frame();
     frames.current++;

@@ -152,6 +152,23 @@ The two builds are level within run-to-run noise, apart from the first 1280 pair
 
 **Load.** Placing the herd adds ray tests against every formation at build time, about 0.5 s on the phone-size run (2.7 s to 3.5 s ready). It happens once, while the loading screen shows.
 
+## Project worlds pass (Noir Café)
+
+The Noir Café world (see `docs/WORLDS.md`) adds about 4.8k triangles in 7 meshes: 7 draw calls. It uploads nothing per frame. The light-up, the screenshot crossfade and the steam all run on uniforms. Its screenshots are three 1024 px WebP files.
+
+Chapters are now 300svh tall, so this benchmark scrolls a longer page than before. The scroll rate (FPS) is still comparable.
+
+A/B against 323998c (production builds, back to back, same machine):
+
+| Viewport | Before scroll FPS | After scroll FPS | Scroll p95 |
+| --- | --- | --- | --- |
+| 1280×800, run 1 | 64.7 | 67.2 | 21 ms both |
+| 1280×800, run 2 | 45.9 | 44.8 | 28 ms both |
+| 1920×1080 | 54.4 | 54.9 | 21 ms both |
+| 375×812, three runs each | 138 / 83.1 / 82.2 | 85.3 / 83.8 / 84.6 | 7 to 21 ms |
+
+The two builds are level. The spread between runs is the machine, not the build: the two 1280 pairs moved together with the load, and the first phone-size old run (138) caught the machine idle. When the machine was quiet, the new build scrolled at 67 FPS at 1280×800. 1920×1080 is still below 60.
+
 ## Not yet at target
 
 - **1920×1080 on this iGPU** holds about 53 FPS, not 60. It settles at a reduced resolution (×0.72) to get there.

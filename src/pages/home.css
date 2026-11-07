@@ -127,10 +127,11 @@
 
 /* ---------- the archipelago: one chapter per project island ---------- */
 .pg-sec--intro { min-height: 90svh; }
-/* each chapter is tall: the camera rests on the island while its caption stays pinned beside it */
-.pg-chapter { min-height: 135svh; }
+/* each chapter is tall: the camera establishes the island, moves in, the world comes alive, then travels on
+   (World.tsx paces this with PROJECT_HOLD). The extra height is what slows the journey: input stays immediate. */
+.pg-chapter { min-height: 300svh; }
 .isle-cap {
-  --cap-w: min(21rem, 26vw);
+  --cap-w: min(19.5rem, 25vw);
   position: fixed;
   z-index: 2;
   /* the island is framed in the centre of the screen: the caption keeps to the left gutter, level with it */
@@ -139,27 +140,44 @@
   width: var(--cap-w);
   transform: translateY(-50%) translateY(0.75rem);
   display: grid;
-  gap: var(--s-3);
-  padding: var(--s-5);
-  background: rgb(250 252 253 / 0.94);
-  border: 1px solid rgb(255 255 255 / 0.7);
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5) var(--s-5);
+  /* the project's own colours, as glass over its sky */
+  color: var(--pal-fg, var(--ink));
+  background: color-mix(in srgb, var(--pal-bg, #fafcfd) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pal-fg, #fff) 14%, transparent);
   border-radius: var(--radius);
   box-shadow: 0 30px 60px -36px rgb(22 54 92 / 0.45);
+  backdrop-filter: blur(10px) saturate(140%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 420ms var(--ease-out), transform 520ms var(--ease-out);
+  transition: opacity 520ms var(--ease-out), transform 640ms var(--ease-out);
 }
-.pg-chapter[data-active] .isle-cap,
+.pg-chapter[data-active][data-reveal] .isle-cap,
 .isle-cap:focus-within { opacity: 1; pointer-events: auto; transform: translateY(-50%); }
-@media (prefers-reduced-motion: reduce) { .isle-cap { transition: opacity 200ms ease; transform: translateY(-50%); } }
-@media (prefers-reduced-transparency: reduce) { .isle-cap { background: var(--sheet); } }
-.isle-title { font-size: clamp(2rem, 1.2rem + 2.2vw, 3.1rem); font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .isle-cap { transition: opacity 200ms ease; transform: translateY(-50%); }
+  .pg-chapter[data-active] .isle-cap { opacity: 1; pointer-events: auto; }
+}
+@media (prefers-reduced-transparency: reduce) { .isle-cap { background: var(--pal-bg, var(--sheet)); backdrop-filter: none; } }
+.isle-kicker { color: var(--pal-ac, var(--accent)); }
+.isle-title { font-size: clamp(2rem, 1.2rem + 2vw, 2.9rem); font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
 .pg-ptag { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 500; letter-spacing: -0.01em; }
+.isle-cap .pg-ptag { line-height: 1.3; }
+.isle-role { font-size: var(--t-sm); opacity: 0.8; }
 .pg-pdesc { color: var(--line-2); }
+.isle-more summary { cursor: pointer; font-size: var(--t-sm); opacity: 0.8; width: fit-content; min-height: 32px; display: flex; align-items: center; }
+.isle-more summary:hover { opacity: 1; }
+.isle-more .pg-pdesc { color: inherit; opacity: 0.82; font-size: var(--t-sm); margin-top: var(--s-2); }
+.isle-tech { display: flex; flex-wrap: wrap; gap: 0.35rem; list-style: none; padding: 0; margin: var(--s-1) 0 var(--s-2); }
+.isle-tech li { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.02em; padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--pal-fg, #000) 22%, transparent); }
+.isle-cap .isle-btn { background: var(--pal-fg, var(--ink)); color: var(--pal-bg, #fff); }
+.isle-cap .isle-btn-line { color: inherit; border-color: color-mix(in srgb, var(--pal-fg, #000) 40%, transparent); background: transparent; }
+.isle-cap .isle-link { color: inherit; }
 .pg-plinks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
 
 @media (max-width: 999px) {
-  .pg-chapter { min-height: 120svh; }
+  .pg-chapter { min-height: 240svh; }
   .isle-cap {
     left: var(--gutter);
     right: var(--gutter);
@@ -171,7 +189,7 @@
     padding: var(--s-4);
     transform: translateY(0.75rem);
   }
-  .pg-chapter[data-active] .isle-cap,
+  .pg-chapter[data-active][data-reveal] .isle-cap,
   .isle-cap:focus-within { transform: none; }
   .isle-cap .pg-pdesc { font-size: var(--t-sm); }
   .pg-sec--intro .pg-col { background: rgb(251 250 245 / 0.92); }

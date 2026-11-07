@@ -109,29 +109,52 @@ export default function Home() {
             </div>
           </div>
           {featured.map((p, i) => (
-            <article key={p.slug} id={`p-${p.slug}`} className="pg-chapter" aria-labelledby={`t-${p.slug}`} data-active={active === p.slug || undefined}>
-              {/* pinned beside the project's island while its chapter is in view (World.tsx writes --isle-y) */}
+            <article
+              key={p.slug}
+              id={`p-${p.slug}`}
+              className="pg-chapter"
+              aria-labelledby={`t-${p.slug}`}
+              data-active={active === p.slug || undefined}
+              style={{ '--pal-bg': p.palette.bg, '--pal-fg': p.palette.fg, '--pal-ac': p.palette.accent } as React.CSSProperties}
+            >
+              {/* pinned beside the project's island; it appears once the island is established (World.tsx writes
+                  --isle-y and data-reveal), in the project's own colours so it reads as part of that world */}
               <div className="isle-cap">
-                <p className="pg-kicker mono">
-                  {pad(i + 1)} / {pad(featured.length)} · {p.category}
+                <p className="pg-kicker mono isle-kicker">
+                  {pad(i + 1)} / {pad(featured.length)} · {p.category} · {p.year}
                 </p>
                 <h3 id={`t-${p.slug}`} className="isle-title">
                   {p.title}
                   {p.alias && <span className="pg-card-alias"> formerly {p.alias}</span>}
                 </h3>
                 <p className="pg-ptag">{p.tagline}</p>
-                <p className="pg-pdesc">{p.description}</p>
+                {(p.role || p.team) && (
+                  <p className="isle-role">
+                    {p.role}
+                    {p.role && p.team && ' · '}
+                    {p.team}
+                  </p>
+                )}
+                <details className="isle-more">
+                  <summary>About the project</summary>
+                  <p className="pg-pdesc">{p.description}</p>
+                </details>
+                <ul className="isle-tech" aria-label="Built with">
+                  {p.tech.slice(0, 5).map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
                 <div className="pg-plinks">
-                  <Link to={`/work/${p.slug}`} className="btn">
+                  <Link to={`/work/${p.slug}`} className="btn isle-btn">
                     Case study <span className="btn-arrow" aria-hidden="true">→</span>
                   </Link>
                   {p.live && (
-                    <a href={p.live} target="_blank" rel="noreferrer" className="btn btn--line">
+                    <a href={p.live} target="_blank" rel="noreferrer" className="btn btn--line isle-btn-line">
                       Live site ↗
                     </a>
                   )}
                   {p.github && (
-                    <a href={p.github} target="_blank" rel="noreferrer" className="tlink">
+                    <a href={p.github} target="_blank" rel="noreferrer" className="tlink isle-link">
                       Source
                     </a>
                   )}

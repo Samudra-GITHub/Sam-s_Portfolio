@@ -33,7 +33,20 @@ export function createTrack(ids: string[], hold: (id: string) => number = () => 
     }
     return 0;
   };
-  return { measure, progress, tops: () => tops };
+  /** which stretch the arrival line is in and how far through it (0..1, raw: no hold, no easing) */
+  const phase = () => {
+    if (!tops.length) measure();
+    const y = window.scrollY + window.innerHeight * 0.33;
+    for (let i = tops.length - 1; i >= 0; i--) {
+      if (y >= tops[i]) {
+        const next = tops[i + 1];
+        if (next === undefined || !Number.isFinite(next)) return { i, u: 0 };
+        return { i, u: Math.min(1, Math.max(0, (y - tops[i]) / (next - tops[i]))) };
+      }
+    }
+    return { i: 0, u: 0 };
+  };
+  return { measure, progress, phase, tops: () => tops };
 }
 
 /** The page's main sections (nav, map). */
