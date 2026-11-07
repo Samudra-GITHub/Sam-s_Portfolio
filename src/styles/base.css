@@ -36,23 +36,24 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* A whisper of paper grain so the canvas is not a flat screen white */
+/* Paper fibre: the print is on watercolour stock, not on a screen */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: var(--z-grain);
   pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: multiply;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.03em;
+  font-stretch: var(--wide);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
@@ -64,7 +65,7 @@ ul, ol { list-style: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 img, svg, canvas { display: block; max-width: 100%; }
 
-::selection { background: var(--lime); color: #fff; }
+::selection { background: var(--lime); color: var(--cy-950); }
 
 :focus-visible {
   outline: 2px solid var(--lime);
@@ -79,7 +80,7 @@ img, svg, canvas { display: block; max-width: 100%; }
 
 .skip-link {
   position: fixed; top: 0.75rem; left: 0.75rem; z-index: 500;
-  padding: 0.7rem 1rem; background: var(--lime); color: #fff; border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem; background: var(--lime); color: var(--cy-950);
   font-family: var(--font-mono); font-weight: 600; font-size: var(--t-xs); letter-spacing: 0.08em; text-transform: uppercase;
   transform: translateY(-200%); transition: transform var(--dur-ui) var(--ease-out);
 }
@@ -113,7 +114,6 @@ html.has-cursor * { cursor: none !important; }
   padding: 0 1.4rem;
   background: var(--btn-bg); color: var(--btn-fg);
   border: 1px solid var(--btn-bg);
-  border-radius: 999px;
   font-family: var(--font-mono); font-weight: 600; font-size: var(--t-xs); letter-spacing: 0.1em;
   text-transform: uppercase; white-space: nowrap;
   transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);

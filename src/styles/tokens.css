@@ -1,48 +1,28 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* ---------- the veil archipelago ----------
-     A calm linen interface over a lush floating world: the world carries the
-     colour, the interface stays quiet (forest ink, one deep teal signal).
-     The old cyanotype token names are kept so every page reads the new
-     palette; --cy-* is now the light ground scale (950 = brightest surface). */
-  --cy-950: #fbfaf5;
-  --cy-900: #f8f6f0;
-  --cy-800: #ecebe2;
-  --cy-700: #f4f2eb; /* the canvas */
-  --cy-600: #dbe7df; /* mist wash: images tint with it before they develop */
-  --cy-500: #c9d0c8;
+  /* ---------- the cyanotype ----------
+     A sun print: Prussian blue where light hit the paper, white where it did
+     not. The site is printed on the blue; quiet passages sit on the white. */
+  --cy-950: #081c4a;
+  --cy-900: #0b2560;
+  --cy-800: #0e2d72;
+  --cy-700: #123a8c; /* the ground */
+  --cy-600: #1a49a6;
+  --cy-500: #2a5cc0;
 
-  /* ink on the canvas */
-  --line: #202923;
-  --line-2: #5e6a62; /* secondary ink, 5.4:1 on the canvas */
-  --rule: #c9d0c8; /* hairlines */
-  --rule-strong: #9aa59d;
+  /* engraved linework on the blue */
+  --line: #eef2fc;
+  --line-2: #aebee2; /* secondary text on the ground, 5:1 on --cy-700 */
+  --rule: rgb(238 242 252 / 0.22); /* hairlines, orbits at rest */
+  --rule-strong: rgb(238 242 252 / 0.5);
 
-  /* surfaces */
-  --sheet: #fbfaf5;
-  --sheet-2: #ecebe2;
-  --sheet-ink: #202923;
-  --sheet-ink-2: #5e6a62;
-  --sheet-rule: #c9d0c8;
-
-  /* scene accents: mostly for the 3D world, sparingly in the UI */
-  --cobalt-ui: #2d7164; /* the UI signal: links, focus, active (5.6:1 with white) */
-  --canopy-deep: #193f35;
-  --emerald: #28785d;
-  --jade: #58a987;
-  --mineral-teal: #318e91;
-  --water-glint: #80d5cf;
-  --stone: #8c725b;
-  --ochre: #d29a54;
-  --orchid: #77618e;
-  --mist: #e9eee8;
-  --lavender: #77618e;
-  --sky: #80d5cf;
-  --coral: #d29a54;
-  --soft-lime: #58a987;
-  --radius: 6px;
-  --radius-sm: 4px;
+  /* the unexposed sheet, and the blue that prints on it */
+  --sheet: #f3f5f9;
+  --sheet-2: #e4e9f3;
+  --sheet-ink: #0e2d72;
+  --sheet-ink-2: #3d5591; /* secondary on the sheet, 7:1 */
+  --sheet-rule: rgb(14 45 114 / 0.2);
 
   /* ---------- enamel: each world keeps its own colour ---------- */
   --paper: #fdf9f1;
@@ -50,7 +30,7 @@
   --sand: #ebe5d8;
   --ink: #111215;
   --ink-2: #454933;
-  --lime: var(--cobalt-ui); /* the one UI signal: focus, selection, active (name kept) */
+  --lime: #d8f827; /* the one signal colour: conjunction, focus, selection */
   --cobalt: #1e3ae8;
   --vermilion: #ff5226;
 
@@ -69,11 +49,11 @@
   --shadow-hard-lg: 8px 8px 0 var(--ink);
 
   /* ---------- type ----------
-     Three roles: Space Grotesk displays, Inter reads, mono labels.
-     (The width tokens remain for older rules; these faces ignore them.) */
-  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'JetBrains Mono Variable', ui-monospace, monospace;
+     One family across its width axis: expanded caps engrave the display,
+     normal width reads, condensed squeezes. Mono is for readouts only. */
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
   --wide: 125%;
   --semi: 112%;
   --normal: 100%;

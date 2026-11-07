@@ -68,7 +68,7 @@ export default function ContactPage() {
   const home = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    go('/', { label: config.name.split(' ')[0], color: '#f7f6f2', ink: '#20212a' });
+    go('/', { label: config.name.split(' ')[0], color: '#123a8c', ink: '#eef2fc' });
   };
 
   return (

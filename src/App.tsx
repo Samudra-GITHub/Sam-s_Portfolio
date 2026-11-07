@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { scrollToTarget } from './lib/scroll';
 import { initPointer } from './lib/pointer';
 import { initSoundDelegation } from './lib/sound';
+import Cursor from './components/core/Cursor';
 import SmoothScroll from './components/core/SmoothScroll';
 import { PageTransitionProvider } from './components/core/PageTransition';
 import { KageProvider } from './components/kage/Kage';
@@ -34,6 +35,7 @@ export default function App() {
     <PageTransitionProvider>
       <KageProvider>
         <SmoothScroll />
+        <Cursor />
         <a className="skip-link" href="#main">
           Skip to content
         </a>

@@ -65,7 +65,7 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
 
       busy.current = true;
       whoosh();
-      const { from, color = '#f7f6f2', ink = '#20212a', label: text = '' } = opts;
+      const { from, color = '#123a8c', ink = '#eef2fc', label: text = '' } = opts;
       curtain.style.background = color;
       curtain.style.color = ink;
       label.textContent = text;
