@@ -40,7 +40,7 @@ export default function App() {
           Skip to content
         </a>
         <div id="site">
-          <Nav />
+          {pathname !== '/' && <Nav />}
           <Suspense fallback={<div style={{ minHeight: '100dvh' }} />}>
             <Routes>
               <Route path="/" element={<Home />} />

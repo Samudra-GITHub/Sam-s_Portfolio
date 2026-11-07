@@ -1,10 +1,6 @@
-import GlassHero from '../components/home/GlassHero';
+import StudioHome from '../studio/StudioHome';
 
-/** The homepage is one screen: one name, one line, one drop of glass, one way in. The work lives on /projects. */
+/** The homepage: the Spatial Creative Studio (src/studio, docs/DESIGN_SYSTEM.md). */
 export default function Home() {
-  return (
-    <main id="main" className="home">
-      <GlassHero />
-    </main>
-  );
+  return <StudioHome />;
 }
