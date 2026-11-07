@@ -19,6 +19,8 @@ export const hex = (h: string): RGB => {
 
 /** glow channels a world can switch on in sequence */
 export const CH = { none: 0, a: 1, b: 2, c: 3, d: 4 } as const;
+/** a run of lights that come on one after another (uSeq): step k of the run */
+export const SEQ = (k: number) => 5 + k;
 
 export interface Part {
   col: RGB;
@@ -28,8 +30,11 @@ export interface Part {
   ch?: number;
   /** ambient occlusion baked into the part (1 = open) */
   ao?: number;
+  /** > 0 makes the part pulse in height with a pulse material (its phase); see archMaterial({ pulse }) */
+  aux?: number;
 }
 
+const _up = new THREE.Vector3(0, 1, 0);
 const _m = new THREE.Matrix4(), _n = new THREE.Matrix3(), _v = new THREE.Vector3(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _s = new THREE.Vector3();
 
 export class Builder {
@@ -38,6 +43,7 @@ export class Builder {
   private col: number[] = [];
   private glow: number[] = [];
   private ao: number[] = [];
+  private aux: number[] = [];
   private idx: number[] = [];
 
   /** append a geometry under a transform, coloured as one part; `aoY` darkens it toward its foot */
@@ -56,6 +62,7 @@ export class Builder {
       this.glow.push(p.glow ?? 0, p.ch ?? 0);
       const foot = aoY ? THREE.MathUtils.smoothstep(ly, aoY[0], aoY[1]) : 1;
       this.ao.push((p.ao ?? 1) * (0.55 + 0.45 * foot));
+      this.aux.push(p.aux ?? 0);
     }
     const gi = g.index!;
     for (let i = 0; i < gi.count; i++) this.idx.push(base + gi.getX(i));
@@ -86,6 +93,23 @@ export class Builder {
     this.add(g, _m.clone(), p);
   }
 
+  /** a cylinder lying along z (speaker cones, dials, wheels): centre, radius, depth */
+  disc(c: THREE.Vector3Like, r: number, depth: number, seg: number, p: Part, yaw = 0) {
+    const g = new THREE.CylinderGeometry(r, r, depth, seg);
+    _q.setFromEuler(_e.set(Math.PI / 2, yaw, 0, 'YXZ'));
+    _m.compose(_v.set(c.x, c.y, c.z), _q, _s.set(1, 1, 1));
+    this.add(g, _m.clone(), p);
+  }
+
+  /** a slim strut from a to b (lattices, masts, arms) */
+  rod(a: THREE.Vector3, b: THREE.Vector3, r: number, p: Part, seg = 5) {
+    const d = b.clone().sub(a);
+    const g = new THREE.CylinderGeometry(r, r, d.length(), seg, 1, true);
+    _q.setFromUnitVectors(_up, d.clone().normalize());
+    _m.compose(a.clone().add(b).multiplyScalar(0.5), _q, _s.set(1, 1, 1));
+    this.add(g, _m.clone(), p);
+  }
+
   sphere(c: THREE.Vector3Like, r: number, p: Part, seg = 10) {
     const g = new THREE.SphereGeometry(r, seg, Math.max(4, seg >> 1));
     _m.makeTranslation(c.x, c.y, c.z);
@@ -99,6 +123,7 @@ export class Builder {
     g.setAttribute('aCol', new THREE.Float32BufferAttribute(this.col, 3));
     g.setAttribute('aGlow', new THREE.Float32BufferAttribute(this.glow, 2));
     g.setAttribute('aAO', new THREE.Float32BufferAttribute(this.ao, 1));
+    g.setAttribute('aAux', new THREE.Float32BufferAttribute(this.aux, 1));
     g.setIndex(this.idx);
     g.computeBoundingSphere();
     return g;
@@ -112,17 +137,27 @@ export class Builder {
 /* ------------------------------------------------------------ materials */
 
 const ARCH_VS = /* glsl */ `
-attribute vec3 aCol; attribute vec2 aGlow; attribute float aAO;
+attribute vec3 aCol; attribute vec2 aGlow; attribute float aAO; attribute float aAux;
+uniform float uTime; uniform float uBase; uniform float uLevel;
 varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO;
 void main(){
-  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vec3 pos = position;
+#ifdef PULSE
+  // level meters: each part rises and falls on its own phase, scaled by how far the world has come alive
+  if (aAux > 0.0) {
+    float k = 0.5 + 0.5 * sin(uTime * (2.1 + fract(aAux * 0.37) * 2.6) + aAux * 5.3);
+    k = 0.5 + 0.5 * k * k + 0.25 * sin(uTime * 7.0 + aAux * 3.1);
+    pos.y = mix(uBase, pos.y, mix(0.12, clamp(k, 0.1, 1.0), uLevel));
+  }
+#endif
+  vec4 wp = modelMatrix * vec4(pos, 1.0);
   vWP = wp.xyz; vN = normalize(mat3(modelMatrix) * normal); vCol = aCol; vGlow = aGlow; vAO = aAO;
   gl_Position = projectionMatrix * viewMatrix * wp;
 }`;
 
 const ARCH_FS = /* glsl */ `
 ${COMMON}
-uniform vec4 uOn; uniform vec3 uWarm;
+uniform vec4 uOn; uniform vec3 uWarm; uniform vec2 uSeq;
 varying vec3 vWP; varying vec3 vN; varying vec3 vCol; varying vec2 vGlow; varying float vAO;
 void main(){
   vec3 n = normalize(vN);
@@ -131,19 +166,28 @@ void main(){
   vec3 col = paint(vCol, n, vWP, vAO, brush, sh);
   // switched light: channel 0 always on, 1..4 follow the choreography
   int ch = int(vGlow.y + 0.5);
-  float on = ch == 0 ? 1.0 : ch == 1 ? uOn.x : ch == 2 ? uOn.y : ch == 3 ? uOn.z : uOn.w;
+  float on = ch == 0 ? 1.0 : ch == 1 ? uOn.x : ch == 2 ? uOn.y : ch == 3 ? uOn.z : ch == 4 ? uOn.w
+    : clamp(uSeq.x * uSeq.y - float(ch - 5), 0.0, 1.0);
   // a warm interior flicker, very slight, so lit windows read as lived in
   float life = 0.94 + 0.06 * sin(uTime * 2.3 + vWP.x * 0.7 + vWP.z * 0.4);
   col = mix(col, vCol * uWarm * life, vGlow.x * on);
   gl_FragColor = vec4(fogApply(col, vWP), 1.0);
 }`;
 
-/** the architecture material: painted light, plus switched glow */
-export function archMaterial(c: Common) {
+/** the architecture material: painted light, plus switched glow; `pulse` (a local base height) animates level meters */
+export function archMaterial(c: Common, o: { pulse?: number; warm?: [number, number, number]; steps?: number } = {}) {
   return new THREE.ShaderMaterial({
     vertexShader: ARCH_VS,
     fragmentShader: ARCH_FS,
-    uniforms: { ...c, uOn: { value: new THREE.Vector4() }, uWarm: { value: new THREE.Vector3(1.55, 1.3, 1.0) } },
+    defines: o.pulse !== undefined ? { PULSE: '' } : {},
+    uniforms: {
+      ...c,
+      uOn: { value: new THREE.Vector4() },
+      uWarm: { value: new THREE.Vector3(...(o.warm ?? [1.55, 1.3, 1.0])) },
+      uSeq: { value: new THREE.Vector2(0, o.steps ?? 1) },
+      uBase: { value: o.pulse ?? 0 },
+      uLevel: { value: 0 },
+    },
   });
 }
 
@@ -153,13 +197,16 @@ void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vWP = wp.xyz
 
 const SCREEN_FS = /* glsl */ `
 ${COMMON}
-uniform sampler2D uA; uniform sampler2D uB; uniform float uMix; uniform float uOn; uniform float uScroll; uniform vec2 uCrop;
+uniform sampler2D uA; uniform sampler2D uB; uniform float uMix; uniform float uOn; uniform float uScroll; uniform vec2 uCrop; uniform float uWipe;
 varying vec2 vUv; varying vec3 vWP;
 void main(){
   // the page drifts slowly, as if someone were reading it; uCrop picks the part of the screenshot shown
   vec2 uv = vec2(vUv.x, 1.0 - (1.0 - vUv.y) * uCrop.y - uScroll * (1.0 - uCrop.y));
   vec3 a = texture2D(uA, uv).rgb, b = texture2D(uB, uv).rgb;
-  vec3 col = mix(a, b, smoothstep(0.0, 1.0, uMix));
+  // a crossfade, or (uWipe) a front that sweeps across the picture, as a reconstruction would
+  float m = uWipe > 0.5 ? smoothstep(vUv.x - 0.04, vUv.x + 0.04, uMix * 1.1 - 0.05) : smoothstep(0.0, 1.0, uMix);
+  vec3 col = mix(a, b, m);
+  if (uWipe > 0.5) col += vec3(0.85, 1.0, 0.3) * 0.5 * (1.0 - smoothstep(0.0, 0.012, abs(vUv.x - (uMix * 1.1 - 0.05)))) * step(0.01, uMix) * step(uMix, 0.99);
   // powering on: a bright line opens from the middle, then the picture warms up
   float open = smoothstep(0.0, 0.35, uOn);
   float band = step(abs(vUv.y - 0.5), open * 0.5);
@@ -185,6 +232,7 @@ export function screenMaterial(c: Common) {
       uOn: { value: 0 },
       uScroll: { value: 0 },
       uCrop: { value: new THREE.Vector2(1, 1) },
+      uWipe: { value: 0 },
     },
   });
 }

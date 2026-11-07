@@ -94,9 +94,13 @@ function Rig() {
         dCam.copy(d.cam);
         dLook.copy(d.look);
         if (phone) {
-          // portrait screens step back so the café's width still fits
+          // portrait screens: aim at the world's middle, step back so its width still fits, and keep it in the
+          // upper half of the frame, above the caption sheet
           dir.subVectors(dCam, dLook);
-          dCam.copy(dLook).addScaledVector(dir, 1 / Math.sqrt(Math.min(1, size.width / size.height)) * 0.8);
+          if (d.centre) dLook.copy(d.centre);
+          const back = Math.min(1.6, 1.05 / Math.sqrt(Math.min(1, size.width / size.height)));
+          dCam.copy(dLook).addScaledVector(dir, back);
+          dLook.setY(dLook.y - dir.length() * back * 0.035);
         }
         outCam.lerp(dCam, w);
         outLook.lerp(dLook, w);

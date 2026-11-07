@@ -10,7 +10,16 @@ import { COMMON, commonUniforms, barkMaterial, crystalMaterial, leafDepthMateria
 import { clusterGeometry, frondGeometry, frondTexture, instanced, leafTexture, scatterForest, taperTube } from './flora';
 import { populate, type FaunaSites } from './fauna';
 import { lensesFor, STOPS } from '../camera';
-import { noirWorld, type Pad, type ProjectWorld } from './worlds/noir';
+import { akashaWorld } from './worlds/akasha';
+import { gramaWorld } from './worlds/grama';
+import { kramaWorld } from './worlds/krama';
+import { noirWorld } from './worlds/noir';
+import { portfolioWorld } from './worlds/portfolio';
+import { prahariWorld } from './worlds/prahari';
+import { rintiWorld } from './worlds/rinti';
+import { skycastWorld } from './worlds/skycast';
+import { type Pad, type ProjectWorld, setTextureUploader } from './worlds/stage';
+import { tarangWorld } from './worlds/tarang';
 
 /**
  * The Veil Archipelago environment: the sculpted hero mountain (baked in
@@ -39,7 +48,7 @@ export interface Environment {
   /** `scroll`: the page position as a float stop index (STOPS), for the creatures' cues */
   update(camera: THREE.Camera, time: number, scroll?: number, presentation?: (far: number) => number): void;
   /** project worlds built on formations: their detail shots (world space), for the camera */
-  worlds: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3 } }[];
+  worlds: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3; centre?: THREE.Vector3 } }[];
 }
 
 const S = HERO_SCALE;
@@ -413,8 +422,21 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
   // the Mossback herd's formation (see below)
   const HERD_ON = 8;
   // formations that host a project world (FAR index -> builder); each gets a levelled pad facing its shot
-  const WORLDS: Record<number, (pad: Pad) => ProjectWorld> = { 0: (pad) => noirWorld(c, pad, opts.base ?? '/') };
+  // keyed by formation: each featured project's island (camera.ts ISLAND_SHOTS says which formation is whose)
+  const base = opts.base ?? '/';
+  const WORLDS: Record<number, (pad: Pad) => ProjectWorld> = {
+    8: (pad) => tarangWorld(c, pad, base),
+    7: (pad) => rintiWorld(c, pad, base),
+    5: (pad) => akashaWorld(c, pad, base),
+    3: (pad) => skycastWorld(c, pad),
+    1: (pad) => kramaWorld(c, pad, base),
+    4: (pad) => gramaWorld(c, pad),
+    0: (pad) => noirWorld(c, pad, base),
+    2: (pad) => prahariWorld(c, pad, base),
+    6: (pad) => portfolioWorld(c, pad, base),
+  };
   const worlds: { far: number; world: ProjectWorld }[] = [];
+  setTextureUploader((t) => renderer.initTexture(t));
   // mesh all nine off the main thread (two workers), then dress them here one per frame
   const specs = far.map((f) => {
     const r = rng(f.seed);
@@ -535,6 +557,9 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
     islandBounds[i].max.y += f.s * 0.42;
     const rock = rockMaterial(c, f.s, { ...farPalettes[f.seed % 2], ...farMoss[i % 3] }, undefined, true);
     const clearings: { p: THREE.Vector3; r: number; to?: THREE.Vector3 }[] = [];
+    // a project world's pad first: the herd (and the trees) keep off it
+    const pad: Pad | null = WORLDS[i] ? findPad(hiGeo, f, lensesFor(i)) : null;
+    const padLocal = pad ? pad.p.clone().sub(new THREE.Vector3(...f.at)) : null;
     if (i === HERD_ON) {
       // a meadow for the Mossback herd in plain sight of this formation's own project shot, on desktop and
       // phone alike (camera.ts says where those lenses stand)
@@ -587,6 +612,7 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         // best first: toward the lens, and high; the costly tests stop at the first spot that passes
         const ranked = flat
           .filter((k) => pp.getY(k) >= high)
+          .filter((k) => !padLocal || Math.hypot(pp.getX(k) - padLocal.x, pp.getZ(k) - padLocal.z) > 20)
           .map((k) => ({ k, sc: pp.getX(k) * toCam.x + pp.getZ(k) * toCam.z + pp.getY(k) * 0.6 }))
           .sort((x, y) => y.sc - x.sc);
         const need = flat.length * 0.04;
@@ -618,16 +644,16 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
         }
       }
     }
-    let pad: Pad | null = null;
-    if (WORLDS[i]) {
-      pad = findPad(hiGeo, f, lensesFor(i));
-      // the café's terrace and its sightlines stay free of trees (local coordinates)
+    if (pad) {
+      // the world's terrace and its sightlines stay free of trees (local coordinates)
       const lp = pad.p.clone().sub(new THREE.Vector3(...f.at));
       clearings.push({ p: lp, r: 15 });
       for (const cam of lensesFor(i)) {
         const to = cam.clone().sub(new THREE.Vector3(...f.at));
         clearings.push({ p: lp.clone().setY(lp.y + 3), to: lp.clone().lerp(to, 60 / to.distanceTo(lp)), r: 6 });
       }
+      // the detail shot comes in low, in front of the world: keep that approach open too
+      clearings.push({ p: lp.clone().setY(lp.y + 2), to: lp.clone().addScaledVector(pad.face, 32).setY(lp.y + 6), r: 9 });
     }
     const { flora: ff } = scatterForest(hiGeo, {
       seed: f.seed,
@@ -915,7 +941,12 @@ export async function buildEnvironment(renderer: THREE.WebGLRenderer, opts: Envi
       c.uTime.value = time;
       c.uCam.value.copy(camera.position);
       fauna.update(time, scroll);
-      for (const w of worlds) w.world.update(time, presentation?.(w.far) ?? 1);
+      for (const w of worlds) {
+        // a world is a few pixels from far off: skip it (and its draw calls) until the camera comes near
+        const near = camera.position.distanceToSquared(w.world.group.position) < 340 * 340;
+        w.world.group.visible = near;
+        if (near) w.world.update(time, presentation?.(w.far) ?? 1);
+      }
       sky.position.copy(camera.position);
     },
   };

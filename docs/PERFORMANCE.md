@@ -169,6 +169,23 @@ A/B against 323998c (production builds, back to back, same machine):
 
 The two builds are level. The spread between runs is the machine, not the build: the two 1280 pairs moved together with the load, and the first phone-size old run (138) caught the machine idle. When the machine was quiet, the new build scrolled at 67 FPS at 1280×800. 1920×1080 is still below 60.
 
+## All nine project worlds
+
+The eight new worlds bring the total to about 31k triangles in 47 meshes (see `docs/WORLDS.md`). Three measures keep that cost down:
+- **Nothing is uploaded per frame.** Spinning parts are separate meshes that only change their transform. Lights, meters, ripples and the sky screen run on uniforms.
+- **Distance culling.** A world more than 340 units from the camera is hidden and not updated, so only the one or two worlds near the current stop are drawn.
+- **Textures upload on load.** The first A/B showed two long tasks per scroll run (none before). The cause: screenshots arrive after the warm-up draw, so each one uploaded the first time its world came into view. Every texture, and every sign repainted when its font arrives, now goes to `renderer.initTexture` as soon as it exists. On re-measuring, the long tasks were gone.
+
+A/B against a250d6f (production builds, back to back, same machine, after the upload fix):
+
+| Viewport | Before scroll FPS | After scroll FPS | Long tasks while scrolling |
+| --- | --- | --- | --- |
+| 1280×800, three pairs | 47.3 / 47.3 / 36.1 | 46.0 / 46.2 / 35.3 | 0 / 0 |
+| 1920×1080 | 36.8 | 35.3 | 0 / 0 |
+| 375×812, three pairs | 75.3 / 66.1 / 66.0 | 65.3 / 65.4 / 67.1 | 0 / 0 |
+
+The new build runs 1 to 4% behind at desktop sizes and level at phone size; the one 10 FPS phone gap did not repeat. The machine was loaded throughout: the same old build measured 36 to 65 FPS at 1280 across this session. 60 FPS is not confirmed here.
+
 ## Not yet at target
 
 - **1920×1080 on this iGPU** holds about 53 FPS, not 60. It settles at a reduced resolution (×0.72) to get there.

@@ -1,69 +1,127 @@
 # Project worlds
 
-Each project island is to carry a small world built from that project. Noir Café is the first, and it is the prototype for the rest. The other islands keep their current dressing until Noir is approved.
+Each featured project's island carries a small world built from that project. Noir Café came first, as the prototype. Once it was approved, the other eight followed on the same principles.
 
 **Rule.** Everything in a world comes from the project itself:
 - its palette and typeface;
 - its own screenshots;
 - features its README documents.
 
-Nothing is invented. No world claims a role or a contribution that `src/data/projects.ts` does not record.
+Nothing is invented. No world claims a role or a contribution that `src/data/projects.ts` does not record. Where a project has no screenshots (SkyCast, Grama Sathi), its display draws something that is plainly not a reading or a screen.
 
-## Noir Café (formation 0, stop 7)
+## Code
 
-Code: `src/components/world/veil/worlds/noir.ts`, built from the shared kit in `worlds/kit.ts`.
+- `src/components/world/veil/worlds/kit.ts` holds the builder and materials:
+  - **Builder** merges boxes, turned profiles, discs and struts into one vertex-coloured mesh.
+  - **Architecture material** provides painted light with switched glow:
+    - four channels (`uOn`): lamps, windows, accents, screen frame;
+    - a run of lights that come on one after another (`SEQ(k)`, `uSeq`);
+    - optional level-meter pulsing (`PULSE`).
+  - **Screen material** crossfades, or wipes when `uWipe` is set.
+  - **Steam.**
+  - **Lit cards.**
+- `worlds/stage.ts` holds the shared pieces:
+  - the `Pad` and `ProjectWorld` types;
+  - plinth, lamps;
+  - the kiosk display (`kiosk`), canvas signs (`canvasCard`), a label strip in one draw call (`labels`);
+  - ripples, a procedural sky screen;
+  - the shared timeline (`beats`);
+  - `detailShot`;
+  - the texture uploader.
+- One file per world. The environment keys them by formation (`WORLDS` in `environment.ts`).
 
-| Piece | Source in the project |
-| --- | --- |
-| Charcoal hall, cream tower, copper trim | Palette `#1b1410` / `#f3e9dc` / `#c98a4b` |
-| Wordmark on the fascia: a ring, then NOIR CAFÉ | Cormorant Garamond, the brand display face (OFL; `public/world/noir/cormorant.woff2` with its licence) |
-| Ordering kiosk whose screen cycles menu, reservation and shop | The repo's own README screenshots (`assets/readme/screens/*-desktop.jpg`), resized to 1024 px WebP in `public/world/noir/` |
-| A-frame board listing Menu / メニュー / Carte / Menù with EN·USD, JA·JPY, FR·EUR, IT·GBP | The four locales and currencies the site ships |
-| Giant latte with a rosetta and a steam plume | The latte pour of the case-study world (`components/work/worlds/NoirWorld.tsx`) |
-| Terrace: five tables, cups steaming | Scenery |
+## The nine worlds
 
-**Size.** About 4.8k triangles in 7 meshes, so 7 draw calls. The architecture is one merged mesh with baked colour and AO. Lamps, windows, accents and the screen frame switch on through four glow channels in one material (`uOn`). The steam is one mesh of camera-facing wisp cards.
+| Project (formation) | What stands there | From the project | Size |
+| --- | --- | --- | --- |
+| Tarang (8) | Band shell in lime and ink. A record spinning on a room-sized deck, its tonearm swinging on. Sixteen level meters that dance once the music starts. Speakers sending rings across the terrace. | README screenshots: home, now playing, stats | 2.8k tris, 6 meshes |
+| Rinti AI (7) | Cobalt observatory with a lime slit. The research pipeline the project runs (plan, search, read, check claims, write) as five beacons lit in order. Source cards circling and gathering above the dome. | README screenshots: sign-in, sign-up | 3.0k, 5 |
+| AkashaLens (5) | Ground station. A dish that swings from stow onto its pass. A great lens whose glass sweeps a clear frame across a cloudy one. | The repo's `dataset/` cloudy/clear pairs (training images, not model output) | 4.4k, 5 |
+| SkyCast (3) | Weather station on the smallest spire. Lattice mast, spinning anemometer, wind vane, louvred instrument screen, rain gauge. A display running a sky through the times of day. | No screenshots. The sky mirrors the app's animated sky. No readings are shown. | 1.5k, 5 |
+| Krama (1) | Vermilion gallery with the outlined wordmark on its roof. An ink vitrine lit inside. One car-sized sneaker turning on a plinth. Drop boxes. | README screenshots: home, product, shop, admin | 5.2k, 4 |
+| Grama Sathi (4) | Village chaupal. Two thatched huts, a charpai on a raised platform, a loudspeaker whose voice goes out in rings. | The name board says ग्राम साथी, as the case-study world sets it. Three posts for the pipeline the project lists: faster-whisper, Llama 3.3, edge-tts. There is no repository, so there is no screen. | 2.5k, 4 |
+| Noir Café (0) | Charcoal hall, cream tower, terrace with five tables. Giant latte. Kiosk. Four-locale menu board. | Palette; Cormorant wordmark (OFL, licence alongside); README screenshots: menu, reservation, shop | 4.8k, 7 |
+| PRAHARI (2) | Open pit stepping down inside a raised berm. Sensor posts that report in turn until one turns red. Safety-yellow headframe turning its sheave. Control room. | README screenshot: sign-in. Illustrative only: no number comes from the product. | 1.9k, 4 |
+| Portfolio (6) | The site's instrument as an orrery: the SK monogram, three tilted rings with three bodies. Nine lights round the dais for the nine featured projects. | This site's own pages, captured from the current build (`public/world/portfolio/`) | 4.5k, 7 |
 
-**Placement.** `findPad` (environment.ts) chooses where the world stands:
-- It looks for level ground near the top of the formation that faces the lens.
+All nine together come to about 31k triangles and 47 meshes. A world is skipped entirely (not drawn, not updated) while the camera is more than 340 units from it, so only the one or two worlds near the current stop cost anything.
+
+**Licences.** The screenshots come from the owner's own repositories, which are public with LICENSE files. Cormorant Garamond is SIL OFL 1.1. Its licence file (`public/world/noir/OFL-cormorant.txt`) was empty upstream, in noir-cafe's `src/fonts/OFL.txt`. It now holds the OFL 1.1 text with Cormorant's copyright line.
+
+## Placement
+
+`findPad` (environment.ts) chooses where each world stands:
+- It looks for level ground near the top of the formation, on the side that faces the lens.
 - The lens position comes from `lensesFor`, the same lenses the herd uses.
-- It penalises any point where rock rises through the footprint.
+- It penalises points where rock rises through the footprint.
 
-Trees are kept off the pad and off the sightlines to every lens, using capsule clearings.
+Trees are kept clear of three areas, using capsule clearings:
+- the pad;
+- the sightlines to every lens;
+- the low approach of the detail shot.
+
+On Tarang's formation, the Mossback herd's meadow is kept at least 20 units from the pad.
 
 ## Choreography
 
-The chapter is now 300svh tall (240svh on phones). Inside it, `track.phase()` gives the raw position `u` (0 to 1) through the stretch. The camera holds on the island until `PROJECT_HOLD` (0.62), then travels on to the next island.
+Each chapter is 300svh tall (240svh on phones). `track.phase()` gives the raw position `u` (0 to 1) through the stretch. The camera holds on the island until `PROJECT_HOLD` (0.62), then travels on.
+
+The worlds wake on the presentation value `a = u / PROJECT_HOLD`. `beats()` times them against the move-in, so each world comes alive as the camera arrives.
 
 | `u` | What happens |
 | --- | --- |
-| 0 to 0.08 | **Arrival.** The establishing shot, the same island framing as before. |
-| 0.08 to 0.46 | **Move in.** The camera eases toward the world's detail shot (`DETAIL_IN`, smoothstep). The detail shot is set in the world's own frame and turned into world space. |
-| 0.06 to 0.32 | **The café opens.** The order is: lamps, steam, windows, copper accents, wordmark (lettered in left to right), screen (a power-on band). These run on the presentation value `a = u / PROJECT_HOLD`. |
+| 0 to 0.08 | **Arrival.** The establishing shot. |
+| 0.08 to 0.46 | **Move in.** The camera eases toward the world's own detail shot (`DETAIL_IN`). |
+| 0.19 to 0.45 | **The world wakes.** Lamps first, then the building's light, accents and sign (lettered in), each world's signature motion, the run of sequenced lights, and finally the display powering on. |
 | 0.40 | **Introduction.** The caption appears (`data-reveal`). |
-| 0.40 to 0.62 | **Exploration.** The camera rests on the detail shot. The kiosk keeps cycling the screenshots. |
+| 0.40 to 0.62 | **Exploration.** The camera rests. Displays keep cycling; records, rings and anemometers keep turning. |
 | above 0.72 | **Departure.** The caption leaves and the camera travels. The world stays lit once passed. |
 
-Scrolling back reverses every step. Under `prefers-reduced-motion` (STILL), the world is fully lit and the caption shows whenever its chapter is active.
+Signature motion per world:
 
-**Slower, but not laggy.** The pacing comes from chapter height alone. Lenis is untouched (`lerp 0.1`) and there are no added delays or extra damping. Input moves the camera on the same frame.
+| World | Signature motion |
+| --- | --- |
+| Tarang | The arm swings on, the record spins up, the meters rise. |
+| Rinti | Beacons light plan → write, and the sources gather. |
+| Akasha | The dish slews onto its pass; the lens wipes cloudy to clear. |
+| SkyCast | The wind gets up, and the sky starts its day. |
+| Krama | The sneaker turns to present its side; spotlights come on one by one. |
+| Grama Sathi | The pipeline posts light hear → answer → speak, then the loudspeaker's rings go out. |
+| Noir Café | Steam, lamps, windows, wordmark, then the kiosk. |
+| PRAHARI | Sensors report in, one goes red, and the sheave turns. |
+| Portfolio | The project lights come on, and the orrery spins up. |
+
+Scrolling back reverses every step. Under `prefers-reduced-motion`, every world is fully lit and the caption shows whenever its chapter is active.
+
+**Composition.** Each world sets its own detail shot in its own frame:
+- low and frontal for Tarang;
+- high over Rinti's pipeline arc;
+- low under Akasha's lens and dish;
+- up the SkyCast mast;
+- three-quarter on Krama's sneaker;
+- raking across Grama's chaupal;
+- straight down into PRAHARI's pit;
+- level with the orrery.
+
+On desktop the look point sits left of the world's middle, so the world fills the right of the frame, clear of the caption. On phones the caption is a sheet below, so the camera aims at the world's `centre`, steps back to fit its width, and keeps it in the upper half.
+
+**Slower, but not laggy.** The pacing comes from chapter height alone. Lenis is untouched (`lerp 0.1`). There are no added delays and no extra damping.
 
 ## Caption
 
-The caption is still HTML, in the project's own colours: `--pal-bg`, `--pal-fg` and `--pal-ac` come from `p.palette`. It is a translucent panel at 90%, and solid under `prefers-reduced-transparency`.
+The caption is HTML, in the project's own colours (`--pal-bg`, `--pal-fg`, `--pal-ac` from `p.palette`). It is translucent, and solid under `prefers-reduced-transparency`.
 
 It holds:
-- the kicker: number, category, year;
-- the title and the tagline;
-- the role and team, when the data has them;
-- the description, folded under "About the project" (`<details>`);
+- the kicker;
+- the title and tagline;
+- role and team, when the data has them;
+- the description, folded under "About the project";
 - up to five technologies;
-- the links: case study, live site, source.
-
-It stays in the left gutter, clear of the island. On phones it is a bottom sheet.
+- the links.
 
 ## Open
 
-- On phones, the kiosk screen falls just outside the right edge of the detail shot.
-- The bar and pendants inside the glazing are hard to read through the painted pass.
-- No other project has a world yet. The brief's examples (ArthaYukti, SoleVerse) are not projects in `src/data/projects.ts`. The nine featured projects are Tarang, Rinti, Akasha, SkyCast, Krama, Grama Sathi, Noir Café, Prahari and this portfolio.
+- The Mossbacks graze just behind Tarang's band shell. Sized to read from the establishing shot, they tower over it in the detail shot.
+- On phones, some displays and roof signs (Krama's wordmark) touch the frame edge.
+- Noir's bar and pendants behind the glazing are hard to read through the painted pass.
+- The brief's SoleVerse is Krama: the data records it as Krama's former name. ArthaYukti is not in the project data, so it has no island until its details are supplied.

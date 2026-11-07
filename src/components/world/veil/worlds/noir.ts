@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Common } from '../shaders';
 import { archMaterial, Builder, cardMaterial, CH, ease, hex, screenMaterial, steam } from './kit';
+import { beats, type Pad, type ProjectWorld, texture, uploadTexture } from './stage';
 
 /**
  * NOIR CAFÉ's island: a coffee house that exists only as a website, given a
@@ -18,12 +19,6 @@ import { archMaterial, Builder, cardMaterial, CH, ease, hex, screenMaterial, ste
 const ESPRESSO = hex('#1b1410'), CHARCOAL = hex('#2b2420'), CREAM = hex('#efe6da'), COPPER = hex('#c98a4b');
 const STONE = hex('#b9ad9c'), STONE_DARK = hex('#8f8577'), OAK = hex('#9a7652'), GLASS = hex('#c98a4b'), CERAMIC = hex('#f4efe8');
 
-export interface Pad {
-  /** world position of the pad's centre, on the ground */
-  p: THREE.Vector3;
-  /** horizontal unit vector from the pad toward the project camera */
-  face: THREE.Vector3;
-}
 
 /** the café wordmark as the real site sets it: a ring, then NOIR CAFÉ in Cormorant capitals */
 function wordmark(font: string) {
@@ -113,14 +108,6 @@ function rosetta() {
   return t;
 }
 
-export interface ProjectWorld {
-  group: THREE.Group;
-  /** the detail shot, world space: where the camera moves in to once the island is established */
-  detail: { cam: THREE.Vector3; look: THREE.Vector3 };
-  triangles: number;
-  /** a: 0..1 progress of the presentation (0 before arrival, 1 fully active) */
-  update(t: number, a: number): void;
-}
 
 export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   const group = new THREE.Group();
@@ -250,8 +237,8 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
     ff.load()
       .then((f) => {
         document.fonts.add(f);
-        signMat.uniforms.uMap.value = wordmark(font);
-        boardMat.uniforms.uMap.value = menuBoard(font);
+        signMat.uniforms.uMap.value = uploadTexture(wordmark(font));
+        boardMat.uniforms.uMap.value = uploadTexture(menuBoard(font));
       })
       .catch(() => {});
   }
@@ -264,13 +251,7 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   group.add(screen);
   scr.uniforms.uCrop.value.set(1, 1);
   const pages: THREE.Texture[] = [];
-  const loader = new THREE.TextureLoader();
-  for (const n of ['menu', 'reservation', 'shop']) {
-    const t = loader.load(`${base}world/noir/${n}.webp`);
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
-    pages.push(t);
-  }
+  for (const n of ['menu', 'reservation', 'shop']) pages.push(texture(`${base}world/noir/${n}.webp`));
   scr.uniforms.uA.value = pages[0];
   scr.uniforms.uB.value = pages[1];
 
@@ -284,6 +265,7 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
   const detail = {
     cam: V(9, 9.5, 30).applyMatrix4(group.matrixWorld),
     look: V(-2.5, 2.4, -0.5).applyMatrix4(group.matrixWorld),
+    centre: V(0.6, 2.4, -0.8).applyMatrix4(group.matrixWorld),
   };
 
   return {
@@ -292,8 +274,8 @@ export function noirWorld(c: Common, pad: Pad, base = '/'): ProjectWorld {
     triangles: b.triangles + 4 * 2 + cups.length * 2 + 6,
     update(t, a) {
       // the choreography, in the order the brief asks for: the place first, then its life, then the product
-      const lamps = ease(a, 0.1, 0.26), windows = ease(a, 0.18, 0.34), accents = ease(a, 0.28, 0.4);
-      const signOn = ease(a, 0.3, 0.46), screenOn = ease(a, 0.38, 0.52), steamOn = ease(a, 0.12, 0.3);
+      const kb = beats(a);
+      const lamps = kb.lamps, windows = kb.windows, accents = kb.accents, signOn = kb.sign, screenOn = kb.screen, steamOn = ease(a, 0.32, 0.5);
       mat.uniforms.uOn.value.set(windows, accents, lamps, screenOn);
       signMat.uniforms.uOn.value = signOn > 0 ? 1 : 0;
       signMat.uniforms.uReveal.value = signOn;

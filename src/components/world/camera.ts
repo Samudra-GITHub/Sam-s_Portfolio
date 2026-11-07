@@ -68,8 +68,8 @@ const bounds: (THREE.Box3 | undefined)[] = [];
 export const setIslandBounds = (b: THREE.Box3[]) => b.forEach((x, i) => (bounds[i] = x));
 
 /** Detail shots of the project worlds built on formations (FAR index -> world-space pose), set after the build. */
-const details: ({ cam: THREE.Vector3; look: THREE.Vector3 } | undefined)[] = [];
-export const setIslandDetails = (d: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3 } }[]) => d.forEach((x) => (details[x.far] = x.detail));
+const details: ({ cam: THREE.Vector3; look: THREE.Vector3; centre?: THREE.Vector3 } | undefined)[] = [];
+export const setIslandDetails = (d: { far: number; detail: { cam: THREE.Vector3; look: THREE.Vector3; centre?: THREE.Vector3 } }[]) => d.forEach((x) => (details[x.far] = x.detail));
 export const islandDetail = (far: number) => details[far];
 
 /**
