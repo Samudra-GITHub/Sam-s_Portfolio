@@ -10,6 +10,7 @@ import { gsap, ScrollTrigger } from '../lib/gsap';
 import { matches, MQ } from '../lib/runtime';
 import Magnetic from '../components/core/Magnetic';
 import { createSculpture } from './sculpture';
+import { About, Contact, Experiments, Toolkit, Universe } from './sections';
 import './studio.css';
 
 const W = `${import.meta.env.BASE_URL}world`;
@@ -272,15 +273,12 @@ function Noir() {
   );
 }
 
-const SHOWN = ['tarang', 'akasha-lens', 'krama', 'rinti-ai', 'noir-cafe'];
-
 /* ------------------------------------------------------------ the page */
 
 export default function StudioHome() {
   const root = useRef<HTMLElement>(null);
   const { canvas, hero, intro, failed } = useSculpture();
   useStudioMotion(root);
-  const rest = projects.filter((p) => !SHOWN.includes(p.slug) && p.tier !== 'earlier');
 
   return (
     <main id="main" className="studio" ref={root}>
@@ -290,9 +288,9 @@ export default function StudioHome() {
         <Link to="/" className="st-wordmark">Samudra Kar</Link>
         <nav aria-label="Main">
           <a href="#work">Work</a>
-          <Link to="/projects">Projects</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
+          <a href="#universe">Index</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
         </nav>
       </header>
 
@@ -352,21 +350,13 @@ export default function StudioHome() {
         <Krama />
         <Rinti />
         <Noir />
-        <div className="st-index" data-reveal>
-          <h2 className="st-title" data-r>More projects</h2>
-          <ul>
-            {rest.map((p) => (
-              <li key={p.id} data-r>
-                <Link to={`/work/${p.slug}`}>
-                  <span className="st-index__name">{p.title}</span>
-                  <span className="st-meta">{p.category} · {p.year}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <Link className="st-button st-button--ghost" to="/projects">All projects</Link>
-        </div>
       </section>
+
+      <Universe />
+      <About />
+      <Experiments />
+      <Toolkit />
+      <Contact />
     </main>
   );
 }
